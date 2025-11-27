@@ -1,0 +1,45 @@
+# General
+docker-compose.yml
+.vscode/
+.env
+
+# Python
+backend/__pycache__/
+backend/*/__pycache__/
+backend/*/*/__pycache__/
+backend/*/*/*/__pycache__/
+backend/*/*/*/*/__pycache__/
+backend/*.pyc
+
+
+# Frontend
+# Logs
+frontend/app/.gitignore
+frontend/logs
+frontend/*.log
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+frontend/lerna-debug.log*
+frontend/dev-dist
+frontend/node_modules
+frontend/.DS_Store
+frontend/dist
+frontend/dist-ssr
+frontend/coverage
+frontend/*.local
+
+
+# Editor directories and files
+frontend/.vscode/*
+frontend/!.vscode/extensions.json
+.idea
+frontend/*.suo
+frontend/*.ntvs*
+frontend/*.njsproj
+frontend/*.sln
+frontend/*.sw?
+
+frontend/*.tsbuildinfo
+.DS_Store
