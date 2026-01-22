@@ -34,13 +34,13 @@ class BasePDF(FPDF):
         # Get the absolute path to the image
         script_dir = path.dirname(path.abspath(__file__))
         image_path = path.join(
-            script_dir, "./assests/pimoo_3logos.png"
+            script_dir, "./assests/pimoo-logo.png"
         )  # Navigate to assets
 
         # Normalize the path for compatibility
         image_path = path.normpath(image_path)
         try:
-            self.image(image_path, 10, 8, 100)
+            self.image(image_path, 10, 8, 30)
         except Exception as e:
             print(e)
         self.set_font("free-sans", "", 10)
