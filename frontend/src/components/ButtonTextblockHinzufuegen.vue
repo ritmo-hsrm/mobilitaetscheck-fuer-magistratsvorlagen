@@ -1,6 +1,6 @@
 <template>
   <div class="relative inline-block max-w-5xl flex flex-nowrap">
-    <BaseButton @click="toggleList" class="plus-button">+ Textbaustein</BaseButton>
+    <Button icon="pi pi-plus" aria-label="Textbaustein" label="Textbaustein" :raised="showList" @click="toggleList"  />
     <transition name="fade">
       <div v-if="showList" class="dropdown">
         <div class="flex">
@@ -28,6 +28,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import { fetchItems } from '@/composables/crud'
 
@@ -48,7 +49,6 @@ const emit = defineEmits(['textblock-hinzufuegen'])
 
 const addTextblock = (block) => {
   emit('textblock-hinzufuegen', block.name)
-  toggleList()
 }
 
 const fetchTextblocks = async () => {
@@ -83,7 +83,7 @@ const filteredTextblocks = computed(() => {
 }
 
 .dropdown {
-  @apply absolute top-0 left-20 bg-white border rounded-lg border-gray-300 w-11/12 p-4 z-50;
+  @apply absolute top-full left-0 mt-2 bg-white border rounded-lg border-gray-300 shadow-xl w-11/12 p-4 z-50;
 }
 
 .search-input {
