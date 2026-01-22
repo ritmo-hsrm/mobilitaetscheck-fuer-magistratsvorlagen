@@ -25,16 +25,21 @@
               :min="-3"
               :max="3"
               :step="1"
-              :defaultValue="0"
               :invalid="!!errors.auswirkung"
               class="w-full mt-3"
+              :key="sliderKey"
+              :pt="{
+                root: { style: 'height: 1rem' },
+                range: { style: 'height: 100%' },
+                handle: { style: 'width: 1.5rem; height: 1.5rem; margin-top: -0.75rem; margin-left: -0.75rem; cursor: pointer' }
+              }"
             />
             <div class="relative w-full flex justify-between mt-2">
               <span
                 v-for="tick in 7"
                 :key="tick"
                 class="relative flex flex-col items-center cursor-pointer"
-                @click="moveSlider(index, tick - 4)"
+                @click="moveSlider(tick - 4)"
               >
                 <!-- Enlarge the clickable area around the tick -->
                 <div
@@ -108,7 +113,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, nextTick } from 'vue'
 import { useStorage } from '@vueuse/core'
 import { fetchItem, fetchItems, updateItemSilent } from '@/composables/crud'
 import { useForm } from 'vee-validate'
@@ -138,6 +143,7 @@ const props = defineProps({
 const optionsIndikatoren = ref([])
 const tickmarkLabels = useStorage('cachedTickmarkLabels', {})
 const optionsAuswirkungRaeumlich = useStorage('cachedAuswirkungRaeumlich', [])
+const sliderKey = ref(0)
 
 const fetchOptions = async () => {
   if (
@@ -170,7 +176,7 @@ onMounted(async () => {
 
 watch(
   () => props.item,
-  (newItem) => {
+  async (newItem) => {
     if (!newItem) return
     const {
       tangiert,
@@ -191,10 +197,13 @@ watch(
       eingabeZielOberId,
       zielUnterId
     })
+
+    // Force slider to re-render with new value
+    await nextTick()
+    sliderKey.value++
   },
   { immediate: true } // sofort beim ersten gesetzten Wert ausführen
 )
-
 const toggleTangiert = () => {
   setFieldValue('tangiert', !tangiert.value)
 }
@@ -226,4 +235,9 @@ const onSubmit = handleSubmit(async (values) => {
 defineExpose({ onSubmit, validate })
 </script>
 
-<style scoped></style>
+<style scoped>
+:deep(.p-slider:hover .p-slider-handle) {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+}
+</style>
