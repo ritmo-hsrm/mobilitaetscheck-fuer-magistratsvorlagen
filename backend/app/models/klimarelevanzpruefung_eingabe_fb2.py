@@ -89,25 +89,25 @@ class KlimarelevanzpruefungEingabeFb2(Base):
         nullable=True, comment="Teil 1 Frage 20"
     )
 
-    a2q1: Mapped[int] = mapped_column(
+    b2q1: Mapped[int] = mapped_column(
         ForeignKey("bool_erweitert.id", ondelete="SET NULL"),
         nullable=False,
         comment="Teil 2 Frage 1",
     )
-    a2q2: Mapped[Optional[str]] = mapped_column(
+    b2q2: Mapped[Optional[str]] = mapped_column(
         nullable=True,
         comment="Teil 2 Frage 2",
     )
-    a2q3: Mapped[Optional[str]] = mapped_column(
+    b2q3: Mapped[Optional[str]] = mapped_column(
         nullable=True,
         comment="Teil 2 Frage 3",
     )
-    a2q4: Mapped[Optional[int]] = mapped_column(
+    b2q4: Mapped[Optional[int]] = mapped_column(
         ForeignKey("bool_erweitert.id", ondelete="SET NULL"),
         nullable=True,
         comment="Teil 2 Frage 4",
     )
-    a2q5: Mapped[Optional[str]] = mapped_column(nullable=True, comment="Teil 2 Frage 5")
+    b2q5: Mapped[Optional[str]] = mapped_column(nullable=True, comment="Teil 2 Frage 5")
 
     gemeinde_id: Mapped[int] = mapped_column(
         ForeignKey("gemeinde.id", ondelete="CASCADE"),

@@ -59,12 +59,12 @@ const items = ref([
     label: 'Mobilitätschecks',
     route: `/magistratsvorlage/${route.params.id}/mobilitaetscheck`
   },
+  // {
+  //   label: 'Klimachecks',
+  //   route: `/magistratsvorlage/${route.params.id}/klimacheck`
+  // },
   {
-    label: 'Klimachecks',
-    route: `/magistratsvorlage/${route.params.id}/klimacheck`
-  },
-  {
-    label: 'Klimarelevanzprüfungen',
+    label: 'Klimarelevanzprüfung',
     route: `/magistratsvorlage/${route.params.id}/klimarelevanzpruefung`
   }
 ])

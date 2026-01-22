@@ -8,7 +8,7 @@
         header="Fragebogen A"
         :style="{ width: '50rem' }"
       >
-        <KlimarelevanzpruefungFormularEingabeFb1 />
+        <KlimarelevanzpruefungFormularEingabeFb1 @submit="onSubmit" />
       </Dialog>
       <li>
         Es handelt sich um eine <strong>physische Maßnahme oder eine Beschaffung </strong> oder um
@@ -31,7 +31,7 @@
         header="Fragebogen B"
         :style="{ width: '50rem' }"
       >
-        <KlimarelevanzpruefungFormularEingabeFb2 />
+        <KlimarelevanzpruefungFormularEingabeFb2 @submit="onSubmit" />
       </Dialog>
       <li>
         Es handelt sich um eine Planung / ein Konzept , das<strong>
@@ -52,7 +52,7 @@
         header="Fragebogen C"
         :style="{ width: '50rem' }"
       >
-        <KlimarelevanzpruefungFormularEingabeFb3 />
+        <KlimarelevanzpruefungFormularEingabeFb3 @submit="onSubmit" />
       </Dialog>
       <li>
         Es handelt sich um eine Planung, ein Konzept, oder ein Vorhaben, die
@@ -76,7 +76,7 @@
         header="Fragebogen D"
         :style="{ width: '50rem' }"
       >
-        <KlimarelevanzpruefungFormularEingabeFb4 />
+        <KlimarelevanzpruefungFormularEingabeFb4 @submit="onSubmit" />
       </Dialog>
       <li>
         Es handelt sich um ein Vorhaben, das
@@ -107,7 +107,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { fetchItem } from '@/composables/crud'
+import { createItem, fetchItem } from '@/composables/crud'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import Divider from 'primevue/divider'
@@ -135,6 +135,18 @@ const fetchData = async () => {
   klimarelevanzpruefung.value = await fetchItem(
     `/klimarelevanzpruefung/eingabe/${route.params.klimarelevanzpruefungId}`
   )
+}
+
+const onSubmit = async ({ fb, values}) => {
+  const response = await createItem({
+    model: `klimarelevanzpruefung/eingabe/fb${fb}`,
+    values,
+    detail: {
+      success: `Fragebogen ${fb} erfolgreich hinzugefügt`,
+      error: `Fehler beim Hinzufügen des Fragebogens ${fb}`
+    }
+  })
+  klimarelevanzpruefung.value.fb1 =  response
 }
 </script>
 

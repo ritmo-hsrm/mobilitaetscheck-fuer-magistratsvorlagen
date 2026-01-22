@@ -1,6 +1,8 @@
 <template>
-  <BaseHeading>Klimarelevanzprüfung bearbeiten</BaseHeading>
-  <KlimarelevanzpruefungFormulare />
+  <div>
+    <BaseHeading>Klimarelevanzprüfung bearbeiten</BaseHeading>
+    <KlimarelevanzpruefungFormulare />
+  </div>
 </template>
 
 <script setup>

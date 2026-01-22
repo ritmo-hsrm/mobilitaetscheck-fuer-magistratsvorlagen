@@ -779,6 +779,13 @@ const isLoading = ref(false)
 const optionBoolean = ref()
 const optionVorhaben = ref()
 
+const props = defineProps({
+  editMode: {
+    type: Boolean,
+    default: false
+  }}
+)
+
 onMounted(async () => {
   isLoading.value = true
   await fetchData()
@@ -874,9 +881,16 @@ const a2WeiterButtonDisabled = computed(() => {
   return true
 })
 
-const onSubmit = handleSubmit((values) => {
-  console.log('Form Values:', values)
+const emit = defineEmits(['update-item', 'add-item'])
+
+const onSubmit = handleSubmit(async (values) => {
+  if (props.editMode) {
+    emit('update-item', { modelId: props.item.id, values })
+  } else {
+    emit('add-item', values)
+  }
 })
+
 </script>
 
 <style></style>

@@ -202,6 +202,24 @@
                       <div class="flex items-center gap-2">
                         <router-link
                           :to="{
+                            name: 'magistratsvorlage-id-klimarelevanzpruefung',
+                            params: { id: item.id }
+                          }"
+                        >
+                          <Button
+                            :icon="
+                              item.klimachecks.length > 0
+                                ? 'pi pi-check-circle text-green-500'
+                                : 'pi pi-times-circle text-red-400'
+                            "
+                            label="Klimarelevanzprüfung"
+                            variant="text"
+                          />
+                        </router-link>
+                      </div>
+                      <!-- <div class="flex items-center gap-2">
+                        <router-link
+                          :to="{
                             name: 'magistratsvorlage-id-klimacheck',
                             params: { id: item.id }
                           }"
@@ -216,10 +234,10 @@
                             variant="text"
                           />
                         </router-link>
-                      </div>
+                      </div> -->
                     </div>
                     <!-- TODO Klimarelevanzprüfung -->
-                    <div class="col-span-3 font-bold">
+                    <!-- <div class="col-span-3 font-bold">
                       <div class="flex items-center gap-2">
                         <router-link
                           :to="{
@@ -238,7 +256,7 @@
                           />
                         </router-link>
                       </div>
-                    </div>
+                    </div> -->
                   </div>
                 </BaseCard>
               </router-link>
