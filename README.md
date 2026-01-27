@@ -9,7 +9,7 @@
 
 ## Inhaltsverzeichnis
 
-- [Dokumentation](https://mobilitaetscheck-docs.github.com/startseite)
+- [Dokumentation](https://johanngrobe.github.io/mobilitaetscheck-fuer-magistratsvorlagen/)
 - [Was ist der Mobilitätscheck für Magistratsvorlagen?](#was-ist-der-mobilitätscheck-für-magistratsvorlagen)
 - [Förderung](#förderung)
 - [License](#lizenz)
@@ -24,7 +24,7 @@ Der Mobilitätscheck für Magistratsvorlagen soll dabei unterstützen politisch 
 
 Es ist möglich den Mobilitätscheck für Magistratsvorlagen als Docker aufzusetzen. Ein Beispiel hierfür ist in "docker-compose.yml.example" dokumentiert.
 
-Mehr Informationen sind in der [Dokumentation](https://mobilitaetscheck-docs.github.com/startseite) nachlesbar.
+Mehr Informationen sind in der [Dokumentation](https://johanngrobe.github.io/mobilitaetscheck-fuer-magistratsvorlagen/) nachlesbar.
 
 ## Förderung
 
