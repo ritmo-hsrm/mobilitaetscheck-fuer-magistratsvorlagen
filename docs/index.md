@@ -22,4 +22,6 @@ Der letzte Schritt in der Entwicklung des Mobilitätschecks ist die Veröffentli
 
 ## Ihre Kommune möchte den Mobilitätscheck ausprobieren?
 
+[Hier geht es zur Instanz auf dem Server der Hochschule RheinMain](https://pimoo-1rz.fab.hs-rm.de/)
+
 Dann melden Sie sich gerne per Mail bei Johann Grobe (johann.grobe@hs-rm.de).

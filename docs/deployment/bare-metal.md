@@ -4,9 +4,9 @@ Diese Anleitung beschreibt, wie das Projekt **ohne Docker**, also direkt auf ein
 
 ---
 
-# 1. Voraussetzungen
+## 1. Voraussetzungen
 
-## Softwareanforderungen
+### Softwareanforderungen
 
 Auf dem Server müssen folgende Pakete installiert sein:
 
@@ -16,7 +16,25 @@ Auf dem Server müssen folgende Pakete installiert sein:
 
 ---
 
-# 2. Repository klonen
+## 1. Abhängigkeiten installieren
+
+```bash
+apt install -y \
+  build-essential \
+  git \
+  curl \
+  python3-dev
+```
+
+## 2. Notwendige Tools installieren
+
+Es werden folgende Tools benötigt. Diese sind aus den offiziellen Quellen zu installieren :
+
+- uv (Python) → https://docs.astral.sh/uv/
+- Node.js 22 → https://nodejs.org/en/download
+- PostgreSQL 17 → https://www.postgresql.org/download/
+
+## 2. Repository klonen
 
 ```bash
 git clone https://github.com/johanngrobe/mobilitaetscheck-fuer-magistratsvorlagen
@@ -24,7 +42,7 @@ git clone https://github.com/johanngrobe/mobilitaetscheck-fuer-magistratsvorlage
 
 ---
 
-# 3. Frontend installieren und builden
+## 3. Frontend installieren und builden
 
 Das Frontend basiert auf **Vite** und muss lokal gebaut werden.
 
@@ -44,7 +62,7 @@ Dieser Build wird später vom Backend ausgeliefert.
 
 ---
 
-# 4. Backend installieren
+## 4. Backend installieren
 
 Das Backend basiert auf **FastAPI** und verwendet **uv** zur Paketverwaltung.
 
@@ -55,7 +73,7 @@ uv sync --no-dev
 
 ---
 
-# 5. Umgebungsvariablen konfigurieren
+## 5. Umgebungsvariablen konfigurieren
 
 Erstelle eine `.env` Datei:
 
@@ -65,13 +83,32 @@ cp example.env .env
 
 Passe alle Variablen wie Domain, Datenbank‑Zugangsdaten und SMTP an deine Umgebung an.
 
-# 6. Datenbank einrichten
+## 6. Datenbank einrichten
 
-Richte ein Postgresql-Datenbank gemäß der `.env` Datei ein.
+Richte ein Postgresql-Datenbank gemäß der `.env` Datei ein. Nachfolgend sind die grundlegenden Befehle zur Einrichtung der Datenbank beschrieben.
+
+```bash
+sudo -u postgres createuser -P mobilitaetscheck
+sudo -u postgres createdb -O mobilitaetscheck mobilitaetscheck
+```
+
+Prüfe, ob die PostgreSQL Enconding UTF-8 sind.
+
+```bash
+sudo -u postgres psql -c "SHOW client_encoding;"
+sudo -u postgres psql -c "SHOW server_encoding;"
+```
+
+Falls einer der Werte SQL_ASCII ist, setze die Werte explizit auf UTF-8.
+
+```bash
+sudo -u postgres psql -c "ALTER ROLE mobilitaetscheck SET client_encoding = 'UTF8';"
+sudo -u postgres psql -c "ALTER DATABASE mobilitaetscheck SET client_encoding = 'UTF8';"
+```
 
 ---
 
-# 7. Backend starten
+## 7. Backend starten
 
 Das Backend kann über uvicorn gestartet werden.
 
@@ -93,7 +130,7 @@ API Docs:
 
 ---
 
-# 9. Optional: systemd-Service einrichten (für Produktion)
+## 9. Optional: systemd-Service einrichten (für Produktion)
 
 Datei erstellen:
 
@@ -123,5 +160,53 @@ Service aktivieren:
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable mobilitaetscheck
+sudo systemctl start mobilitaetscheck
+```
+
+---
+
+# Bare-Metal Update
+
+## 1. Service stoppen
+
+```bash
+sudo systemctl stop mobilitaetscheck
+```
+
+## 2. Repo aktualisieren
+
+```bash
+cd /pfad/zum/repo
+git pull
+```
+
+## 3. Frontend aktualisieren
+
+```bash
+cd frontend
+npm install
+npm run build
+```
+
+## 4. Backend aktualisieren
+
+```bash
+cd ../backend
+source ./.venv/bin/activate
+uv sync --no-dev
+alembic upgrade head
+```
+
+## 5. Datenbank migrieren
+
+```bash
+cd ../backend
+source ./.venv/bin/activate
+alembic upgrade head
+```
+
+## 6. Service starten
+
+```bash
 sudo systemctl start mobilitaetscheck
 ```

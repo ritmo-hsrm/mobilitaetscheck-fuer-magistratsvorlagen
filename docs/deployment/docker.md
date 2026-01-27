@@ -110,18 +110,19 @@ Neue Version deployen:
 
 1. Repository aktualisieren:
 
-   ```bash
-   git pull
-   ```
+```bash
+git pull
+```
 
 2. Neue Images ziehen (falls verwendet):
 
-   ```bash
-   docker compose pull
-   ```
+```bash
+docker compose pull
+```
 
 3. Neustarten:
 
-   ```bash
-   docker compose up -d
-   ```
+```bash
+docker compose down
+docker compose up -d
+```

@@ -9,7 +9,7 @@
 
 ## Inhaltsverzeichnis
 
-- [Dokumentation](https://johanngrobe.github.io/mobilitaetscheck-fuer-magistratsvorlagen/deployment/bare-metal/)
+- [Dokumentation](https://mobilitaetscheck-docs.github.com/startseite)
 - [Was ist der Mobilitätscheck für Magistratsvorlagen?](#was-ist-der-mobilitätscheck-für-magistratsvorlagen)
 - [Förderung](#förderung)
 - [License](#lizenz)
@@ -24,7 +24,7 @@ Der Mobilitätscheck für Magistratsvorlagen soll dabei unterstützen politisch 
 
 Es ist möglich den Mobilitätscheck für Magistratsvorlagen als Docker aufzusetzen. Ein Beispiel hierfür ist in "docker-compose.yml.example" dokumentiert.
 
-Mehr Informationen sind in der [DOcumentation](https://mobilitaetscheck-docs.github.com) nachlesbar.
+Mehr Informationen sind in der [Dokumentation](https://mobilitaetscheck-docs.github.com/startseite) nachlesbar.
 
 ## Förderung
 
@@ -32,4 +32,4 @@ Der Mobilitätscheck wird in dem Projekt pimoo (Plattform für integrierte Mobil
 
 ## Lizenz
 
-Dieses Projekt ist unter der MIT-Lizenz lizensiert - weitere Detail sind in der Datei [LICENSE](LICENSE) zu finden.
+Dieses Projekt ist unter der GNU-Lizenz lizensiert - weitere Detail sind in der Datei [LICENSE](LICENSE) zu finden.

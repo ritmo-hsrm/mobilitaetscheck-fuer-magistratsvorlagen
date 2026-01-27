@@ -3,6 +3,7 @@ site_url: https://mobilitaetcheck-fuer-magistratsvorlagen.gituhub.com
 theme:
   name: material
 nav:
+  - Startseite: index.md
   - Einführung:
       - Verwaltung: einfuehrung/verwaltung.md
       - Politik: einfuehrung/politik.md
@@ -10,5 +11,7 @@ nav:
   - Deployment:
       - Docker Compose: deployment/docker.md
       - Bare Metal: deployment/bare-metal.md
+      - Umgebungsvariablen: deployment/env.md
+  - Entwicklung: entwicklung.md
 plugins:
   - include-markdown
