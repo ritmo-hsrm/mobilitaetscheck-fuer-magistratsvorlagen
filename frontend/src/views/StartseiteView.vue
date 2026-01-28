@@ -3,22 +3,17 @@
     <BaseHeading>Mobilitätscheck für Magistratsvorlagen</BaseHeading>
     <section>
       <p>
-        Herzlich willkommen bei dem Mobilitätscheck für Magistratsvorlagen. Dies ist ein Online-Tool
-        um Magistratsvorlagen mit verkehrlichen Leitzielen der jeweiligen Kommune abzugleichen.
-        Entwickelt wird das Tool im Projekt pimoo (Plattform für integrierte Mobilität in Oberursel)
-        von der Hochschule RheinMain gemeinsam mit der Stadt Oberursel (Taunus) sowie den
-        Transferkommunen Taunusstein und Frankfurt am Main.
+        Herzlich willkommen bei dem Mobilitätscheck für Magistratsvorlagen. Dies ist ein Online-Tool, um kommunale Vorhaben mit den verkehrlichen Leitzielen der jeweiligen Kommune abzugleichen. Mit dem Online-Tool wird eine schematische Bewertung von Verkehrsprojekten vorgenommen, die Entscheidungsvorlagen für kommunale Gremien (Ratsvorlagen, Magistratsvorlagen) beigefügt wird.
+        </p>
+        <p>
+        Entwickelt wurde das Tool im Projekt pimoo (Plattform für integrierte Mobilität in Oberursel) von der Hochschule RheinMain gemeinsam mit der Stadt Oberursel (Taunus) sowie den Transferkommunen Taunusstein und Frankfurt am Main mit Förderung des Bundesministeriums für Forschung, Technologie und Raumfahrt (FKZ 01UV2428B)
+
       </p>
     </section>
     <section>
       <BaseSubheading>Was ist das Ziel des Mobilitätschecks?</BaseSubheading>
       <p>
-        Der Mobilitätscheck für Magistratsvorlagen soll dabei unterstützen politisch legitimierte
-        Leitziele einer Kommune einzuhalten und zu fördern. Bei Beratungen und Debatten um
-        Magistratsvorlagen dient der Mobilitätscheck als sachliche Diskussionsgrundlage. Auf diese
-        Weise sollen die Leitziele bei Debatten berücksichtigt werden und Orientierung für den
-        weiteren Verlauf der Debatte bieten. Die Auswirkungen einer Magistratsvorlage auf politisch
-        legitimierten Leitziele werden durch den Mobilitätscheck aufgezeigt und verdeutlicht.
+        Der Mobilitätscheck für Magistratsvorlagen soll dabei unterstützen, politisch legitimierte Leitziele einer Kommune einzuhalten und zu fördern. Bei Beratungen und Debatten um Magistratsvorlagen dient der Mobilitätscheck als sachliche Diskussionsgrundlage. Auf diese Weise sollen die Leitziele bei Debatten berücksichtigt werden und Orientierung für den weiteren Verlauf der Debatte bieten. Die Auswirkungen einer Magistratsvorlage auf politisch legitimierte Leitziele werden durch den Mobilitätscheck aufgezeigt und verdeutlicht.
       </p>
     </section>
     <section>
@@ -30,10 +25,7 @@
         <li>Bürgerschaft</li>
       </ul>
       <p>
-        Aktuell wird der Mobilitätscheck verstärkt mit einem Fokus auf die Verwaltung erprobt. Grund
-        dafür ist, dass Verwaltungsmitarbeitende Magistratsvorlagen für die Kommunalpolitik
-        erarbeiten. Die initiale Erstellung des Mobilitätschecks für eine Magistratsvorlage geht
-        somit auf die Verwaltung zurück.
+        Aktuell wird der Mobilitätscheck mit einem Fokus auf die Verwaltung erprobt. Grund dafür ist, dass Verwaltungsmitarbeitende Magistratsvorlagen für die Kommunalpolitik erarbeiten. Die initiale Erstellung des Mobilitätschecks für eine Magistratsvorlage geht somit auf die Verwaltung zurück.
       </p>
       <p>
         Sobald der Mobilitätscheck für Magistratsvorlagen mit Verwaltungsmitarbeitenden erprobt

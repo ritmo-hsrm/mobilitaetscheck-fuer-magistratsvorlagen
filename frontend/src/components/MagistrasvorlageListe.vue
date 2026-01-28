@@ -147,7 +147,7 @@
                 v-slot="{ navigate, href }"
               >
                 <BaseCard
-                  class="hover:bg-gray-100"
+                  class="hover:bg-gray-50"
                   :data-href="href"
                   @click="navigate"
                   @keydown.enter.prevent="navigate"
@@ -158,14 +158,14 @@
                     ><span class="font-bold text-lg">{{ item.name }}</span></template
                   >
                   <div class="grid grid-cols-12 gap-4">
-                    <div class="col-span-5 flex grid grid-cols-5 gap-x-2 gap-y-4">
-                      <div class="col-span-1 font-bold grid grid-cols-1 gap-y-1.5">
+                    <div class="col-span-5 flex grid grid-cols-5 gap-x-2">
+                      <div class="col-span-1 font-bold grid grid-cols-1 gap-y-1">
                         <div>Nr.</div>
                         <div>Datum</div>
                         <div v-if="item.gemeindeGebiete.length > 0">Gebiete</div>
                         <div v-if="item.tags.length > 0">Tags</div>
                       </div>
-                      <div class="col-span-4 grid grid-cols-1 gap-y-1.5">
+                      <div class="col-span-4 grid grid-cols-1">
                         <div>{{ item.verwaltungsvorgangNr }}</div>
                         <div>{{ datumFormatieren(item.verwaltungsvorgangDatum) }}</div>
                         <div v-if="item.gemeindeGebiete.length > 0" class="flex items-center gap-2">
@@ -180,8 +180,8 @@
                         </div>
                       </div>
                     </div>
-                    <div class="col-span-3 font-bold">
-                      <div class="flex items-center gap-2">
+                    <div class="col-span-7 font-bold flex items-center justify-center">
+                      <div class="flex items-center justify-center gap-4">
                         <router-link
                           :to="{
                             name: 'magistratsvorlage-id-mobilitaetscheck',
@@ -198,8 +198,6 @@
                             variant="text"
                           />
                         </router-link>
-                      </div>
-                      <div class="flex items-center gap-2">
                         <router-link
                           :to="{
                             name: 'magistratsvorlage-id-klimarelevanzpruefung',
@@ -217,46 +215,7 @@
                           />
                         </router-link>
                       </div>
-                      <!-- <div class="flex items-center gap-2">
-                        <router-link
-                          :to="{
-                            name: 'magistratsvorlage-id-klimacheck',
-                            params: { id: item.id }
-                          }"
-                        >
-                          <Button
-                            :icon="
-                              item.klimachecks.length > 0
-                                ? 'pi pi-check-circle text-green-500'
-                                : 'pi pi-times-circle text-red-400'
-                            "
-                            label="Klimacheck"
-                            variant="text"
-                          />
-                        </router-link>
-                      </div> -->
                     </div>
-                    <!-- TODO Klimarelevanzprüfung -->
-                    <!-- <div class="col-span-3 font-bold">
-                      <div class="flex items-center gap-2">
-                        <router-link
-                          :to="{
-                            name: 'magistratsvorlage-id-klimarelevanzpruefung',
-                            params: { id: item.id }
-                          }"
-                        >
-                          <Button
-                            :icon="
-                              item.klimachecks.length > 0
-                                ? 'pi pi-check-circle text-green-500'
-                                : 'pi pi-times-circle text-red-400'
-                            "
-                            label="Klimarelevanzprüfung"
-                            variant="text"
-                          />
-                        </router-link>
-                      </div>
-                    </div> -->
                   </div>
                 </BaseCard>
               </router-link>

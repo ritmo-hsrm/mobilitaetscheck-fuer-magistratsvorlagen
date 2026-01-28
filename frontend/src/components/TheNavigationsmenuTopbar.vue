@@ -6,8 +6,9 @@
           :to="{ name: 'startseite' }"
           class="grid grid-cols-1 items-center justify-center justify-items-center menuItem-active-link"
         >
-          <div class="font-bold text-lg flex items-center">Mobilitätscheck</div>
-          <div class="font-bold text-xs">für Magistratsvorlagen</div>
+          <img width="120px" src="../assets/logos/pimoo-logo-invertiert.png" />
+          <!-- <div class="font-bold text-lg flex items-center">Mobilitätscheck</div>
+          <div class="font-bold text-xs">für Magistratsvorlagen</div> -->
         </router-link>
       </div>
     </template>
