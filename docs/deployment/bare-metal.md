@@ -37,18 +37,28 @@ Es werden folgende Tools benötigt. Diese sind aus den offiziellen Quellen zu in
 ## 2. Repository klonen
 
 ```bash
-git clone https://github.com/johanngrobe/mobilitaetscheck-fuer-magistratsvorlagen
+git clone https://github.com/ritmo-hsrm/mobilitaetscheck-fuer-magistratsvorlagen
 ```
 
 ---
 
-## 3. Frontend installieren und builden
+## 3. Umgebungsvariablen konfigurieren
+
+Erstelle eine `.env` Datei:
+
+```bash
+cp example.env .env
+```
+
+---
+
+## 4. Frontend installieren und builden
 
 Das Frontend basiert auf **Vite** und muss lokal gebaut werden.
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm run build
 ```
 
@@ -62,23 +72,13 @@ Dieser Build wird später vom Backend ausgeliefert.
 
 ---
 
-## 4. Backend installieren
+## 5. Backend installieren
 
 Das Backend basiert auf **FastAPI** und verwendet **uv** zur Paketverwaltung.
 
 ```bash
-cd ../backend
+cd /pfad/zum/root/ordner
 uv sync --no-dev
-```
-
----
-
-## 5. Umgebungsvariablen konfigurieren
-
-Erstelle eine `.env` Datei:
-
-```bash
-cp example.env .env
 ```
 
 Passe alle Variablen wie Domain, Datenbank‑Zugangsdaten und SMTP an deine Umgebung an.
@@ -114,6 +114,7 @@ Das Backend kann über uvicorn gestartet werden.
 
 ```bash
 source .venv/bin/activate
+cd pfad/zum/backend
 fastapi run app/main.py
 ```
 
@@ -147,7 +148,7 @@ After=network.target
 
 [Service]
 WorkingDirectory=/pfad/zum/backend
-EnvironmentFile=/pfad/zum/backend/.env
+EnvironmentFile=/pfad/zur/root/.env
 ExecStart=/pfad/zum/backend/.venv/bin/fastapi run app/main.py
 Restart=always
 
@@ -158,9 +159,9 @@ WantedBy=multi-user.target
 Service aktivieren:
 
 ```bash
-sudo systemctl daemon-reload
-sudo systemctl enable mobilitaetscheck
-sudo systemctl start mobilitaetscheck
+systemctl daemon-reload
+systemctl enable mobilitaetscheck
+systemctl start mobilitaetscheck
 ```
 
 ---
@@ -170,7 +171,7 @@ sudo systemctl start mobilitaetscheck
 ## 1. Service stoppen
 
 ```bash
-sudo systemctl stop mobilitaetscheck
+systemctl stop mobilitaetscheck
 ```
 
 ## 2. Repo aktualisieren
@@ -184,23 +185,22 @@ git pull
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm run build
 ```
 
 ## 4. Backend aktualisieren
 
 ```bash
-cd ../backend
 source ./.venv/bin/activate
+cd /pfad/zum/backend
 uv sync --no-dev
-alembic upgrade head
 ```
 
 ## 5. Datenbank migrieren
 
 ```bash
-cd ../backend
+cd /pfad/zum/backend
 source ./.venv/bin/activate
 alembic upgrade head
 ```
@@ -208,5 +208,5 @@ alembic upgrade head
 ## 6. Service starten
 
 ```bash
-sudo systemctl start mobilitaetscheck
+systemctl start mobilitaetscheck
 ```
