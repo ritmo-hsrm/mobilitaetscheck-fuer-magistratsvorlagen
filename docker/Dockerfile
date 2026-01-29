@@ -1,14 +1,14 @@
 # =============================================
 # 1) FRONTEND BUILD (Vite)
 # =============================================
-FROM node:20 AS frontend-build
+FROM node:22 AS frontend-build
 
 WORKDIR /frontend
 
-COPY ../frontend/package*.json ./
-RUN npm install
+COPY frontend/package*.json ./
+RUN npm ci
 
-COPY ../frontend .
+COPY frontend .
 RUN npm run build
 
 
@@ -21,12 +21,12 @@ ENV UV_SYSTEM_PYTHON=1
 
 WORKDIR /app
 
-# Backend dependencies
-COPY ../backend/pyproject.toml ../backend/uv.lock ./
+# Install dependencies first (cache layer)
+COPY pyproject.toml uv.lock* ./
 RUN uv sync --no-dev
 
 # Backend source
-COPY ../backend .
+COPY backend/ .
 
 # SPA
 COPY --from=frontend-build /frontend/dist ./app/frontend_dist
