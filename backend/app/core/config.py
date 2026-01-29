@@ -1,6 +1,7 @@
 import secrets
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any, ClassVar, Literal
 
+from pathlib import Path
 from pydantic import (
     AnyUrl,
     BeforeValidator,
@@ -23,7 +24,7 @@ def parse_list(v: Any) -> list[str] | str:
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(
-            ".env"
+            "../.env"
             if not os.getenv("DOCKER_ENV")  # if DOCKER_ENV is NOT set → load ../.env
             else None
         ),

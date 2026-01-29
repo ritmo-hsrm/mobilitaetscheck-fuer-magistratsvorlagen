@@ -2,6 +2,7 @@
 docker-compose.yml
 .vscode/
 .env
+.venv
 /site
 
 # Python
@@ -14,6 +15,7 @@ backend/*.pyc
 backend/db_backups
 backend/db_backups/*.dump
 backend/.vscode/
+backend/.env.old
 
 
 
