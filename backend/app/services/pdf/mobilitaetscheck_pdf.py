@@ -9,14 +9,14 @@ from app.utils.pdf_util import calculate_average_impact, get_display_impact
 class MobilitaetscheckPDF(BasePDF):
     def footer(self):
         self.set_y(-20)
-        self.set_font("free-sans", "", 8)
-        self.cell(
-            0,
-            10,
-            "Hinweis: Die zu den Indiaktoren zugehörigen Dokumente finden Sie alle im Wissensspeicher",
-            new_x="LMARGIN",
-            new_y="NEXT",
-        )
+        # self.set_font("free-sans", "", 8)
+        # self.cell(
+        #     0,
+        #     10,
+        #     "Hinweis: Die zu den Indiaktoren zugehörigen Dokumente finden Sie alle im Wissensspeicher",
+        #     new_x="LMARGIN",
+        #     new_y="NEXT",
+        # )
         self.cell(0, 10, f"Seite {self.page_no()}/{{nb}}", align="C")
 
     def export(self, eingabe: MobilitaetscheckEingabe):
@@ -64,16 +64,16 @@ class MobilitaetscheckPDF(BasePDF):
             new_x="LMARGIN",
             new_y="NEXT",
         )
-        self.ln(2)
-        self.cell(35, 5, txt="**Sachbearbeitung:**", markdown=True)
-        editors = ""
-        if eingabe.erstellt_von:
-            editors = f"{eingabe.autor.vorname} {eingabe.autor.nachname}"
-        if eingabe.zuletzt_bearbeitet_von:
-            if eingabe.erstellt_von != eingabe.zuletzt_bearbeitet_von:
-                editors += f", {eingabe.letzter_bearbeiter.vorname} {eingabe.letzter_bearbeiter.nachname}"
+        # self.ln(2)
+        # self.cell(35, 5, txt="**Sachbearbeitung:**", markdown=True)
+        # editors = ""
+        # if eingabe.erstellt_von:
+        #     editors = f"{eingabe.autor.vorname} {eingabe.autor.nachname}"
+        # if eingabe.zuletzt_bearbeitet_von:
+        #     if eingabe.erstellt_von != eingabe.zuletzt_bearbeitet_von:
+        #         editors += f", {eingabe.letzter_bearbeiter.vorname} {eingabe.letzter_bearbeiter.nachname}"
 
-        self.cell(0, 5, txt=editors, new_x="LMARGIN", new_y="NEXT")
+        # self.cell(0, 5, txt=editors, new_x="LMARGIN", new_y="NEXT")
 
         self.cell(0, 3, new_x="LMARGIN", new_y="NEXT")
 
@@ -106,22 +106,33 @@ class MobilitaetscheckPDF(BasePDF):
                 durchschnitt_auswirkung_oberziel[oberziel.ziel_ober_id],
                 oberziel.tangiert,
             )
+
+            # Draw rounded rectangle for background
+            current_x = self.get_x()
+            current_y = self.get_y()
+            cell_height = 8
+
             self.set_fill_color(
                 r=display_impact["color"]["r"],
                 g=display_impact["color"]["g"],
                 b=display_impact["color"]["b"],
             )
+            self.rect(
+                current_x, current_y, self.epw, cell_height, style="F", corner_radius=3
+            )
+
+            # Place text on top
             self.cell(
                 0,
-                8,
+                cell_height,
                 txt=f"{oberziel.ziel_ober.nr}. {oberziel.ziel_ober.name}",
                 markdown=True,
-                fill=True,
+                fill=False,
                 new_y="NExT",
                 new_x="LMARGIN",
             )
         box_h = self.get_y() - box_y
-        self.rect(box_x, box_y, self.epw, box_h)
+        self.rect(box_x, box_y, self.epw, box_h, corner_radius=5)
 
         # All main objective and only targeted sub objectives are displayed
 
@@ -151,18 +162,33 @@ class MobilitaetscheckPDF(BasePDF):
                 oberziel.tangiert,
             )
 
+            # Draw rounded rectangle for Gesamtwirkung background
+            gesamt_x = self.get_x()
+            gesamt_y = self.get_y()
+            gesamt_width = 35
+            gesamt_height = 10
+
             self.set_fill_color(
                 r=display_impact["color"]["r"],
                 g=display_impact["color"]["g"],
                 b=display_impact["color"]["b"],
             )
+            self.rect(
+                gesamt_x,
+                gesamt_y,
+                gesamt_width,
+                gesamt_height,
+                style="F",
+                corner_radius=3,
+            )
 
+            # Place text on top
             self.multi_cell(
-                35,
-                10,
+                gesamt_width,
+                gesamt_height,
                 txt=f"**Gesamtwirkung:** \n{display_impact["label"]}",
                 markdown=True,
-                fill=True,
+                fill=False,
                 max_line_height=5,
                 new_x="LMARGIN",
                 new_y="NEXT",
@@ -202,23 +228,41 @@ class MobilitaetscheckPDF(BasePDF):
                     display_impact = get_display_impact(
                         unterziel.auswirkung, unterziel.tangiert
                     )
+
+                    # Draw rounded rectangle for Wirkung background
+                    wirkung_x = self.get_x()
+                    wirkung_y = self.get_y()
+                    wirkung_width = 35
+                    wirkung_height = 10
+
                     self.set_fill_color(
                         r=display_impact["color"]["r"],
                         g=display_impact["color"]["g"],
                         b=display_impact["color"]["b"],
                     )
+                    self.rect(
+                        wirkung_x,
+                        wirkung_y,
+                        wirkung_width,
+                        wirkung_height,
+                        style="F",
+                        corner_radius=3,
+                    )
 
-                    # if not sub_objective.target:
-                    #     self.multi_cell(35,10, txt=f"**Wirkung:**\n{display_impact["label"]}", markdown=True,border="T",max_line_height=5, fill=True, new_x="LMARGIN", new_y="NEXT")
+                    # Draw top border
+                    self.line(
+                        wirkung_x, wirkung_y, wirkung_x + wirkung_width, wirkung_y
+                    )
 
+                    # Place text on top
                     self.multi_cell(
-                        35,
-                        10,
+                        wirkung_width,
+                        wirkung_height,
                         txt=f"**Wirkung:**\n{display_impact["label"]}",
                         markdown=True,
-                        border="T",
+                        border=False,
                         max_line_height=5,
-                        fill=True,
+                        fill=False,
                         new_x="LEFT",
                         new_y="NEXT",
                     )
