@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
       
 
@@ -521,10 +521,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-frontend-installieren-und-builden" class="md-nav__link">
+  <a href="#3-umgebungsvariablen-konfigurieren" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Frontend installieren und builden
+        3. Umgebungsvariablen konfigurieren
       
     </span>
   </a>
@@ -532,10 +532,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-backend-installieren" class="md-nav__link">
+  <a href="#4-frontend-installieren-und-builden" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Backend installieren
+        4. Frontend installieren und builden
       
     </span>
   </a>
@@ -543,10 +543,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-umgebungsvariablen-konfigurieren" class="md-nav__link">
+  <a href="#5-backend-installieren" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. Umgebungsvariablen konfigurieren
+        5. Backend installieren
       
     </span>
   </a>
@@ -745,10 +745,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-frontend-installieren-und-builden" class="md-nav__link">
+  <a href="#3-umgebungsvariablen-konfigurieren" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Frontend installieren und builden
+        3. Umgebungsvariablen konfigurieren
       
     </span>
   </a>
@@ -756,10 +756,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-backend-installieren" class="md-nav__link">
+  <a href="#4-frontend-installieren-und-builden" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Backend installieren
+        4. Frontend installieren und builden
       
     </span>
   </a>
@@ -767,10 +767,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-umgebungsvariablen-konfigurieren" class="md-nav__link">
+  <a href="#5-backend-installieren" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. Umgebungsvariablen konfigurieren
+        5. Backend installieren
       
     </span>
   </a>
@@ -854,13 +854,18 @@
 <li>PostgreSQL 17 → https://www.postgresql.org/download/</li>
 </ul>
 <h2 id="2-repository-klonen">2. Repository klonen</h2>
-<pre><code class="language-bash">git clone https://github.com/johanngrobe/mobilitaetscheck-fuer-magistratsvorlagen
+<pre><code class="language-bash">git clone https://github.com/ritmo-hsrm/mobilitaetscheck-fuer-magistratsvorlagen
 </code></pre>
 <hr />
-<h2 id="3-frontend-installieren-und-builden">3. Frontend installieren und builden</h2>
+<h2 id="3-umgebungsvariablen-konfigurieren">3. Umgebungsvariablen konfigurieren</h2>
+<p>Erstelle eine <code>.env</code> Datei:</p>
+<pre><code class="language-bash">cp example.env .env
+</code></pre>
+<hr />
+<h2 id="4-frontend-installieren-und-builden">4. Frontend installieren und builden</h2>
 <p>Das Frontend basiert auf <strong>Vite</strong> und muss lokal gebaut werden.</p>
 <pre><code class="language-bash">cd frontend
-npm install
+npm ci
 npm run build
 </code></pre>
 <p>Der Produktionsbuild befindet sich anschließend im Ordner:</p>
@@ -868,15 +873,10 @@ npm run build
 </code></pre>
 <p>Dieser Build wird später vom Backend ausgeliefert.</p>
 <hr />
-<h2 id="4-backend-installieren">4. Backend installieren</h2>
+<h2 id="5-backend-installieren">5. Backend installieren</h2>
 <p>Das Backend basiert auf <strong>FastAPI</strong> und verwendet <strong>uv</strong> zur Paketverwaltung.</p>
-<pre><code class="language-bash">cd ../backend
+<pre><code class="language-bash">cd /pfad/zum/root/ordner
 uv sync --no-dev
-</code></pre>
-<hr />
-<h2 id="5-umgebungsvariablen-konfigurieren">5. Umgebungsvariablen konfigurieren</h2>
-<p>Erstelle eine <code>.env</code> Datei:</p>
-<pre><code class="language-bash">cp example.env .env
 </code></pre>
 <p>Passe alle Variablen wie Domain, Datenbank‑Zugangsdaten und SMTP an deine Umgebung an.</p>
 <h2 id="6-datenbank-einrichten">6. Datenbank einrichten</h2>
@@ -896,6 +896,7 @@ sudo -u postgres psql -c &quot;ALTER DATABASE mobilitaetscheck SET client_encodi
 <h2 id="7-backend-starten">7. Backend starten</h2>
 <p>Das Backend kann über uvicorn gestartet werden.</p>
 <pre><code class="language-bash">source .venv/bin/activate
+cd pfad/zum/backend
 fastapi run app/main.py
 </code></pre>
 <p>Der Server ist erreichbar unter:</p>
@@ -918,7 +919,7 @@ After=network.target
 
 [Service]
 WorkingDirectory=/pfad/zum/backend
-EnvironmentFile=/pfad/zum/backend/.env
+EnvironmentFile=/pfad/zur/root/.env
 ExecStart=/pfad/zum/backend/.venv/bin/fastapi run app/main.py
 Restart=always
 
@@ -926,14 +927,14 @@ Restart=always
 WantedBy=multi-user.target
 </code></pre>
 <p>Service aktivieren:</p>
-<pre><code class="language-bash">sudo systemctl daemon-reload
-sudo systemctl enable mobilitaetscheck
-sudo systemctl start mobilitaetscheck
+<pre><code class="language-bash">systemctl daemon-reload
+systemctl enable mobilitaetscheck
+systemctl start mobilitaetscheck
 </code></pre>
 <hr />
 <h1 id="bare-metal-update">Bare-Metal Update</h1>
 <h2 id="1-service-stoppen">1. Service stoppen</h2>
-<pre><code class="language-bash">sudo systemctl stop mobilitaetscheck
+<pre><code class="language-bash">systemctl stop mobilitaetscheck
 </code></pre>
 <h2 id="2-repo-aktualisieren">2. Repo aktualisieren</h2>
 <pre><code class="language-bash">cd /pfad/zum/repo
@@ -941,22 +942,21 @@ git pull
 </code></pre>
 <h2 id="3-frontend-aktualisieren">3. Frontend aktualisieren</h2>
 <pre><code class="language-bash">cd frontend
-npm install
+npm ci
 npm run build
 </code></pre>
 <h2 id="4-backend-aktualisieren">4. Backend aktualisieren</h2>
-<pre><code class="language-bash">cd ../backend
-source ./.venv/bin/activate
+<pre><code class="language-bash">source ./.venv/bin/activate
+cd /pfad/zum/backend
 uv sync --no-dev
-alembic upgrade head
 </code></pre>
 <h2 id="5-datenbank-migrieren">5. Datenbank migrieren</h2>
-<pre><code class="language-bash">cd ../backend
+<pre><code class="language-bash">cd /pfad/zum/backend
 source ./.venv/bin/activate
 alembic upgrade head
 </code></pre>
 <h2 id="6-service-starten">6. Service starten</h2>
-<pre><code class="language-bash">sudo systemctl start mobilitaetscheck
+<pre><code class="language-bash">systemctl start mobilitaetscheck
 </code></pre>
 
 
@@ -1007,10 +1007,10 @@ alembic upgrade head
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
