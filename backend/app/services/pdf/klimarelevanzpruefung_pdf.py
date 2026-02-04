@@ -109,7 +109,9 @@ class KlimarelevanzpruefungPDF(BasePDF):
         # Return info for group number positioning
         return y_start, y_end, row_num if show_number else None
 
-    def _draw_group_number(self, group_num: int, y_start: float, y_end: float, num_col_width: float):
+    def _draw_group_number(
+        self, group_num: int, y_start: float, y_end: float, num_col_width: float
+    ):
         """Draw the group number vertically centered within the group's total height"""
         # Save current position
         current_y = self.get_y()
@@ -160,7 +162,7 @@ class KlimarelevanzpruefungPDF(BasePDF):
 
             # a2: Energetische Aufwertung / Baumaßnahmen
             if fb1.a2q2 in [3, 4]:
-                if fb1.a2q3 == 1:
+                if fb1.a2q3:
                     rows.append(
                         (
                             "a2",
@@ -168,31 +170,29 @@ class KlimarelevanzpruefungPDF(BasePDF):
                             "",
                         )
                     )
-                    # TODO Energiestandard ergänzen
                     if fb1.a2q4:
                         rows.append(
                             (
                                 "a2",
-                                f"Dabei wird der Energiestandard {fb1.a2q4} erreicht. Es wurde sich für den genannten Standard entschieden, da {fb1.a2q5 or ''}",
+                                f"Dabei wird der Energiestandard {fb1.a2q4_item.name} erreicht. Es wurde sich für den genannten Standard entschieden, da {fb1.a2q5 or ''}",
                                 "",
                             )
                         )
-            # TODO Energiestandard ergänzen
             if fb1.a2q2 in [1, 2]:
-                if fb1.a2q6 == 1:
+                if fb1.a2q6 == 6:
                     rows.append(
                         (
                             "a2",
-                            f"Es wird der Energiestandard {fb1.a2q6} erreicht. Es wurde sich für den genannten Standard entschieden, da {fb1.a2q7 or ''}",
                             "",
+                            f"Es wird lediglich der Energiestandard {fb1.a2q6_item.name} erreicht und damit das gesetzliche Mindestmaß erfüllt. Es wurde sich für den genannten Standard entschieden, da {fb1.a2q7 or ''}",
                         )
                     )
-                elif fb1.a2q6 == 2:
+                elif fb1.a2q6:
                     rows.append(
                         (
                             "a2",
+                            f"Es wird der Energiestandard {fb1.a2q6_item.name} erreicht. Es wurde sich für den genannten Standard entschieden, da {fb1.a2q7 or ''}",
                             "",
-                            f"Es wird lediglich der Energiestandard KFW-Effizienzhaus 55 erreicht und damit das gesetzliche Mindestmaß erfüllt. Es wurde sich für den genannten Standard entschieden, da {fb1.a2q7 or ''}",
                         )
                     )
 
@@ -677,13 +677,19 @@ class KlimarelevanzpruefungPDF(BasePDF):
 
                 draw_top_border = prev_group is not None and prev_group != group
                 y_start, y_end, _ = self._add_table_row(
-                    group_num, positive_text, negative_text, draw_top_border, show_number=False
+                    group_num,
+                    positive_text,
+                    negative_text,
+                    draw_top_border,
+                    show_number=False,
                 )
                 group_y_end = y_end
 
                 # Draw number when group ends (either last row or next row is different group)
                 if is_last_in_group:
-                    self._draw_group_number(group_num, group_y_start, group_y_end, num_col_width)
+                    self._draw_group_number(
+                        group_num, group_y_start, group_y_end, num_col_width
+                    )
 
                 prev_group = group
 

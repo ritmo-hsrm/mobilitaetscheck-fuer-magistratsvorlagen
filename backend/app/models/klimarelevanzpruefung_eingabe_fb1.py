@@ -50,11 +50,20 @@ class KlimarelevanzpruefungEingabeFb1(Base):
         nullable=True,
         comment="Teil 2 Frage 4",
     )
+    a2q4_item: Mapped[Optional["KlimarelevanzpruefungEnergiestandard"]] = relationship(
+        foreign_keys=[a2q4],
+        lazy="selectin",
+    )
+
     a2q5: Mapped[Optional[str]] = mapped_column(nullable=True, comment="Teil 2 Frage 5")
     a2q6: Mapped[Optional[int]] = mapped_column(
         ForeignKey("klimarelevanzpruefung_energiestandard.id", ondelete="SET NULL"),
         nullable=True,
         comment="Teil 2 Frage 6",
+    )
+    a2q6_item: Mapped[Optional["KlimarelevanzpruefungEnergiestandard"]] = relationship(
+        foreign_keys=[a2q6],
+        lazy="selectin",
     )
     a2q7: Mapped[Optional[str]] = mapped_column(nullable=True, comment="Teil 2 Frage 7")
     a2q8: Mapped[Optional[int]] = mapped_column(
@@ -154,3 +163,8 @@ class KlimarelevanzpruefungEingabeFb1(Base):
         comment="Teil 7 Frage 1",
     )
     a8q2: Mapped[Optional[str]] = mapped_column(nullable=True, comment="Teil 7 Frage 2")
+
+
+from app.models.klimarelevanzpruefung_energiestandard import (
+    KlimarelevanzpruefungEnergiestandard,
+)

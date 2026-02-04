@@ -102,3 +102,11 @@ class KlimarelevanzpruefungEingabeFb1Read(
     model_config = ConfigDict(from_attributes=True)
 
     id: int = Field(..., description="Kennung für das Item")
+
+    a2q4_item: Optional["KlimarelevanzpruefungEnergiestandardRead"] = None
+    a2q6_item: Optional["KlimarelevanzpruefungEnergiestandardRead"] = None
+
+
+from app.schemas.klimarelevanzpruefung_energiestandard import (
+    KlimarelevanzpruefungEnergiestandardRead,
+)
