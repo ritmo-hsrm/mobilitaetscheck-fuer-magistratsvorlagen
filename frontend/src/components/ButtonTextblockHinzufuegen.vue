@@ -1,6 +1,12 @@
 <template>
   <div class="relative inline-block max-w-5xl flex flex-nowrap">
-    <Button icon="pi pi-plus" aria-label="Textbaustein" label="Textbaustein" :raised="showList" @click="toggleList"  />
+    <Button
+      icon="pi pi-plus"
+      aria-label="Textbaustein"
+      label="Textbaustein"
+      :raised="showList"
+      @click="toggleList"
+    />
     <transition name="fade">
       <div v-if="showList" class="dropdown">
         <div class="flex">

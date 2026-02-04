@@ -16,7 +16,7 @@ class KlimarelevanzpruefungEingabeFb3Optional(BaseModel):
     # Teil 1
     c1q2: Optional[int] = None
     c1q3: Optional[str] = None
-    c1q4: Optional[str] = None  # nullable=True, even if FK defined
+    c1q4: Optional[int] = None  # nullable=True, even if FK defined
     c1q5: Optional[str] = None
     c1q6: Optional[int] = None
     c1q7: Optional[str] = None

@@ -37,7 +37,7 @@ async def get_gemeinde_einheit(
     status_code=status.HTTP_200_OK,
     dependencies=[Depends(current_active_user)],
 )
-async def get_klimacheck(
+async def get_einheit(
     magistratsvorlage_id: int,
     db: AsyncSession = Depends(get_async_session),
 ):

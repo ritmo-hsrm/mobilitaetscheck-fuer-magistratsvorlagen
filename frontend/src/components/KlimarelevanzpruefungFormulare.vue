@@ -8,7 +8,12 @@
         header="Fragebogen A"
         :style="{ width: '50rem' }"
       >
-        <KlimarelevanzpruefungFormularEingabeFb1 @submit="onSubmit" />
+        <KlimarelevanzpruefungFormularEingabeFb1
+          :editMode="!!klimarelevanzpruefung.fb1Id"
+          :item="klimarelevanzpruefung.fb1"
+          @add-item="onSubmit"
+          @update-item="onUpdate"
+        />
       </Dialog>
       <li>
         Es handelt sich um eine <strong>physische Maßnahme oder eine Beschaffung </strong> oder um
@@ -22,6 +27,7 @@
         label="zum Fragebogen"
         @click="visibleF1 = true"
         :disabled="!klimarelevanzpruefung.f1"
+        :severity="klimarelevanzpruefung.fb1Id ? 'success' : undefined"
       />
       <Divider class="col-span-2" />
       <Dialog
@@ -31,7 +37,12 @@
         header="Fragebogen B"
         :style="{ width: '50rem' }"
       >
-        <KlimarelevanzpruefungFormularEingabeFb2 @submit="onSubmit" />
+        <KlimarelevanzpruefungFormularEingabeFb2
+          :editMode="!!klimarelevanzpruefung.fb2Id"
+          :item="klimarelevanzpruefung.fb2"
+          @add-item="onSubmit"
+          @update-item="onUpdate"
+        />
       </Dialog>
       <li>
         Es handelt sich um eine Planung / ein Konzept , das<strong>
@@ -42,6 +53,7 @@
         label="zum Fragebogen"
         @click="visibleF2 = true"
         :disabled="!klimarelevanzpruefung.f2"
+        :severity="klimarelevanzpruefung.fb2Id ? 'success' : undefined"
       />
 
       <Divider class="col-span-2" />
@@ -52,7 +64,12 @@
         header="Fragebogen C"
         :style="{ width: '50rem' }"
       >
-        <KlimarelevanzpruefungFormularEingabeFb3 @submit="onSubmit" />
+        <KlimarelevanzpruefungFormularEingabeFb3
+          :editMode="!!klimarelevanzpruefung.fb3Id"
+          :item="klimarelevanzpruefung.fb3"
+          @add-item="onSubmit"
+          @update-item="onUpdate"
+        />
       </Dialog>
       <li>
         Es handelt sich um eine Planung, ein Konzept, oder ein Vorhaben, die
@@ -66,6 +83,7 @@
         label="zum Fragebogen"
         @click="visibleF3 = true"
         :disabled="!klimarelevanzpruefung.f3"
+        :severity="klimarelevanzpruefung.fb3Id ? 'success' : undefined"
       />
 
       <Divider class="col-span-2" />
@@ -76,7 +94,12 @@
         header="Fragebogen D"
         :style="{ width: '50rem' }"
       >
-        <KlimarelevanzpruefungFormularEingabeFb4 @submit="onSubmit" />
+        <KlimarelevanzpruefungFormularEingabeFb4
+          :editMode="!!klimarelevanzpruefung.fb4Id"
+          :item="klimarelevanzpruefung.fb4"
+          @add-item="onSubmit"
+          @update-item="onUpdate"
+        />
       </Dialog>
       <li>
         Es handelt sich um ein Vorhaben, das
@@ -88,6 +111,7 @@
         label="zum Fragebogen"
         @click="visibleF4 = true"
         :disabled="!klimarelevanzpruefung.f4"
+        :severity="klimarelevanzpruefung.fb4Id ? 'success' : undefined"
       />
 
       <Divider class="col-span-2" />
@@ -101,13 +125,21 @@
       </li>
       <Button label="Kein Fragebogen" :disabled="true" />
     </ol>
+    <div class="mt-20 flex justify-end">
+      <Button
+        icon="pi pi-download"
+        @click="onExport(route.params.klimarelevanzpruefungId)"
+        label="PDF-Export"
+        size="small"
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { createItem, fetchItem } from '@/composables/crud'
+import { createItem, exportItem, fetchItem, updateItem, updateItemSilent } from '@/composables/crud'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import Divider from 'primevue/divider'
@@ -125,6 +157,13 @@ const visibleF2 = ref(false)
 const visibleF3 = ref(false)
 const visibleF4 = ref(false)
 
+const closeDialogs = () => {
+  visibleF1.value = false
+  visibleF2.value = false
+  visibleF3.value = false
+  visibleF4.value = false
+}
+
 onMounted(async () => {
   isLoading.value = true
   await fetchData()
@@ -137,16 +176,52 @@ const fetchData = async () => {
   )
 }
 
-const onSubmit = async ({ fb, values}) => {
+const onSubmit = async ({ fb, values }) => {
   const response = await createItem({
     model: `klimarelevanzpruefung/eingabe/fb${fb}`,
     values,
     detail: {
-      success: `Fragebogen ${fb} erfolgreich hinzugefügt`,
-      error: `Fehler beim Hinzufügen des Fragebogens ${fb}`
+      success: `Fragebogen erfolgreich hinzugefügt`,
+      error: `Fehler beim Hinzufügen des Fragebogens`
     }
   })
-  klimarelevanzpruefung.value.fb1 =  response
+  await updateItemSilent({
+    model: 'klimarelevanzpruefung/eingabe',
+    modelId: route.params.klimarelevanzpruefungId,
+    values: {
+      [`f${fb}`]: true,
+      [`fb${fb}Id`]: response.id
+    }
+  })
+  klimarelevanzpruefung.value[`f${fb}`] = true
+  klimarelevanzpruefung.value[`fb${fb}Id`] = response.id
+  klimarelevanzpruefung.value[`fb${fb}`] = response
+  closeDialogs()
+}
+
+const onUpdate = async ({ fb, modelId, values }) => {
+  const response = await updateItem({
+    model: `klimarelevanzpruefung/eingabe/fb${fb}`,
+    modelId,
+    values,
+    detail: {
+      success: `Fragebogen erfolgreich aktualisiert`,
+      error: `Fehler beim Aktualisieren des Fragebogens`
+    }
+  })
+  klimarelevanzpruefung.value[`fb${fb}`] = response
+  closeDialogs()
+}
+
+const onExport = async (modelId) => {
+  await exportItem({
+    model: 'klimarelevanzpruefung',
+    modelId,
+    detail: {
+      success: 'Klimarelevanzpruefung erfolgreich exportiert',
+      error: 'Fehler beim Exportieren des Mobilitätschecks'
+    }
+  })
 }
 </script>
 

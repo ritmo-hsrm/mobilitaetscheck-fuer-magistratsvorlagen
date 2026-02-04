@@ -69,7 +69,7 @@ class Magistratsvorlage(Base):
             ondelete="SET NULL",
         ),
         nullable=True,
-        comment="User ID vom Ersteller des Klimachecks",
+        comment="User ID vom Ersteller der Magistratsvorlage",
     )
     autor: Mapped[Optional["User"]] = relationship(foreign_keys=[erstellt_von])
     zuletzt_bearbeitet_von: Mapped[Optional[GUID]] = mapped_column(
@@ -87,15 +87,17 @@ class Magistratsvorlage(Base):
         back_populates="magistratsvorlage",
         lazy="selectin",
     )
-    klimachecks: Mapped[Optional[List["KlimacheckEingabe"]]] = relationship(
-        back_populates="magistratsvorlage",
-        lazy="selectin",
+    klimarelevanzpruefungen: Mapped[Optional[List["KlimarelevanzpruefungEingabe"]]] = (
+        relationship(
+            back_populates="magistratsvorlage",
+            lazy="selectin",
+        )
     )
 
 
 from app.models.gemeinde import Gemeinde
 from app.models.gemeinde_gebiet import GemeindeGebiet
-from app.models.klimacheck_eingabe import KlimacheckEingabe
+from app.models.klimarelevanzpruefung_eingabe import KlimarelevanzpruefungEingabe
 from app.models.mobilitaetscheck_eingabe import MobilitaetscheckEingabe
 from app.models.tag import Tag
 from app.models.user import User

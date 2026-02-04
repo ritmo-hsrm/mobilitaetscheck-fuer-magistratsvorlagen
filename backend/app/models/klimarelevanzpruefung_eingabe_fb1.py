@@ -154,36 +154,3 @@ class KlimarelevanzpruefungEingabeFb1(Base):
         comment="Teil 7 Frage 1",
     )
     a8q2: Mapped[Optional[str]] = mapped_column(nullable=True, comment="Teil 7 Frage 2")
-
-    gemeinde_id: Mapped[int] = mapped_column(
-        ForeignKey("gemeinde.id", ondelete="CASCADE"),
-        nullable=False,
-        comment="Gemeinde ID",
-    )
-    gemeinde: Mapped["Gemeinde"] = relationship(lazy="selectin")
-    erstellt_von: Mapped[Optional[GUID]] = mapped_column(
-        ForeignKey(
-            "user.id",
-            ondelete="SET NULL",
-        ),
-        nullable=True,
-        comment="User ID des Erstellers",
-    )
-    autor: Mapped[Optional["User"]] = relationship(
-        foreign_keys=[erstellt_von], lazy="selectin"
-    )
-    zuletzt_bearbeitet_von: Mapped[Optional[GUID]] = mapped_column(
-        ForeignKey(
-            "user.id",
-            ondelete="SET NULL",
-        ),
-        nullable=True,
-        comment="User ID des zuletzt bearbeitenden Benutzers",
-    )
-    letzter_bearbeiter: Mapped[Optional["User"]] = relationship(
-        foreign_keys=[zuletzt_bearbeitet_von], lazy="selectin"
-    )
-
-
-from app.models.gemeinde import Gemeinde
-from app.models.user import User

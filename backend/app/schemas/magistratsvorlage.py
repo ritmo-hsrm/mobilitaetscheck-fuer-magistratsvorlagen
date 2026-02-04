@@ -84,7 +84,7 @@ class MagistratsvorlageRead(MagistratsvorlageBaseRead):
         ...,
         description="List of mobility results associated with the submission.",
     )
-    klimachecks: Optional[List["KlimacheckEingabeRead"]] = Field(
+    klimarelevanzpruefungen: Optional[List["KlimarelevanzpruefungEingabeRead"]] = Field(
         ...,
         description="List of climate checks associated with the submission.",
     )
@@ -120,5 +120,5 @@ class MagistratsvorlageRead(MagistratsvorlageBaseRead):
 
 from app.schemas.gemeinde_gebiet import GemeindeGebietRead
 from app.schemas.mobilitaetscheck_eingabe import MobilitaetscheckEingabeBaseRead
-from app.schemas.klimacheck_eingabe import KlimacheckEingabeRead
+from app.schemas.klimarelevanzpruefung_eingabe import KlimarelevanzpruefungEingabeRead
 from app.schemas.tag import TagRead

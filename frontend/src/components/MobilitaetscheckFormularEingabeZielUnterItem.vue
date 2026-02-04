@@ -31,7 +31,10 @@
               :pt="{
                 root: { style: 'height: 1rem' },
                 range: { style: 'height: 100%' },
-                handle: { style: 'width: 1.5rem; height: 1.5rem; margin-top: -0.75rem; margin-left: -0.75rem; cursor: pointer' }
+                handle: {
+                  style:
+                    'width: 1.5rem; height: 1.5rem; margin-top: -0.75rem; margin-left: -0.75rem; cursor: pointer'
+                }
               }"
             />
             <div class="relative w-full flex justify-between mt-2">

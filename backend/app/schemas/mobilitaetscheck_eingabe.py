@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from datetime import datetime, date
+from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict, field_serializer
 from fastapi_users import models
 

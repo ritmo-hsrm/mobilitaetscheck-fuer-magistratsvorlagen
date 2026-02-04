@@ -1,8 +1,9 @@
-from typing import Optional, List
-
+from typing import Optional
+from datetime import datetime
 from fastapi_users_db_sqlalchemy.generics import GUID
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.sql import text
 
 from app.core.db import Base
 
@@ -85,6 +86,18 @@ class KlimarelevanzpruefungEingabe(Base):
     letzter_bearbeiter: Mapped[Optional["User"]] = relationship(
         foreign_keys=[zuletzt_bearbeitet_von], lazy="selectin"
     )
+    erstellt_am: Mapped[datetime] = mapped_column(
+        nullable=False, server_default=text("now()"), comment="Zeitpunkt der Erstellung"
+    )
+    magistratsvorlage_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("magistratsvorlage.id", ondelete="SET NULL"),
+        nullable=True,
+        comment="ID der zugehörigen Magistratsvorlage",
+    )
+    magistratsvorlage: Mapped[Optional["Magistratsvorlage"]] = relationship(
+        back_populates="klimarelevanzpruefungen",
+        lazy="selectin",
+    )
 
 
 from app.models.gemeinde import Gemeinde
@@ -93,3 +106,4 @@ from app.models.klimarelevanzpruefung_eingabe_fb2 import KlimarelevanzpruefungEi
 from app.models.klimarelevanzpruefung_eingabe_fb3 import KlimarelevanzpruefungEingabeFb3
 from app.models.klimarelevanzpruefung_eingabe_fb4 import KlimarelevanzpruefungEingabeFb4
 from app.models.user import User
+from app.models.magistratsvorlage import Magistratsvorlage

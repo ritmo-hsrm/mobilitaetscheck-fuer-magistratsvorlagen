@@ -266,6 +266,7 @@
                 <p>Werden im B-Plan die Kaltluftschneisen geschützt.</p>
                 <SelectButton
                   :options="optionBoolean"
+                  v-model="b1q18"
                   optionLabel="name"
                   optionValue="id"
                   :multiple="false"
@@ -400,7 +401,7 @@
                 icon="pi pi-arrow-left"
                 @click="activateCallback('1')"
               />
-              <Button label="Speichern" icon="pi pi-save" iconPos="right" />
+              <Button label="Speichern" type="submit" icon="pi pi-save" iconPos="right" />
             </div>
           </StepPanel>
         </StepPanels>
@@ -428,9 +429,23 @@ import StepPanel from 'primevue/steppanel'
 const isLoading = ref(false)
 const optionBoolean = ref()
 
+const props = defineProps({
+  editMode: {
+    type: Boolean,
+    default: false
+  },
+  item: {
+    type: Object,
+    default: null
+  }
+})
+
 onMounted(async () => {
   isLoading.value = true
   await fetchData()
+  if (props.editMode && props.item) {
+    setValues(props.item)
+  }
   isLoading.value = false
 })
 
@@ -438,7 +453,7 @@ const fetchData = async () => {
   optionBoolean.value = await fetchItems('/einstellungen/bool-erweitert')
 }
 
-const { defineField, handleSubmit, errors } = useForm({
+const { defineField, handleSubmit, errors, setValues } = useForm({
   validationSchema: schema
 })
 
@@ -468,8 +483,14 @@ const [b2q3] = defineField('b2q3')
 const [b2q4] = defineField('b2q4')
 const [b2q5] = defineField('b2q5')
 
-const onSubmit = handleSubmit((values) => {
-  console.log('Form Values:', values)
+const emit = defineEmits(['update-item', 'add-item'])
+
+const onSubmit = handleSubmit(async (values) => {
+  if (props.editMode) {
+    emit('update-item', { fb: 2, modelId: props.item.id, values })
+  } else {
+    emit('add-item', { fb: 2, values })
+  }
 })
 </script>
 

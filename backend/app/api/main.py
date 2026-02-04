@@ -6,7 +6,7 @@ from app.api.routers import (
     bool_erweitert,
     gemeinde_gebiet,
     indikator,
-    klimacheck,
+    # klimacheck,
     klimarelevanzpruefung_eingabe,
     klimarelevanzpruefung_eingabe_fb1,
     klimarelevanzpruefung_eingabe_fb2,
@@ -65,11 +65,11 @@ router.include_router(
     prefix="/mobilitaetscheck/eingabe",
     tags=["Mobilitätscheck", "Eingabe"],
 )
-router.include_router(
-    klimacheck.router,
-    prefix="/klimacheck/eingabe",
-    tags=["Klimacheck", "Eingabe"],
-)
+# router.include_router(
+#     klimacheck.router,
+#     prefix="/klimacheck/eingabe",
+#     tags=["Klimacheck", "Eingabe"],
+# )
 router.include_router(
     klimarelevanzpruefung_eingabe.router,
     prefix="/klimarelevanzpruefung/eingabe",

@@ -7,7 +7,7 @@ class KlimarelevanzpruefungEingabeFb2Base(BaseModel):
     """Required (non-nullable) fields"""
 
     b1q1: int
-    a2q1: int
+    b2q1: int
 
 
 class KlimarelevanzpruefungEingabeFb2Optional(BaseModel):
@@ -35,10 +35,10 @@ class KlimarelevanzpruefungEingabeFb2Optional(BaseModel):
     b1q20: Optional[str] = None
 
     # Teil 2
-    a2q2: Optional[str] = None
-    a2q3: Optional[str] = None
-    a2q4: Optional[int] = None
-    a2q5: Optional[str] = None
+    b2q2: Optional[str] = None
+    b2q3: Optional[str] = None
+    b2q4: Optional[int] = None
+    b2q5: Optional[str] = None
 
 
 class KlimarelevanzpruefungEingabeFb2Create(
@@ -53,7 +53,7 @@ class KlimarelevanzpruefungEingabeFb2Update(KlimarelevanzpruefungEingabeFb2Optio
     """Schema for updating entries (all fields optional)"""
 
     b1q1: Optional[int] = None
-    a2q1: Optional[int] = None
+    b2q1: Optional[int] = None
 
 
 class KlimarelevanzpruefungEingabeFb2Read(

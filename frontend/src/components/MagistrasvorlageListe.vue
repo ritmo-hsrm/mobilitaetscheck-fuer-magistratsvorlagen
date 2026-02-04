@@ -206,7 +206,7 @@
                         >
                           <Button
                             :icon="
-                              item.klimachecks.length > 0
+                              item.klimarelevanzpruefungen.length > 0
                                 ? 'pi pi-check-circle text-green-500'
                                 : 'pi pi-times-circle text-red-400'
                             "

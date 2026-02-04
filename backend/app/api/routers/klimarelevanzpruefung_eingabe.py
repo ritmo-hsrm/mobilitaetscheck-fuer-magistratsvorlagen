@@ -1,6 +1,7 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Response
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.klimarelevanzpruefung_eingabe import (
@@ -28,6 +29,31 @@ async def get_klimarelevanzpruefung_eingabe(
 
 
 @router.get(
+    "/magistratsvorlage/{magistratsvorlage_id}",
+    response_model=List[ReadSchema],
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(current_active_user)],
+)
+async def get_klimarelevanzpruefung(
+    magistratsvorlage_id: int,
+    db: AsyncSession = Depends(get_async_session),
+):
+    sort_params = [("erstellt_am", "desc")]
+
+    instances = await crud.get_by_key(
+        db=db,
+        key="magistratsvorlage_id",
+        value=magistratsvorlage_id,
+        sort_params=sort_params,
+    )
+
+    if not instances:
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+    return instances
+
+
+@router.get(
     "/{id}",
     response_model=ReadSchema,
     dependencies=[Depends(current_active_user)],
@@ -36,6 +62,21 @@ async def get_klimarelevanzpruefung_eingabe(
     id: int, db: AsyncSession = Depends(get_async_session)
 ):
     return await crud.get(db, id)
+
+
+@router.get("/export/{id}", status_code=status.HTTP_201_CREATED)
+async def export_klimarelevanzpruefung(
+    id: int,
+    db: AsyncSession = Depends(get_async_session),
+    user: User = Depends(current_active_user),
+):
+    instance = await crud.get(db, id)
+    check_user_authorization(user, instance.gemeinde_id)
+    pdf_export = await crud.export(db, id)
+
+    filename = f"klimarelevanzpruefung_{id}.pdf"
+    headers = {"Content-Disposition": f"attachment; filename={filename}"}
+    return StreamingResponse(pdf_export, media_type="application/pdf", headers=headers)
 
 
 @router.post(

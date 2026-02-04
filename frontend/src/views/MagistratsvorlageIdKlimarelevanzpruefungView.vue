@@ -11,12 +11,14 @@
         />
       </RouterLink>
     </div>
+    <KlimarelevanzpruefungListe />
   </div>
 </template>
 
 <script setup>
 import { useRoute } from 'vue-router'
 import Button from 'primevue/button'
+import KlimarelevanzpruefungListe from '@/components/KlimarelevanzpruefungListe.vue'
 
 const route = useRoute()
 </script>

@@ -332,7 +332,7 @@
                   :invalid="!!errors.a3q1"
                 />
               </div>
-              <div v-if="a3q1 === true">
+              <div v-if="a3q1 === 1">
                 <div>
                   <p>In welchem Umfang werden Flächen neu versiegelt? (Angabe in m^2)</p>
                   <FloatLabel variant="on">
@@ -679,7 +679,7 @@
                   :invalid="!!errors.a7q1"
                 />
               </div>
-              <div v-if="a7q1 === true">
+              <div v-if="a7q1 === 1">
                 <p>Inwiefern?</p>
                 <FloatLabel variant="on">
                   <InputText
@@ -725,7 +725,7 @@
                   :invalid="!!errors.a8q1"
                 />
               </div>
-              <div v-if="a8q1 === true">
+              <div v-if="a8q1 === 1">
                 <p>Inwiefern?</p>
                 <FloatLabel variant="on">
                   <InputText
@@ -747,7 +747,7 @@
                 icon="pi pi-arrow-left"
                 @click="activateCallback('6')"
               />
-              <Button label="Speichern" icon="pi pi-save" iconPos="right" />
+              <Button label="Speichern" type="submit" icon="pi pi-save" iconPos="right" />
             </div>
           </StepPanel>
         </StepPanels>
@@ -783,12 +783,19 @@ const props = defineProps({
   editMode: {
     type: Boolean,
     default: false
-  }}
-)
+  },
+  item: {
+    type: Object,
+    default: null
+  }
+})
 
 onMounted(async () => {
-  isLoading.value = true
+  isLoading.value = 1
   await fetchData()
+  if (props.editMode && props.item) {
+    setValues(props.item)
+  }
   isLoading.value = false
 })
 
@@ -797,7 +804,7 @@ const fetchData = async () => {
   optionVorhaben.value = await fetchItems('/klimarelevanzpruefung/vorhaben')
 }
 
-const { defineField, handleSubmit, errors } = useForm({
+const { defineField, handleSubmit, errors, setValues } = useForm({
   validationSchema: schema
 })
 
@@ -852,7 +859,7 @@ const a1WeiterButtonDisabled = computed(() => {
   ) {
     return false
   }
-  return true
+  return 1
 })
 
 const a2WeiterButtonDisabled = computed(() => {
@@ -878,19 +885,18 @@ const a2WeiterButtonDisabled = computed(() => {
       return false
     }
   }
-  return true
+  return 1
 })
 
 const emit = defineEmits(['update-item', 'add-item'])
 
 const onSubmit = handleSubmit(async (values) => {
   if (props.editMode) {
-    emit('update-item', { modelId: props.item.id, values })
+    emit('update-item', { fb: 1, modelId: props.item.id, values })
   } else {
-    emit('add-item', values)
+    emit('add-item', { fb: 1, values })
   }
 })
-
 </script>
 
 <style></style>

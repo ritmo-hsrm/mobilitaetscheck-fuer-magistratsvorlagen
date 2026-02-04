@@ -28,8 +28,6 @@ import { computed, ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { copyItem, deleteItem, exportItem, fetchItems, updateItem } from '@/composables/crud'
 import MobilitaetscheckListeItem from '@/components/MobilitaetscheckListeItem.vue'
-import InputText from 'primevue/inputtext'
-import FloatLabel from 'primevue/floatlabel'
 import BaseSpinner from '@/components/BaseSpinner.vue'
 
 const route = useRoute()

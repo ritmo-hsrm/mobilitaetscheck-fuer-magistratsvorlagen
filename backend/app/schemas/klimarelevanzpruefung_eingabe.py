@@ -1,4 +1,5 @@
 from typing import Optional
+from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 
 
@@ -48,6 +49,9 @@ class KlimarelevanzpruefungEingabeRead(KlimarelevanzpruefungEingabeBase):
     )
     fb4: Optional["KlimarelevanzpruefungEingabeFb4Read"] = Field(
         None, description="Associated FB4 input object."
+    )
+    erstellt_am: datetime = Field(
+        None, description="Zeitpunkt der Erstellung im ISO 8601 Format"
     )
 
 

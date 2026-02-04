@@ -5,7 +5,7 @@
         <router-link :to="{ name: 'magistratsvorlage-liste' }">
           <Button
             icon="pi pi-chevron-left"
-            label="zurück"
+            label="zu den Vorlagen"
             class="w-full mb-5"
             severity="secondary"
           />

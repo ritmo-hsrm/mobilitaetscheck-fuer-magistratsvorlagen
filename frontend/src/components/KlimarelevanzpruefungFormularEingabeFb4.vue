@@ -60,7 +60,7 @@
                 icon="pi pi-arrow-left"
                 @click="activateCallback('1')"
               />
-              <Button label="Speichern" icon="pi pi-save" iconPos="right" />
+              <Button label="Speichern" type="submit" icon="pi pi-save" iconPos="right" />
             </div>
           </StepPanel>
         </StepPanels>
@@ -70,9 +70,9 @@
 </template>
 
 <script setup>
+import { onMounted } from 'vue'
 import { useForm } from 'vee-validate'
 import { schema } from '@/utils/schemas/klimarelevanzpruefungEingabeFb4'
-// import ToggleSwitch from 'primevue/toggleswitch'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import FloatLabel from 'primevue/floatlabel'
@@ -82,15 +82,38 @@ import StepPanels from 'primevue/steppanels'
 import Step from 'primevue/step'
 import StepPanel from 'primevue/steppanel'
 
-const { defineField, handleSubmit, errors } = useForm({
+const props = defineProps({
+  editMode: {
+    type: Boolean,
+    default: false
+  },
+  item: {
+    type: Object,
+    default: null
+  }
+})
+
+onMounted(() => {
+  if (props.editMode && props.item) {
+    setValues(props.item)
+  }
+})
+
+const { defineField, handleSubmit, errors, setValues } = useForm({
   validationSchema: schema
 })
 
 const [d1q1] = defineField('d1q1')
 const [d2q1] = defineField('d2q1')
 
-const onSubmit = handleSubmit((values) => {
-  console.log('Form Values:', values)
+const emit = defineEmits(['update-item', 'add-item'])
+
+const onSubmit = handleSubmit(async (values) => {
+  if (props.editMode) {
+    emit('update-item', { fb: 4, modelId: props.item.id, values })
+  } else {
+    emit('add-item', { fb: 4, values })
+  }
 })
 </script>
 
