@@ -133,7 +133,7 @@ watch([f1, f2, f3, f4], ([val1, val2, val3, val4]) => {
 const onSubmit = handleSubmit(async (values) => {
   const response = await createItem({
     model: 'klimarelevanzpruefung/eingabe',
-    values,
+    values: { ...values, magistratsvorlage_id: route.params.id },
     detail: {
       success: 'Klimarelevanzprüfung erfolgreich hinzugefügt',
       error: 'Fehler beim Hinzufügen der Klimarelevanzprüfung'

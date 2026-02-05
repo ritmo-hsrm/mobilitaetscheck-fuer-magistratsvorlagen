@@ -6,6 +6,9 @@ from pydantic import BaseModel, Field, ConfigDict
 class KlimarelevanzpruefungEingabeBase(BaseModel):
 
     name: str = Field(..., description="The name of the Gemeinde.")
+    magistratsvorlage_id: int = Field(
+        ..., description="Foreign key to Magistratsvorlage."
+    )
     f1: bool = Field(..., description="Fb1")
     f2: bool = Field(..., description="Fb2")
     f3: bool = Field(..., description="Fb3")

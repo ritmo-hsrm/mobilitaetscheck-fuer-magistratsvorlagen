@@ -6,8 +6,76 @@ from app.services.pdf.base_pdf import BasePDF
 
 class KlimarelevanzpruefungPDF(BasePDF):
 
+    FOOTNOTES = {
+        1: "Zum Vergleich: eine 80 Jahre alte Buche mit 33 cm Durchmesser und 20 m Höhe speichert ca. eine Tonne CO2. Quelle: Bayerische Landesanstalt für Wald und Forstwirtschaft (LWF) https://www.lwf.bayern.de/mam/cms04/service/dateien/mb27_kohlenstoff_2023_rz_web_bf.pdf",
+        2: 'Die Energetische Sanierung von Altbauten verursachen unter Einbeziehung der Nutzungsphase (50 Jahre) etwa 50 Prozent des CO2-Fußabdrucks eines Neubaus. Quelle: Senger et al. 2022 "Energetische Sanierung von Bestandsgebäuden oder Neubau: ökologische Bewertung hinsichtlich Materialbedarf, Primärenergieverbrauch und damit verbundenen Treibhausgas-Emissionen", Wuppertal Institut für Klima, Umwelt, Energie',
+        3: "Bei der Anschaffung von Maschinen und Materialien fallen bei allen Ausführungen Treibhausgasemissionen in der Produktionskette und im Transport an. Für den Betrieb darüber hinaus Energie in Form von Strom, Treibstoff oder durch die Verarbeitung. Auch weitere ökologische Faktoren wie z.B. Wasserverbrauch oder umweltschädliche Stoffe in der Produktion können anfallen, wirken sich allerdings nicht direkt auf die Treibhausgasbilanz oder die Klimaanpassung hier vor Ort aus.",
+        4: "Eingriffe in den Boden können im Regelfall nicht am gleichen Schutzgut in gleicher Wertigkeit ausgeglichen werden, da die allgemeine Flächenknappheit zu einer zunehmenden Versiegelung führt.",
+    }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.used_footnotes = set()
+        self.page_footnotes = {}  # Maps page number to set of footnote numbers
+        self.rendered_footnotes = set()  # Track which footnotes have been rendered
+
+    def _add_footnote_to_page(self, footnote_num: int):
+        """Register a footnote for the current page"""
+        page = self.page_no()
+        if page not in self.page_footnotes:
+            self.page_footnotes[page] = set()
+        self.page_footnotes[page].add(footnote_num)
+        self.used_footnotes.add(footnote_num)
+
+    def _get_footnotes_height(self, footnote_nums: set) -> float:
+        """Calculate height needed for given footnotes"""
+        if not footnote_nums:
+            return 0
+        height = 8  # Divider line + padding
+        content_width = self.w - 20
+        self.set_font("free-sans", "", 7)
+        superscripts = {1: "¹", 2: "²", 3: "³", 4: "⁴"}
+        for num in sorted(footnote_nums):
+            if num in self.FOOTNOTES and num not in self.rendered_footnotes:
+                marker = superscripts.get(num, str(num))
+                text = f"{marker} {self.FOOTNOTES[num]}"
+                lines = self.multi_cell(content_width, 3.5, text, border=0, split_only=True)
+                height += len(lines) * 3.5 + 2
+        return height
+
     def footer(self):
-        self.set_y(-20)
+        # Get footnotes for current page that haven't been rendered yet
+        page = self.page_no()
+        page_notes = self.page_footnotes.get(page, set())
+        new_notes = page_notes - self.rendered_footnotes
+
+        if new_notes:
+            # Calculate space needed
+            footnote_height = self._get_footnotes_height(new_notes)
+            footer_y = -(footnote_height + 12)  # Extra space for page number
+            self.set_y(footer_y)
+
+            # Draw subtle divider line
+            content_width = self.w - 20
+            self.set_draw_color(180, 180, 180)
+            self.set_line_width(0.3)
+            line_width = content_width * 0.3
+            self.line(self.l_margin, self.get_y(), self.l_margin + line_width, self.get_y())
+            self.ln(3)
+
+            # Render footnotes
+            self.set_font("free-sans", "", 7)
+            superscripts = {1: "¹", 2: "²", 3: "³", 4: "⁴"}
+            for footnote_num in sorted(new_notes):
+                if footnote_num in self.FOOTNOTES:
+                    marker = superscripts.get(footnote_num, str(footnote_num))
+                    text = f"{marker} {self.FOOTNOTES[footnote_num]}"
+                    self.multi_cell(content_width, 3.5, text, border=0, new_x="LMARGIN", new_y="NEXT")
+                    self.ln(1)
+                    self.rendered_footnotes.add(footnote_num)
+
+        # Page number at the very bottom
+        self.set_y(-10)
         self.set_font("free-sans", "", 8)
         self.cell(0, 10, f"Seite {self.page_no()}/{{nb}}", align="C")
 
@@ -37,10 +105,18 @@ class KlimarelevanzpruefungPDF(BasePDF):
         show_number: bool = True,
     ):
         """Add a row with numbering in first column, positive and negative in separate columns"""
+        # Detect footnote markers in text (don't track yet - wait until we know the page)
+        footnote_markers = {"²": 2, "³": 3, "⁴": 4}
+        combined_text = positive_text + negative_text
+        row_footnotes = set()
+        for marker, num in footnote_markers.items():
+            if marker in combined_text:
+                row_footnotes.add(num)
+
         num_col_width = 10
         content_col_width = (self.w - 20 - num_col_width) / 2
 
-        # Calculate height needed
+        # Calculate height needed for row
         self.set_font("free-sans", "", 9)
         positive_lines = self.multi_cell(
             content_col_width, 5, positive_text, border=0, split_only=True
@@ -51,10 +127,28 @@ class KlimarelevanzpruefungPDF(BasePDF):
         max_lines = max(len(positive_lines), len(negative_lines), 1)
         row_height = max_lines * 5 + 2
 
-        # Check if we need a new page
-        if self.get_y() + row_height > self.h - 25:
+        # Calculate space needed for footnotes on current page
+        current_page = self.page_no()
+        current_footnotes = self.page_footnotes.get(current_page, set()) - self.rendered_footnotes
+        potential_footnotes = current_footnotes | row_footnotes
+        footnote_space = self._get_footnotes_height(potential_footnotes - self.rendered_footnotes)
+
+        # Check if we need a new page (row + footnotes must fit)
+        bottom_margin = max(25, footnote_space + 15)  # At least 25mm, or footnotes + page number
+        page_break_occurred = False
+        page_before_break = None
+        y_before_break = None
+
+        if self.get_y() + row_height > self.h - bottom_margin:
+            page_before_break = self.page_no()
+            y_before_break = self.get_y()
+            page_break_occurred = True
             self.add_page()
             self._add_table_header()
+
+        # Now track footnotes for the actual page where this row is rendered
+        for num in row_footnotes:
+            self._add_footnote_to_page(num)
 
         y_start = self.get_y()
 
@@ -106,8 +200,38 @@ class KlimarelevanzpruefungPDF(BasePDF):
         # Move to next row
         self.set_y(y_end)
 
-        # Return info for group number positioning
-        return y_start, y_end, row_num if show_number else None
+        # Return info for group number positioning and page break status
+        return {
+            "y_start": y_start,
+            "y_end": y_end,
+            "row_num": row_num if show_number else None,
+            "page_break": page_break_occurred,
+            "page_before_break": page_before_break,
+            "y_before_break": y_before_break,
+        }
+
+    def _draw_group_number_on_page(
+        self, group_num: int, y_start: float, y_end: float, num_col_width: float, page: int
+    ):
+        """Draw the group number on a specific page"""
+        # Save current state
+        current_page = self.page_no()
+        current_y = self.get_y()
+
+        # Switch to the target page
+        self.page = page
+
+        # Draw the number
+        self.set_font("free-sans", "", 9)
+        text_height = 5
+        group_height = y_end - y_start
+        y_centered = y_start + (group_height - text_height) / 2
+        self.set_xy(self.l_margin, y_centered)
+        self.cell(num_col_width, text_height, str(group_num), border=0, align="C")
+
+        # Restore state
+        self.page = current_page
+        self.set_y(current_y)
 
     def _draw_group_number(
         self, group_num: int, y_start: float, y_end: float, num_col_width: float
@@ -139,7 +263,7 @@ class KlimarelevanzpruefungPDF(BasePDF):
                     (
                         "a1",
                         "",
-                        f"Im Rahmen des Vorhabens werde(n) {fb1.a1q2} angeschafft.",
+                        f"Im Rahmen des Vorhabens werde(n) {fb1.a1q2} angeschafft.³",
                     )
                 )
 
@@ -166,7 +290,7 @@ class KlimarelevanzpruefungPDF(BasePDF):
                     rows.append(
                         (
                             "a2",
-                            "Bei dem Vorhaben wird ein bestehendes Gebäude energetisch aufgewertet.",
+                            "Bei dem Vorhaben wird ein bestehendes Gebäude energetisch aufgewertet.²",
                             "",
                         )
                     )
@@ -184,14 +308,14 @@ class KlimarelevanzpruefungPDF(BasePDF):
                         (
                             "a2",
                             "",
-                            f"Es wird lediglich der Energiestandard {fb1.a2q6_item.name} erreicht und damit das gesetzliche Mindestmaß erfüllt. Es wurde sich für den genannten Standard entschieden, da {fb1.a2q7 or ''}",
+                            f"Es wird lediglich der Energiestandard {fb1.a2q6_item.name} erreicht und damit das gesetzliche Mindestmaß erfüllt. Es wurde sich für den genannten Standard entschieden, da {fb1.a2q7 or ''}²",
                         )
                     )
                 elif fb1.a2q6:
                     rows.append(
                         (
                             "a2",
-                            f"Es wird der Energiestandard {fb1.a2q6_item.name} erreicht. Es wurde sich für den genannten Standard entschieden, da {fb1.a2q7 or ''}",
+                            f"Es wird der Energiestandard {fb1.a2q6_item.name} erreicht. Es wurde sich für den genannten Standard entschieden, da {fb1.a2q7 or ''}²",
                             "",
                         )
                     )
@@ -266,7 +390,7 @@ class KlimarelevanzpruefungPDF(BasePDF):
 
             # a3: Flächenversiegelung
             if fb1.a3q1 == 1:
-                neg_text = f"Bei dem Vorhaben werden Flächen im Umfang von {fb1.a3q2 or '?'} m² neu versiegelt."
+                neg_text = f"Bei dem Vorhaben werden Flächen im Umfang von {fb1.a3q2 or '?'} m² neu versiegelt.⁴"
                 if fb1.a3q3:
                     neg_text += f" Bisher wurde die Fläche als {fb1.a3q3} genutzt."
                 rows.append(("a3", "", neg_text))
@@ -623,6 +747,10 @@ class KlimarelevanzpruefungPDF(BasePDF):
     def export(self, eingabe: KlimarelevanzpruefungEingabe):
         self.alias_nb_pages()
         self.set_auto_page_break(auto=True, margin=20)
+        # Reset footnote tracking for each export
+        self.used_footnotes = set()
+        self.page_footnotes = {}
+        self.rendered_footnotes = set()
         self.add_page()
 
         # Title
@@ -663,6 +791,7 @@ class KlimarelevanzpruefungPDF(BasePDF):
             group_num = 0
             group_y_start = None
             group_y_end = None
+            group_page_start = None
 
             for i, (group, positive_text, negative_text) in enumerate(rows):
                 is_new_group = prev_group != group
@@ -674,16 +803,31 @@ class KlimarelevanzpruefungPDF(BasePDF):
                 if is_new_group:
                     group_num += 1
                     group_y_start = self.get_y()
+                    group_page_start = self.page_no()
 
                 draw_top_border = prev_group is not None and prev_group != group
-                y_start, y_end, _ = self._add_table_row(
+                row_result = self._add_table_row(
                     group_num,
                     positive_text,
                     negative_text,
                     draw_top_border,
                     show_number=False,
                 )
-                group_y_end = y_end
+
+                # Handle page break within a group - draw number on old page first
+                if row_result["page_break"] and group_page_start == row_result["page_before_break"]:
+                    # Draw number for the portion on the old page
+                    # Calculate bottom of content area on the old page (before footer)
+                    old_page_y_end = row_result["y_before_break"]
+                    self._draw_group_number_on_page(
+                        group_num, group_y_start, old_page_y_end, num_col_width,
+                        row_result["page_before_break"]
+                    )
+                    # Reset group start for the new page (after table header)
+                    group_y_start = row_result["y_start"]
+                    group_page_start = self.page_no()
+
+                group_y_end = row_result["y_end"]
 
                 # Draw number when group ends (either last row or next row is different group)
                 if is_last_in_group:

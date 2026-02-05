@@ -1,5 +1,10 @@
 <template>
   <div>
+    <Message v-if="hasErrors" severity="error" class="mb-4">
+      <ul class="list-disc list-inside">
+        <li v-for="(error, field) in errors" :key="field">{{ error }}</li>
+      </ul>
+    </Message>
     <form @submit.prevent="onSubmit" class="mt-4">
       <Stepper value="1">
         <StepList>
@@ -8,40 +13,40 @@
         </StepList>
         <StepPanels>
           <StepPanel v-slot="{ activateCallback }" value="1">
-            <div>
-              <p>
-                Handelt es sich um ein Konzept/eine Kampagne, die das Verhalten der Bevölkerung oder
-                der kommunalen Mitarbeitenden in Bezug auf Klimaaspekte positiv beeinflusst?
-              </p>
-              <SelectButton
-                v-model="c1q1"
-                :options="optionBoolean"
-                optionLabel="name"
-                optionValue="id"
-                :multiple="false"
-                :invalid="!!errors.c1q1"
-              />
-            </div>
-            <Divider />
-            <div v-if="c1q1 === 1">
-              <div>
-                <p>
-                  Handelt es sich um ein Konzept/eine Kampagne, die das Konsumverhalten (Einkauf,
-                  Essgewohnheiten, Abfallproduktion etc.) positiv beeinflusst?
-                </p>
+            <ol>
+              <li>
+                <span>
+                  Handelt es sich um ein Konzept/eine Kampagne, die das Verhalten der Bevölkerung oder
+                  der kommunalen Mitarbeitenden in Bezug auf Klimaaspekte positiv beeinflusst?
+                </span>
                 <SelectButton
-                  v-model="c1q2"
+                  v-model="c1q1"
                   :options="optionBoolean"
                   optionLabel="name"
                   optionValue="id"
                   :multiple="false"
-                  :invalid="!!errors.c1q2"
+                  :invalid="!!errors.c1q1"
                 />
-              </div>
-              <div v-if="c1q2 === 1">
-                <div>
-                  <p>Inwiefern</p>
-                  <FloatLabel variant="on">
+              </li>
+              <Divider />
+              <template v-if="c1q1 === 1">
+                <li>
+                  <span>
+                    Handelt es sich um ein Konzept/eine Kampagne, die das Konsumverhalten (Einkauf,
+                    Essgewohnheiten, Abfallproduktion etc.) positiv beeinflusst?
+                  </span>
+                  <SelectButton
+                    v-model="c1q2"
+                    :options="optionBoolean"
+                    optionLabel="name"
+                    optionValue="id"
+                    :multiple="false"
+                    :invalid="!!errors.c1q2"
+                  />
+                </li>
+                <li v-if="c1q2 === 1">
+                  <span>Inwiefern</span>
+                  <FloatLabel variant="on" class="w-full">
                     <InputText
                       id="c1q3"
                       v-model="c1q3"
@@ -52,27 +57,25 @@
                     />
                     <label for="c1q3">Begründung</label>
                   </FloatLabel>
-                </div>
-              </div>
-              <Divider />
-              <div>
-                <p>
-                  Handelt es sich um ein Konzept/eine Kampagne, die die Mobilität (Nah- oder
-                  Fernverkehr, auch Reisen) klimaschonend beeinflusst?
-                </p>
-                <SelectButton
-                  v-model="c1q4"
-                  :options="optionBoolean"
-                  optionLabel="name"
-                  optionValue="id"
-                  :multiple="false"
-                  :invalid="!!errors.c1q4"
-                />
-              </div>
-              <div v-if="c1q4 === 1">
-                <div>
-                  <p>Inwiefern?</p>
-                  <FloatLabel variant="on">
+                </li>
+                <Divider />
+                <li>
+                  <span>
+                    Handelt es sich um ein Konzept/eine Kampagne, die die Mobilität (Nah- oder
+                    Fernverkehr, auch Reisen) klimaschonend beeinflusst?
+                  </span>
+                  <SelectButton
+                    v-model="c1q4"
+                    :options="optionBoolean"
+                    optionLabel="name"
+                    optionValue="id"
+                    :multiple="false"
+                    :invalid="!!errors.c1q4"
+                  />
+                </li>
+                <li v-if="c1q4 === 1">
+                  <span>Inwiefern?</span>
+                  <FloatLabel variant="on" class="w-full">
                     <InputText
                       id="c1q5"
                       v-model="c1q5"
@@ -83,27 +86,25 @@
                     />
                     <label for="c1q5">Begründung</label>
                   </FloatLabel>
-                </div>
-              </div>
-              <Divider />
-              <div>
-                <p>
-                  Handelt es sich um ein Konzept/eine Kampagne, die das Wissen über Klimaschutz oder
-                  Klimaanpassung positiv beeinflusst?
-                </p>
-                <SelectButton
-                  v-model="c1q6"
-                  :options="optionBoolean"
-                  optionLabel="name"
-                  optionValue="id"
-                  :multiple="false"
-                  :invalid="!!errors.c1q6"
-                />
-              </div>
-              <div v-if="c1q6 === 1">
-                <div>
-                  <p>Inwiefern?</p>
-                  <FloatLabel variant="on">
+                </li>
+                <Divider />
+                <li>
+                  <span>
+                    Handelt es sich um ein Konzept/eine Kampagne, die das Wissen über Klimaschutz oder
+                    Klimaanpassung positiv beeinflusst?
+                  </span>
+                  <SelectButton
+                    v-model="c1q6"
+                    :options="optionBoolean"
+                    optionLabel="name"
+                    optionValue="id"
+                    :multiple="false"
+                    :invalid="!!errors.c1q6"
+                  />
+                </li>
+                <li v-if="c1q6 === 1">
+                  <span>Inwiefern?</span>
+                  <FloatLabel variant="on" class="w-full">
                     <InputText
                       id="c1q7"
                       v-model="c1q7"
@@ -114,27 +115,25 @@
                     />
                     <label for="c1q7">Beschreibung</label>
                   </FloatLabel>
-                </div>
-              </div>
-              <Divider />
-              <div>
-                <p>
-                  Handelt es sich um ein Konzept/eine Kampagne, die anderweitig klimarelevantes
-                  Verhalten (z.B. Entscheidung über EE im Eigenheim) positiv beeinflusst?
-                </p>
-                <SelectButton
-                  v-model="c1q8"
-                  :options="optionBoolean"
-                  optionLabel="name"
-                  optionValue="id"
-                  :multiple="false"
-                  :invalid="!!errors.c1q8"
-                />
-              </div>
-              <div v-if="c1q8 === 1">
-                <div>
-                  <p>Inwiefern?</p>
-                  <FloatLabel variant="on">
+                </li>
+                <Divider />
+                <li>
+                  <span>
+                    Handelt es sich um ein Konzept/eine Kampagne, die anderweitig klimarelevantes
+                    Verhalten (z.B. Entscheidung über EE im Eigenheim) positiv beeinflusst?
+                  </span>
+                  <SelectButton
+                    v-model="c1q8"
+                    :options="optionBoolean"
+                    optionLabel="name"
+                    optionValue="id"
+                    :multiple="false"
+                    :invalid="!!errors.c1q8"
+                  />
+                </li>
+                <li v-if="c1q8 === 1">
+                  <span>Inwiefern?</span>
+                  <FloatLabel variant="on" class="w-full">
                     <InputText
                       id="c1q9"
                       v-model="c1q9"
@@ -145,9 +144,9 @@
                     />
                     <label for="c1q9">Beschreibung</label>
                   </FloatLabel>
-                </div>
-              </div>
-            </div>
+                </li>
+              </template>
+            </ol>
             <div class="flex pt-6 justify-end">
               <Button
                 label="Weiter"
@@ -158,12 +157,12 @@
             </div>
           </StepPanel>
           <StepPanel v-slot="{ activateCallback }" value="2">
-            <div>
-              <div>
-                <p>
+            <ol>
+              <li>
+                <span>
                   Handelt es sich um ein Konzept/eine Kampagne, die das Verhalten der Bevölkerung
                   oder der kommunalen Mitarbeitenden in Bezug auf Klimaaspekte negativ beeinflusst?
-                </p>
+                </span>
                 <SelectButton
                   v-model="c2q1"
                   :options="optionBoolean"
@@ -172,13 +171,13 @@
                   :multiple="false"
                   :invalid="!!errors.c2q1"
                 />
-              </div>
-              <div v-if="c2q1 === 1">
-                <div>
-                  <p>
+              </li>
+              <template v-if="c2q1 === 1">
+                <li>
+                  <span>
                     Handelt es sich um ein Konzept/eine Kampagne, die das Konsumverhalten (Einkauf,
                     Essgewohnheiten, Abfallproduktion etc.) negativ beeinflusst?
-                  </p>
+                  </span>
                   <SelectButton
                     v-model="c2q2"
                     :options="optionBoolean"
@@ -187,29 +186,27 @@
                     :multiple="false"
                     :invalid="!!errors.c2q2"
                   />
-                </div>
-                <div v-if="c2q2 === 1">
-                  <div>
-                    <p>Inwiefern?</p>
-                    <FloatLabel variant="on">
-                      <InputText
-                        id="c2q3"
-                        v-model="c2q3"
-                        aria-describedby="c2q3-help"
-                        :invalid="!!errors.c2q3"
-                        class="w-full"
-                        inputClass="w-full"
-                      />
-                      <label for="c2q3">Begründung</label>
-                    </FloatLabel>
-                  </div>
-                </div>
+                </li>
+                <li v-if="c2q2 === 1">
+                  <span>Inwiefern?</span>
+                  <FloatLabel variant="on" class="w-full">
+                    <InputText
+                      id="c2q3"
+                      v-model="c2q3"
+                      aria-describedby="c2q3-help"
+                      :invalid="!!errors.c2q3"
+                      class="w-full"
+                      inputClass="w-full"
+                    />
+                    <label for="c2q3">Begründung</label>
+                  </FloatLabel>
+                </li>
                 <Divider />
-                <div>
-                  <p>
+                <li>
+                  <span>
                     Handelt es sich um ein Konzept/eine Kampagne, die die Mobilität (Nah- oder
                     Fernverkehr, auch Reisen) klimaschädigend beeinflusst?
-                  </p>
+                  </span>
                   <SelectButton
                     v-model="c2q4"
                     :options="optionBoolean"
@@ -218,29 +215,27 @@
                     :multiple="false"
                     :invalid="!!errors.c2q4"
                   />
-                </div>
-                <div v-if="c2q4 === 1">
-                  <div>
-                    <p>Inwiefern?</p>
-                    <FloatLabel variant="on">
-                      <InputText
-                        id="c2q5"
-                        v-model="c2q5"
-                        aria-describedby="c2q5-help"
-                        :invalid="!!errors.c2q5"
-                        class="w-full"
-                        inputClass="w-full"
-                      />
-                      <label for="c2q5">Begründung</label>
-                    </FloatLabel>
-                  </div>
-                </div>
+                </li>
+                <li v-if="c2q4 === 1">
+                  <span>Inwiefern?</span>
+                  <FloatLabel variant="on" class="w-full">
+                    <InputText
+                      id="c2q5"
+                      v-model="c2q5"
+                      aria-describedby="c2q5-help"
+                      :invalid="!!errors.c2q5"
+                      class="w-full"
+                      inputClass="w-full"
+                    />
+                    <label for="c2q5">Begründung</label>
+                  </FloatLabel>
+                </li>
                 <Divider />
-                <div>
-                  <p>
+                <li>
+                  <span>
                     Handelt es sich um ein Konzept/eine Kampagne, die das Wissen über Klimaschutz
                     oder Klimaanpassung negativ beeinflusst?
-                  </p>
+                  </span>
                   <SelectButton
                     v-model="c2q6"
                     :options="optionBoolean"
@@ -249,29 +244,27 @@
                     :multiple="false"
                     :invalid="!!errors.c2q6"
                   />
-                </div>
-                <div v-if="c2q6 === 1">
-                  <div>
-                    <p>Inwiefern?</p>
-                    <FloatLabel variant="on">
-                      <InputText
-                        id="c2q7"
-                        v-model="c2q7"
-                        aria-describedby="c2q7-help"
-                        :invalid="!!errors.c2q7"
-                        class="w-full"
-                        inputClass="w-full"
-                      />
-                      <label for="c2q7">Beschreibung</label>
-                    </FloatLabel>
-                  </div>
-                </div>
+                </li>
+                <li v-if="c2q6 === 1">
+                  <span>Inwiefern?</span>
+                  <FloatLabel variant="on" class="w-full">
+                    <InputText
+                      id="c2q7"
+                      v-model="c2q7"
+                      aria-describedby="c2q7-help"
+                      :invalid="!!errors.c2q7"
+                      class="w-full"
+                      inputClass="w-full"
+                    />
+                    <label for="c2q7">Beschreibung</label>
+                  </FloatLabel>
+                </li>
                 <Divider />
-                <div>
-                  <p>
+                <li>
+                  <span>
                     Handelt es sich um ein Konzept/eine Kampagne, die anderweitig klimarelevantes
                     Verhalten (z.B. Entscheidung über EE im Eigenheim) negativ beeinflusst?
-                  </p>
+                  </span>
                   <SelectButton
                     v-model="c2q8"
                     :options="optionBoolean"
@@ -280,25 +273,23 @@
                     :multiple="false"
                     :invalid="!!errors.c2q8"
                   />
-                </div>
-                <div v-if="c2q8 === 1">
-                  <div>
-                    <p>Inwiefern?</p>
-                    <FloatLabel variant="on">
-                      <InputText
-                        id="c2q9"
-                        v-model="c2q9"
-                        aria-describedby="c2q9-help"
-                        :invalid="!!errors.c2q9"
-                        class="w-full"
-                        inputClass="w-full"
-                      />
-                      <label for="c2q9">Beschreibung</label>
-                    </FloatLabel>
-                  </div>
-                </div>
-              </div>
-            </div>
+                </li>
+                <li v-if="c2q8 === 1">
+                  <span>Inwiefern?</span>
+                  <FloatLabel variant="on" class="w-full">
+                    <InputText
+                      id="c2q9"
+                      v-model="c2q9"
+                      aria-describedby="c2q9-help"
+                      :invalid="!!errors.c2q9"
+                      class="w-full"
+                      inputClass="w-full"
+                    />
+                    <label for="c2q9">Beschreibung</label>
+                  </FloatLabel>
+                </li>
+              </template>
+            </ol>
             <div class="flex pt-6 justify-between">
               <Button
                 label="Zurück"
@@ -316,11 +307,10 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { schema } from '@/utils/schemas/klimarelevanzpruefungEingabeFb3'
 import { fetchItems } from '@/composables/crud'
-// import ToggleSwitch from 'primevue/toggleswitch'
 import Button from 'primevue/button'
 import Divider from 'primevue/divider'
 import InputText from 'primevue/inputtext'
@@ -331,6 +321,7 @@ import StepList from 'primevue/steplist'
 import StepPanels from 'primevue/steppanels'
 import Step from 'primevue/step'
 import StepPanel from 'primevue/steppanel'
+import Message from 'primevue/message'
 
 const isLoading = ref(false)
 const optionBoolean = ref()
@@ -363,6 +354,8 @@ const { defineField, handleSubmit, errors, setValues } = useForm({
   validationSchema: schema
 })
 
+const hasErrors = computed(() => Object.keys(errors.value).length > 0)
+
 const [c1q1] = defineField('c1q1')
 const [c1q2] = defineField('c1q2')
 const [c1q3] = defineField('c1q3')
@@ -393,4 +386,23 @@ const onSubmit = handleSubmit(async (values) => {
 })
 </script>
 
-<style></style>
+<style scoped>
+ol {
+  counter-reset: question;
+  list-style: none;
+  padding-left: 0;
+}
+
+ol > li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  counter-increment: question;
+  margin-bottom: 1rem;
+}
+
+ol > li > span:first-child::before {
+  content: counter(question) '. ';
+  font-weight: bold;
+}
+</style>

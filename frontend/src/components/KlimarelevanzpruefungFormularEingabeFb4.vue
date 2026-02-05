@@ -1,5 +1,10 @@
 <template>
   <div>
+    <Message v-if="hasErrors" severity="error" class="mb-4">
+      <ul class="list-disc list-inside">
+        <li v-for="(error, field) in errors" :key="field">{{ error }}</li>
+      </ul>
+    </Message>
     <form @submit.prevent="onSubmit" class="mt-4">
       <Stepper value="1">
         <StepList>
@@ -8,23 +13,25 @@
         </StepList>
         <StepPanels>
           <StepPanel v-slot="{ activateCallback }" value="1">
-            <div>
-              <p>
-                Bitte begründen Sie im Folgenden, inwiefern Ihr Vorhaben eine positive Klimarelevanz
-                hat.
-              </p>
-              <FloatLabel variant="on">
-                <InputText
-                  id="d1q1"
-                  v-model="d1q1"
-                  aria-describedby="d1q1-help"
-                  :invalid="!!errors.d1q1"
-                  class="w-full"
-                  inputClass="w-full"
-                />
-                <label for="d1q1">Begründung</label>
-              </FloatLabel>
-            </div>
+            <ol>
+              <li>
+                <span>
+                  Bitte begründen Sie im Folgenden, inwiefern Ihr Vorhaben eine positive Klimarelevanz
+                  hat.
+                </span>
+                <FloatLabel variant="on" class="w-full">
+                  <InputText
+                    id="d1q1"
+                    v-model="d1q1"
+                    aria-describedby="d1q1-help"
+                    :invalid="!!errors.d1q1"
+                    class="w-full"
+                    inputClass="w-full"
+                  />
+                  <label for="d1q1">Begründung</label>
+                </FloatLabel>
+              </li>
+            </ol>
 
             <div class="flex pt-6 justify-end">
               <Button
@@ -36,23 +43,25 @@
             </div>
           </StepPanel>
           <StepPanel v-slot="{ activateCallback }" value="2">
-            <div>
-              <p>
-                Bitte begründen Sie im Folgenden, inwiefern Ihr Vorhaben eine negative Klimarelevanz
-                hat.
-              </p>
-              <FloatLabel variant="on">
-                <InputText
-                  id="d2q1"
-                  v-model="d2q1"
-                  aria-describedby="d2q1-help"
-                  :invalid="!!errors.d2q1"
-                  class="w-full"
-                  inputClass="w-full"
-                />
-                <label for="d2q1">Begründung</label>
-              </FloatLabel>
-            </div>
+            <ol>
+              <li>
+                <span>
+                  Bitte begründen Sie im Folgenden, inwiefern Ihr Vorhaben eine negative Klimarelevanz
+                  hat.
+                </span>
+                <FloatLabel variant="on" class="w-full">
+                  <InputText
+                    id="d2q1"
+                    v-model="d2q1"
+                    aria-describedby="d2q1-help"
+                    :invalid="!!errors.d2q1"
+                    class="w-full"
+                    inputClass="w-full"
+                  />
+                  <label for="d2q1">Begründung</label>
+                </FloatLabel>
+              </li>
+            </ol>
             <div class="flex pt-6 justify-between">
               <Button
                 label="Zurück"
@@ -70,7 +79,7 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useForm } from 'vee-validate'
 import { schema } from '@/utils/schemas/klimarelevanzpruefungEingabeFb4'
 import Button from 'primevue/button'
@@ -81,6 +90,7 @@ import StepList from 'primevue/steplist'
 import StepPanels from 'primevue/steppanels'
 import Step from 'primevue/step'
 import StepPanel from 'primevue/steppanel'
+import Message from 'primevue/message'
 
 const props = defineProps({
   editMode: {
@@ -103,6 +113,8 @@ const { defineField, handleSubmit, errors, setValues } = useForm({
   validationSchema: schema
 })
 
+const hasErrors = computed(() => Object.keys(errors.value).length > 0)
+
 const [d1q1] = defineField('d1q1')
 const [d2q1] = defineField('d2q1')
 
@@ -117,4 +129,23 @@ const onSubmit = handleSubmit(async (values) => {
 })
 </script>
 
-<style></style>
+<style scoped>
+ol {
+  counter-reset: question;
+  list-style: none;
+  padding-left: 0;
+}
+
+ol > li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  counter-increment: question;
+  margin-bottom: 1rem;
+}
+
+ol > li > span:first-child::before {
+  content: counter(question) '. ';
+  font-weight: bold;
+}
+</style>

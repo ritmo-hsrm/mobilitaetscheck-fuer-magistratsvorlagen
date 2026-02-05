@@ -1,6 +1,11 @@
 <template>
   <div>
     <form @submit.prevent="onSubmit" class="mt-4">
+      <Message v-if="hasErrors" severity="error" class="mb-4">
+        <ul class="list-disc list-inside">
+          <li v-for="(error, field) in errors" :key="field">{{ error }}</li>
+        </ul>
+      </Message>
       <Stepper value="1">
         <StepList>
           <Step value="1"></Step>
@@ -14,82 +19,84 @@
         </StepList>
         <StepPanels>
           <StepPanel v-slot="{ activateCallback }" value="1">
-            <div>
-              <p>Werden im Rahmen des Vorhabens Maschinen oder Materialen angeschafft?</p>
-              <SelectButton
-                v-model="a1q1"
-                :options="optionBoolean"
-                optionLabel="name"
-                optionValue="id"
-                :multiple="false"
-                :invalid="!!errors.a1q1"
-              />
-            </div>
-            <div v-if="a1q1 === 1">
-              <Divider />
-              <div>
-                <p>Was wurde hauptsächlich angeschafft?</p>
-                <FloatLabel variant="on">
-                  <InputText
-                    id="a1q2"
-                    v-model="a1q2"
-                    aria-describedby="a1q2-help"
-                    :invalid="!!errors.a1q2"
-                    class="w-full"
-                    inputClass="w-full"
-                  />
-                  <label for="a1q2"
-                    >z.B. Fahrzeuge, IT-Ausstattung, Möbel, Werkzeuge, Maschinen</label
-                  >
-                </FloatLabel>
-              </div>
-
-              <div>
-                <p>
-                  Wurde bei der Auswahl auf Nachhaltigkeitskriterien geachtet und sich ganz oder
-                  teilweise für eine klimaschonende Ausführung entschieden?
-                </p>
+            <ol class="list-decimal list-inside space-y-4">
+              <li>
+                <span>Werden im Rahmen des Vorhabens Maschinen oder Materialen angeschafft?</span>
                 <SelectButton
-                  v-model="a1q3"
+                  v-model="a1q1"
                   :options="optionBoolean"
                   optionLabel="name"
                   optionValue="id"
                   :multiple="false"
-                  :invalid="!!errors.a1q3"
+                  :invalid="!!errors.a1q1"
+                  class="mt-2"
                 />
-              </div>
-              <div v-if="a1q3 === 1">
-                <p>Inwiefern?</p>
-                <FloatLabel variant="on">
-                  <InputText
-                    id="a1q4"
-                    v-model="a1q4"
-                    aria-describedby="a1q4-help"
-                    :invalid="!!errors.a1q4"
-                    class="w-full"
-                    inputClass="w-full"
+              </li>
+              <template v-if="a1q1 === 1">
+                <li>
+                  <span>Was wurde hauptsächlich angeschafft?</span>
+                  <FloatLabel variant="on" class="mt-2 w-full">
+                    <InputText
+                      id="a1q2"
+                      v-model="a1q2"
+                      aria-describedby="a1q2-help"
+                      :invalid="!!errors.a1q2"
+                      class="w-full"
+                      inputClass="w-full"
+                    />
+                    <label for="a1q2"
+                      >z.B. Fahrzeuge, IT-Ausstattung, Möbel, Werkzeuge, Maschinen</label
+                    >
+                  </FloatLabel>
+                </li>
+                <li>
+                  <span>
+                    Wurde bei der Auswahl auf Nachhaltigkeitskriterien geachtet und sich ganz oder
+                    teilweise für eine klimaschonende Ausführung entschieden?
+                  </span>
+                  <SelectButton
+                    v-model="a1q3"
+                    :options="optionBoolean"
+                    optionLabel="name"
+                    optionValue="id"
+                    :multiple="false"
+                    :invalid="!!errors.a1q3"
+                    class="mt-2"
                   />
-                  <label for="a1q4">Begründung</label>
-                </FloatLabel>
-              </div>
-              <div v-if="a1q3 === 2">
-                <p>
-                  Warum wurde sich nicht für die nachhaltige Variante entschieden? Bitte begründen
-                  Sie kurz.
-                </p>
-                <FloatLabel variant="on">
-                  <InputText
-                    id="a1q5"
-                    v-model="a1q5"
-                    aria-describedby="a1q5-help"
-                    :invalid="!!errors.a1q5"
-                    class="w-full"
-                    inputClass="w-full"
-                  />
-                  <label for="a1q5">Begründung</label>
-                </FloatLabel>
-              </div>
-            </div>
+                </li>
+                <li v-if="a1q3 === 1">
+                  <span>Inwiefern?</span>
+                  <FloatLabel variant="on" class="mt-2 w-full">
+                    <InputText
+                      id="a1q4"
+                      v-model="a1q4"
+                      aria-describedby="a1q4-help"
+                      :invalid="!!errors.a1q4"
+                      class="w-full"
+                      inputClass="w-full"
+                    />
+                    <label for="a1q4">Begründung</label>
+                  </FloatLabel>
+                </li>
+                <li v-if="a1q3 === 2">
+                  <span>
+                    Warum wurde sich nicht für die nachhaltige Variante entschieden? Bitte begründen
+                    Sie kurz.
+                  </span>
+                  <FloatLabel variant="on" class="mt-2 w-full">
+                    <InputText
+                      id="a1q5"
+                      v-model="a1q5"
+                      aria-describedby="a1q5-help"
+                      :invalid="!!errors.a1q5"
+                      class="w-full"
+                      inputClass="w-full"
+                    />
+                    <label for="a1q5">Begründung</label>
+                  </FloatLabel>
+                </li>
+              </template>
+            </ol>
             <div class="flex pt-6 justify-end">
               <Button
                 label="Weiter"
@@ -102,208 +109,220 @@
             </div>
           </StepPanel>
           <StepPanel v-slot="{ activateCallback }" value="2">
-            <div>
-              <p>Werden bauliche Maßnahmen durchgeführt?</p>
-              <SelectButton
-                v-model="a2q1"
-                :options="optionBoolean"
-                optionLabel="name"
-                optionValue="id"
-                :multiple="false"
-                :invalid="!!errors.a2q1"
-              />
-            </div>
-            <div v-if="a2q1 === 1">
-              <div>
-                <p>Worum handelt es sich bei dem Vorhaben?</p>
+            <ol class="list-decimal list-inside space-y-4">
+              <li>
+                <span>Werden bauliche Maßnahmen durchgeführt?</span>
                 <SelectButton
-                  v-model="a2q2"
-                  :options="optionVorhaben"
+                  v-model="a2q1"
+                  :options="optionBoolean"
                   optionLabel="name"
                   optionValue="id"
                   :multiple="false"
-                  :invalid="!!errors.a2q2"
+                  :invalid="!!errors.a2q1"
+                  class="mt-2"
                 />
-              </div>
-              <div v-if="[3, 4].includes(a2q2)">
-                <div>
-                  <p>Wird durch das Bauvorhaben ein bestehendes Gebäude energetisch aufgewertet?</p>
+              </li>
+              <template v-if="a2q1 === 1">
+                <li>
+                  <span>Worum handelt es sich bei dem Vorhaben?</span>
                   <SelectButton
-                    v-model="a2q3"
+                    v-model="a2q2"
+                    :options="optionVorhaben"
+                    optionLabel="name"
+                    optionValue="id"
+                    :multiple="false"
+                    :invalid="!!errors.a2q2"
+                    class="mt-2"
+                  />
+                </li>
+                <template v-if="[3, 4].includes(a2q2)">
+                  <li>
+                    <span
+                      >Wird durch das Bauvorhaben ein bestehendes Gebäude energetisch
+                      aufgewertet?</span
+                    >
+                    <SelectButton
+                      v-model="a2q3"
+                      :options="optionBoolean"
+                      optionLabel="name"
+                      optionValue="id"
+                      :multiple="false"
+                      :invalid="!!errors.a2q3"
+                      class="mt-2"
+                    />
+                  </li>
+                  <template v-if="a2q3 === 1">
+                    <li>
+                      <span>Welcher Energiestandard wird erreicht?</span>
+                      <Select
+                        v-model="a2q4"
+                        :options="optionVorhaben.find((x) => x.id === 3)?.energiestandards || []"
+                        optionLabel="name"
+                        optionValue="id"
+                        class="w-full mt-2"
+                        :invalid="!!errors.a2q4"
+                        aria-describedby="a2q4-help"
+                      />
+                    </li>
+                    <li v-if="typeof a2q4 === 'number'">
+                      <span>Warum wurde sich für den genannten Energiestandard entschieden?</span>
+                      <FloatLabel variant="on" class="mt-2 w-full">
+                        <InputText
+                          id="a2q5"
+                          v-model="a2q5"
+                          aria-describedby="a2q4-help"
+                          :invalid="!!errors.a2q5"
+                          class="w-full"
+                          inputClass="w-full"
+                        />
+                        <label for="a2q5">Begründung</label>
+                      </FloatLabel>
+                    </li>
+                  </template>
+                </template>
+                <template v-if="[1, 2].includes(a2q2)">
+                  <li>
+                    <span>Welcher Energiestandard wird erreicht?</span>
+                    <Select
+                      v-model="a2q6"
+                      :options="optionVorhaben.find((x) => x.id === 1)?.energiestandards || []"
+                      optionLabel="name"
+                      optionValue="id"
+                      class="w-full mt-2"
+                      :invalid="!!errors.a2q6"
+                      aria-describedby="a2q6-help"
+                    />
+                  </li>
+                  <li v-if="typeof a2q6 === 'number'">
+                    <span>Warum wurde sich für den genannten Energiestandard entschieden?</span>
+                    <FloatLabel variant="on" class="mt-2 w-full">
+                      <InputText
+                        id="a2q7"
+                        v-model="a2q7"
+                        aria-describedby="a2q7-help"
+                        :invalid="!!errors.a2q7"
+                        class="w-full"
+                        inputClass="w-full"
+                      />
+                      <label for="a2q7">Begründung</label>
+                    </FloatLabel>
+                  </li>
+                </template>
+                <li>
+                  <span>
+                    Wird bei dem Bauvorhaben darauf geachtet, dass Niederschlag möglichst vor Ort
+                    versickert?
+                  </span>
+                  <SelectButton
+                    v-model="a2q8"
                     :options="optionBoolean"
                     optionLabel="name"
                     optionValue="id"
                     :multiple="false"
-                    :invalid="!!errors.a2q3"
+                    :invalid="!!errors.a2q8"
+                    class="mt-2"
                   />
-                </div>
-                <div v-if="a2q3 === 1">
-                  <div>
-                    <p>Welcher Energiestandard wird erreicht?</p>
-                    <Select
-                      v-model="a2q4"
-                      :options="optionVorhaben.find((x) => x.id === 3)?.energiestandards || []"
-                      optionLabel="name"
-                      optionValue="id"
-                      class="w-full"
-                      :invalid="!!errors.a2q4"
-                      aria-describedby="a2q4-help"
-                    />
-                  </div>
-                  <div v-if="typeof a2q4 === 'number'">
-                    <p>Warum wurde sich für den genannten Energiestandard entschieden?</p>
-                    <FloatLabel variant="on">
-                      <InputText
-                        id="a2q5"
-                        v-model="a2q5"
-                        aria-describedby="a2q4-help"
-                        :invalid="!!errors.a2q5"
-                        class="w-full"
-                        inputClass="w-full"
-                      />
-                      <label for="a2q5">Begründung</label>
-                    </FloatLabel>
-                  </div>
-                </div>
-              </div>
-              <div v-if="[1, 2].includes(a2q2)">
-                <div>
-                  <p>Welcher Energiestandard wird erreicht?</p>
-                  <Select
-                    v-model="a2q6"
-                    :options="optionVorhaben.find((x) => x.id === 1)?.energiestandards || []"
-                    optionLabel="name"
-                    optionValue="id"
-                    class="w-full"
-                    :invalid="!!errors.a2q6"
-                    aria-describedby="a2q6-help"
-                  />
-                </div>
-                <div v-if="typeof a2q6 === 'number'">
-                  <p>Warum wurde sich für den genannten Energiestandard entschieden?</p>
-                  <FloatLabel variant="on">
+                </li>
+                <li v-if="a2q8 === false">
+                  <span>Warum nicht?</span>
+                  <FloatLabel variant="on" class="mt-2 w-full">
                     <InputText
-                      id="a2q7"
-                      v-model="a2q7"
-                      aria-describedby="a2q7-help"
-                      :invalid="!!errors.a2q7"
+                      id="a2q9"
+                      v-model="a2q9"
+                      aria-describedby="a2q9-help"
+                      :invalid="!!errors.a2q9"
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="a2q7">Begründung</label>
+                    <label for="a2q9">Begründung</label>
                   </FloatLabel>
-                </div>
-              </div>
-              <div>
-                <p>
-                  Wird bei dem Bauvorhaben darauf geachtet, dass Niederschlag möglichst vor Ort
-                  versickert?
-                </p>
-                <SelectButton
-                  v-model="a2q8"
-                  :options="optionBoolean"
-                  optionLabel="name"
-                  optionValue="id"
-                  :multiple="false"
-                  :invalid="!!errors.a2q8"
-                />
-              </div>
-              <div v-if="a2q8 === false">
-                <p>Warum nicht?</p>
-                <FloatLabel variant="on">
-                  <InputText
-                    id="a2q9"
-                    v-model="a2q9"
-                    aria-describedby="a2q9-help"
-                    :invalid="!!errors.a2q9"
-                    class="w-full"
-                    inputClass="w-full"
+                </li>
+                <li>
+                  <span>
+                    Wird bei dem Bauvorhaben darauf geachtet, dass Kaltluftströme ungehindert
+                    fließen können?
+                  </span>
+                  <SelectButton
+                    v-model="a2q10"
+                    :options="optionBoolean"
+                    optionLabel="name"
+                    optionValue="id"
+                    :multiple="false"
+                    :invalid="!!errors.a2q10"
+                    class="mt-2"
                   />
-                  <label for="a2q9">Begründung</label>
-                </FloatLabel>
-              </div>
-              <div>
-                <p>
-                  Wird bei dem Bauvorhaben darauf geachtet, dass Kaltluftströme ungehindert fließen
-                  können?
-                </p>
-                <SelectButton
-                  v-model="a2q10"
-                  :options="optionBoolean"
-                  optionLabel="name"
-                  optionValue="id"
-                  :multiple="false"
-                  :invalid="!!errors.a2q10"
-                />
-              </div>
-              <div v-if="a2q10 === 2">
-                <p>Warum nicht?</p>
-                <FloatLabel variant="on">
-                  <InputText
-                    id="a2q11"
-                    v-model="a2q11"
-                    aria-describedby="a2q11-help"
-                    :invalid="!!errors.a2q11"
-                    class="w-full"
-                    inputClass="w-full"
+                </li>
+                <li v-if="a2q10 === 2">
+                  <span>Warum nicht?</span>
+                  <FloatLabel variant="on" class="mt-2 w-full">
+                    <InputText
+                      id="a2q11"
+                      v-model="a2q11"
+                      aria-describedby="a2q11-help"
+                      :invalid="!!errors.a2q11"
+                      class="w-full"
+                      inputClass="w-full"
+                    />
+                    <label for="a2q11">Begründung</label>
+                  </FloatLabel>
+                </li>
+                <li>
+                  <span>
+                    Wird bei dem Vorhaben durch geeignete Maßnahmen der örtlichen Hitzebildung
+                    vorgebeugt? (z. B. Verschattungselemente oder Begrünung)
+                  </span>
+                  <SelectButton
+                    v-model="a2q12"
+                    :options="optionBoolean"
+                    optionLabel="name"
+                    optionValue="id"
+                    :multiple="false"
+                    :invalid="!!errors.a2q12"
+                    class="mt-2"
                   />
-                  <label for="a2q11">Begründung</label>
-                </FloatLabel>
-              </div>
-              <div>
-                <p>
-                  Wird bei dem Vorhaben durch geeignete Maßnahmen der örtlichen Hitzebildung
-                  vorgebeugt? (z. B. Verschattungselemente oder Begrünung)
-                </p>
-                <SelectButton
-                  v-model="a2q12"
-                  :options="optionBoolean"
-                  optionLabel="name"
-                  optionValue="id"
-                  :multiple="false"
-                  :invalid="!!errors.a2q12"
-                />
-              </div>
-              <div v-if="a2q12 === false">
-                <p>Warum nicht?</p>
-                <FloatLabel variant="on">
-                  <InputText
-                    id="a2q13"
-                    v-model="a2q13"
-                    aria-describedby="a2q13-help"
-                    :invalid="!!errors.a2q11"
-                    class="w-full"
-                    inputClass="w-full"
+                </li>
+                <li v-if="a2q12 === false">
+                  <span>Warum nicht?</span>
+                  <FloatLabel variant="on" class="mt-2 w-full">
+                    <InputText
+                      id="a2q13"
+                      v-model="a2q13"
+                      aria-describedby="a2q13-help"
+                      :invalid="!!errors.a2q13"
+                      class="w-full"
+                      inputClass="w-full"
+                    />
+                    <label for="a2q13">Begründung</label>
+                  </FloatLabel>
+                </li>
+                <li>
+                  <span>Wurde bei den Vergabekriterien auf Nachhaltigkeit geachtet?</span>
+                  <SelectButton
+                    v-model="a2q14"
+                    :options="optionBoolean"
+                    optionLabel="name"
+                    optionValue="id"
+                    :multiple="false"
+                    :invalid="!!errors.a2q14"
+                    class="mt-2"
                   />
-                  <label for="a2q13">Begründung</label>
-                </FloatLabel>
-              </div>
-              <div>
-                <p>Wurde bei den Vergabekriterien auf Nachhaltigkeit geachtet?</p>
-                <SelectButton
-                  v-model="a2q14"
-                  :options="optionBoolean"
-                  optionLabel="name"
-                  optionValue="id"
-                  :multiple="false"
-                  :invalid="!!errors.a2q14"
-                />
-              </div>
-              <div v-if="a2q14 === false">
-                <p>Warum nicht?</p>
-                <FloatLabel variant="on">
-                  <InputText
-                    id="a2q15"
-                    v-model="a2q15"
-                    aria-describedby="a2q15-help"
-                    :invalid="!!errors.a2q15"
-                    class="w-full"
-                    inputClass="w-full"
-                  />
-                  <label for="a2q15">Begründung</label>
-                </FloatLabel>
-              </div>
-            </div>
+                </li>
+                <li v-if="a2q14 === false">
+                  <span>Warum nicht?</span>
+                  <FloatLabel variant="on" class="mt-2 w-full">
+                    <InputText
+                      id="a2q15"
+                      v-model="a2q15"
+                      aria-describedby="a2q15-help"
+                      :invalid="!!errors.a2q15"
+                      class="w-full"
+                      inputClass="w-full"
+                    />
+                    <label for="a2q15">Begründung</label>
+                  </FloatLabel>
+                </li>
+              </template>
+            </ol>
             <div class="flex pt-6 justify-between">
               <Button
                 label="Zurück"
@@ -320,9 +339,9 @@
             </div>
           </StepPanel>
           <StepPanel v-slot="{ activateCallback }" value="3">
-            <div>
-              <div>
-                <p>Werden bei dem Vorhaben Flächen neu versiegelt?</p>
+            <ol class="list-decimal list-inside space-y-4">
+              <li>
+                <span>Werden bei dem Vorhaben Flächen neu versiegelt?</span>
                 <SelectButton
                   v-model="a3q1"
                   :options="optionBoolean"
@@ -330,18 +349,20 @@
                   optionValue="id"
                   :multiple="false"
                   :invalid="!!errors.a3q1"
+                  class="mt-2"
                 />
-              </div>
-              <div v-if="a3q1 === 1">
-                <div>
-                  <p>In welchem Umfang werden Flächen neu versiegelt? (Angabe in m^2)</p>
-                  <FloatLabel variant="on">
+              </li>
+              <template v-if="a3q1 === 1">
+                <li>
+                  <span>In welchem Umfang werden Flächen neu versiegelt? (Angabe in m²)</span>
+                  <FloatLabel variant="on" class="mt-2 w-full">
                     <InputNumber
                       id="a3q2"
                       v-model="a3q2"
                       :min="0"
                       :step="1"
                       mode="decimal"
+                      suffix=" m²"
                       :useGrouping="false"
                       aria-describedby="a3q2-help"
                       :invalid="!!errors.a3q2"
@@ -350,10 +371,10 @@
                     />
                     <label for="a3q2">Angabe in m²</label>
                   </FloatLabel>
-                </div>
-                <div>
-                  <p>Wie wurde die Fläche bisher genutzt?</p>
-                  <FloatLabel variant="on">
+                </li>
+                <li>
+                  <span>Wie wurde die Fläche bisher genutzt?</span>
+                  <FloatLabel variant="on" class="mt-2 w-full">
                     <InputText
                       id="a3q3"
                       v-model="a3q3"
@@ -364,9 +385,9 @@
                     />
                     <label for="a3q3">Begründung</label>
                   </FloatLabel>
-                </div>
-                <div>
-                  <p>Sind für die Versiegelung Ausgleichsmaßnahmen vorgesehen?</p>
+                </li>
+                <li>
+                  <span>Sind für die Versiegelung Ausgleichsmaßnahmen vorgesehen?</span>
                   <SelectButton
                     v-model="a3q4"
                     :options="optionBoolean"
@@ -374,11 +395,12 @@
                     optionValue="id"
                     :multiple="false"
                     :invalid="!!errors.a3q4"
+                    class="mt-2"
                   />
-                </div>
-                <div v-if="a3q4 === 1">
-                  <p>In welcher Form und Umfang sind die Ausgleichsmaßnahmen vorgesehen?</p>
-                  <FloatLabel variant="on">
+                </li>
+                <li v-if="a3q4 === 1">
+                  <span>In welcher Form und Umfang sind die Ausgleichsmaßnahmen vorgesehen?</span>
+                  <FloatLabel variant="on" class="mt-2 w-full">
                     <InputText
                       id="a3q5"
                       v-model="a3q5"
@@ -389,10 +411,10 @@
                     />
                     <label for="a3q5">Begründung</label>
                   </FloatLabel>
-                </div>
-                <div v-if="a3q4 === 2">
-                  <p>Warum nicht?</p>
-                  <FloatLabel variant="on">
+                </li>
+                <li v-if="a3q4 === 2">
+                  <span>Warum nicht?</span>
+                  <FloatLabel variant="on" class="mt-2 w-full">
                     <InputText
                       id="a3q6"
                       v-model="a3q6"
@@ -403,9 +425,9 @@
                     />
                     <label for="a3q6">Begründung</label>
                   </FloatLabel>
-                </div>
-              </div>
-            </div>
+                </li>
+              </template>
+            </ol>
             <div class="flex pt-6 justify-between">
               <Button
                 label="Zurück"
@@ -422,9 +444,9 @@
             </div>
           </StepPanel>
           <StepPanel v-slot="{ activateCallback }" value="4">
-            <div>
-              <div>
-                <p>Werden bei dem Vorhaben Flächen entsiegelt?</p>
+            <ol class="list-decimal list-inside space-y-4">
+              <li>
+                <span>Werden bei dem Vorhaben Flächen entsiegelt?</span>
                 <SelectButton
                   v-model="a4q1"
                   :options="optionBoolean"
@@ -432,18 +454,20 @@
                   optionValue="id"
                   :multiple="false"
                   :invalid="!!errors.a4q1"
+                  class="mt-2"
                 />
-              </div>
-              <div v-if="a4q1 === 1">
-                <div>
-                  <p>In welchem Umfang werden Flächen entsiegelt? (Angabe in m^2)</p>
-                  <FloatLabel variant="on">
+              </li>
+              <template v-if="a4q1 === 1">
+                <li>
+                  <span>In welchem Umfang werden Flächen entsiegelt? (Angabe in m²)</span>
+                  <FloatLabel variant="on" class="mt-2 w-full">
                     <InputNumber
                       id="a4q2"
                       v-model="a4q2"
                       :min="0"
                       :step="1"
                       mode="decimal"
+                      suffix=" m²"
                       :useGrouping="false"
                       aria-describedby="a4q2-help"
                       :invalid="!!errors.a4q2"
@@ -452,11 +476,10 @@
                     />
                     <label for="a4q2">Angabe in m²</label>
                   </FloatLabel>
-                </div>
-
-                <div>
-                  <p>Wie wurde die Fläche bisher genutzt?</p>
-                  <FloatLabel variant="on">
+                </li>
+                <li>
+                  <span>Wie wurde die Fläche bisher genutzt?</span>
+                  <FloatLabel variant="on" class="mt-2 w-full">
                     <InputText
                       id="a4q3"
                       v-model="a4q3"
@@ -467,12 +490,12 @@
                     />
                     <label for="a4q3">Begründung</label>
                   </FloatLabel>
-                </div>
-                <div v-if="a4q3">
-                  <p>
+                </li>
+                <li v-if="a4q3">
+                  <span>
                     Wird die Entsiegelung als Ausgleichsmaßnahme für ein anderes Vorhaben
                     durchgeführt?
-                  </p>
+                  </span>
                   <SelectButton
                     v-model="a4q4"
                     :options="optionBoolean"
@@ -480,10 +503,11 @@
                     optionValue="id"
                     :multiple="false"
                     :invalid="!!errors.a4q4"
+                    class="mt-2"
                   />
-                </div>
-              </div>
-            </div>
+                </li>
+              </template>
+            </ol>
             <div class="flex pt-6 justify-between">
               <Button
                 label="Zurück"
@@ -500,12 +524,12 @@
             </div>
           </StepPanel>
           <StepPanel v-slot="{ activateCallback }" value="5">
-            <div>
-              <div>
-                <p>
+            <ol class="list-decimal list-inside space-y-4">
+              <li>
+                <span>
                   Werden bei dem Vorhaben Grünflächen mit CO2-bindender Funktion aufgewertet? (Z.B.
                   durch die Pflanung von Bäumen und Sträuchern)
-                </p>
+                </span>
                 <SelectButton
                   v-model="a5q1"
                   :options="optionBoolean"
@@ -513,12 +537,13 @@
                   optionValue="id"
                   :multiple="false"
                   :invalid="!!errors.a5q1"
+                  class="mt-2"
                 />
-              </div>
-              <div v-if="a5q1 === 1">
-                <div>
-                  <p>In welchem Umfang werden die Grünflächen aufgewertet?</p>
-                  <FloatLabel variant="on">
+              </li>
+              <template v-if="a5q1 === 1">
+                <li>
+                  <span>In welchem Umfang werden die Grünflächen aufgewertet?</span>
+                  <FloatLabel variant="on" class="mt-2 w-full">
                     <InputText
                       id="a5q2"
                       v-model="a5q2"
@@ -529,39 +554,37 @@
                     />
                     <label for="a5q2">Begründung</label>
                   </FloatLabel>
-                </div>
-                <div>
-                  <div>
-                    <p>Wie wurde die Fläche bisher genutzt?</p>
-                    <FloatLabel variant="on">
-                      <InputText
-                        id="a5q3"
-                        v-model="a5q3"
-                        aria-describedby="a5q3-help"
-                        :invalid="!!errors.a5q3"
-                        class="w-full"
-                        inputClass="w-full"
-                      />
-                      <label for="a5q3">Begründung</label>
-                    </FloatLabel>
-                  </div>
-                  <div>
-                    <p>
-                      Wird die Maßnahme als Ausgleichsmaßnahme für ein anderes Vorhaben
-                      durchgeführt?
-                    </p>
-                    <SelectButton
-                      v-model="a5q4"
-                      :options="optionBoolean"
-                      optionLabel="name"
-                      optionValue="id"
-                      :multiple="false"
-                      :invalid="!!errors.a5q4"
+                </li>
+                <li>
+                  <span>Wie wurde die Fläche bisher genutzt?</span>
+                  <FloatLabel variant="on" class="mt-2 w-full">
+                    <InputText
+                      id="a5q3"
+                      v-model="a5q3"
+                      aria-describedby="a5q3-help"
+                      :invalid="!!errors.a5q3"
+                      class="w-full"
+                      inputClass="w-full"
                     />
-                  </div>
-                </div>
-              </div>
-            </div>
+                    <label for="a5q3">Begründung</label>
+                  </FloatLabel>
+                </li>
+                <li>
+                  <span>
+                    Wird die Maßnahme als Ausgleichsmaßnahme für ein anderes Vorhaben durchgeführt?
+                  </span>
+                  <SelectButton
+                    v-model="a5q4"
+                    :options="optionBoolean"
+                    optionLabel="name"
+                    optionValue="id"
+                    :multiple="false"
+                    :invalid="!!errors.a5q4"
+                    class="mt-2"
+                  />
+                </li>
+              </template>
+            </ol>
             <div class="flex pt-6 justify-between">
               <Button
                 label="Zurück"
@@ -578,9 +601,9 @@
             </div>
           </StepPanel>
           <StepPanel v-slot="{ activateCallback }" value="6">
-            <div>
-              <div>
-                <p>Wird im Rahmen des Vorhabens eine bestehende Begrünung entfernt?</p>
+            <ol class="list-decimal list-inside space-y-4">
+              <li>
+                <span>Wird im Rahmen des Vorhabens eine bestehende Begrünung entfernt?</span>
                 <SelectButton
                   v-model="a6q1"
                   :options="optionBoolean"
@@ -588,12 +611,13 @@
                   optionValue="id"
                   :multiple="false"
                   :invalid="!!errors.a6q1"
+                  class="mt-2"
                 />
-              </div>
-              <div v-if="a6q1 === 1">
-                <div>
-                  <p>In welchem Umfang?</p>
-                  <FloatLabel variant="on">
+              </li>
+              <template v-if="a6q1 === 1">
+                <li>
+                  <span>In welchem Umfang?</span>
+                  <FloatLabel variant="on" class="mt-2 w-full">
                     <InputText
                       id="a6q2"
                       v-model="a6q2"
@@ -604,50 +628,49 @@
                     />
                     <label for="a6q2">Begründung</label>
                   </FloatLabel>
-                </div>
-                <div>
-                  <div>
-                    <p>Sind Ausgleichsmaßnahmen vorgesehen?</p>
-                    <SelectButton
-                      v-model="a6q3"
-                      :options="optionBoolean"
-                      optionLabel="name"
-                      optionValue="id"
-                      :multiple="false"
-                      :invalid="!!errors.a6q3"
+                </li>
+                <li>
+                  <span>Sind Ausgleichsmaßnahmen vorgesehen?</span>
+                  <SelectButton
+                    v-model="a6q3"
+                    :options="optionBoolean"
+                    optionLabel="name"
+                    optionValue="id"
+                    :multiple="false"
+                    :invalid="!!errors.a6q3"
+                    class="mt-2"
+                  />
+                </li>
+                <li v-if="a6q3 === 1">
+                  <span>In welcher Form und Umfang sind die Ausgleichsmaßnahmen vorgesehen?</span>
+                  <FloatLabel variant="on" class="mt-2 w-full">
+                    <InputText
+                      id="a6q4"
+                      v-model="a6q4"
+                      aria-describedby="a6q4-help"
+                      :invalid="!!errors.a6q4"
+                      class="w-full"
+                      inputClass="w-full"
                     />
-                  </div>
-                  <div v-if="a6q3 === 1">
-                    <p>In welcher Form und Umfang sind die Ausgleichsmaßnahmen vorgesehen?</p>
-                    <FloatLabel variant="on">
-                      <InputText
-                        id="a6q4"
-                        v-model="a6q4"
-                        aria-describedby="a6q4-help"
-                        :invalid="!!errors.a6q4"
-                        class="w-full"
-                        inputClass="w-full"
-                      />
-                      <label for="a6q4">Begründung</label>
-                    </FloatLabel>
-                  </div>
-                  <div v-if="a6q3 === 2">
-                    <p>Warum nicht?</p>
-                    <FloatLabel variant="on">
-                      <InputText
-                        id="a6q5"
-                        v-model="a6q5"
-                        aria-describedby="a6q5-help"
-                        :invalid="!!errors.a6q5"
-                        class="w-full"
-                        inputClass="w-full"
-                      />
-                      <label for="a6q5">Begründung</label>
-                    </FloatLabel>
-                  </div>
-                </div>
-              </div>
-            </div>
+                    <label for="a6q4">Begründung</label>
+                  </FloatLabel>
+                </li>
+                <li v-if="a6q3 === 2">
+                  <span>Warum nicht?</span>
+                  <FloatLabel variant="on" class="mt-2 w-full">
+                    <InputText
+                      id="a6q5"
+                      v-model="a6q5"
+                      aria-describedby="a6q5-help"
+                      :invalid="!!errors.a6q5"
+                      class="w-full"
+                      inputClass="w-full"
+                    />
+                    <label for="a6q5">Begründung</label>
+                  </FloatLabel>
+                </li>
+              </template>
+            </ol>
             <div class="flex pt-6 justify-between">
               <Button
                 label="Zurück"
@@ -664,12 +687,12 @@
             </div>
           </StepPanel>
           <StepPanel v-slot="{ activateCallback }" value="7">
-            <div>
-              <div>
-                <p>
+            <ol class="list-decimal list-inside space-y-4">
+              <li>
+                <span>
                   Hat das Vorhaben in anderer Weise klimaschädliche Wirkung? (z.B. Kraftwerkbau,
                   Abwärme, Wasserbedarf…)
-                </p>
+                </span>
                 <SelectButton
                   v-model="a7q1"
                   :options="optionBoolean"
@@ -677,11 +700,12 @@
                   optionValue="id"
                   :multiple="false"
                   :invalid="!!errors.a7q1"
+                  class="mt-2"
                 />
-              </div>
-              <div v-if="a7q1 === 1">
-                <p>Inwiefern?</p>
-                <FloatLabel variant="on">
+              </li>
+              <li v-if="a7q1 === 1">
+                <span>Inwiefern?</span>
+                <FloatLabel variant="on" class="mt-2 w-full">
                   <InputText
                     id="a7q2"
                     v-model="a7q2"
@@ -692,8 +716,8 @@
                   />
                   <label for="a7q2">Begründung</label>
                 </FloatLabel>
-              </div>
-            </div>
+              </li>
+            </ol>
             <div class="flex pt-6 justify-between">
               <Button
                 label="Zurück"
@@ -710,12 +734,12 @@
             </div>
           </StepPanel>
           <StepPanel v-slot="{ activateCallback }" value="8">
-            <div>
-              <div>
-                <p>
+            <ol class="list-decimal list-inside space-y-4">
+              <li>
+                <span>
                   Hat das Vorhaben in anderer Weise klimaschützende / Klimaresilienz fördernde
                   Wirkung? (z.B. Wasserretention, Energiesparmaßnahme, Verkehrsregulierung)
-                </p>
+                </span>
                 <SelectButton
                   v-model="a8q1"
                   :options="optionBoolean"
@@ -723,11 +747,12 @@
                   optionValue="id"
                   :multiple="false"
                   :invalid="!!errors.a8q1"
+                  class="mt-2"
                 />
-              </div>
-              <div v-if="a8q1 === 1">
-                <p>Inwiefern?</p>
-                <FloatLabel variant="on">
+              </li>
+              <li v-if="a8q1 === 1">
+                <span>Inwiefern?</span>
+                <FloatLabel variant="on" class="mt-2 w-full">
                   <InputText
                     id="a8q2"
                     v-model="a8q2"
@@ -738,14 +763,14 @@
                   />
                   <label for="a8q2">Begründung</label>
                 </FloatLabel>
-              </div>
-            </div>
+              </li>
+            </ol>
             <div class="flex pt-6 justify-between">
               <Button
                 label="Zurück"
                 severity="secondary"
                 icon="pi pi-arrow-left"
-                @click="activateCallback('6')"
+                @click="activateCallback('7')"
               />
               <Button label="Speichern" type="submit" icon="pi pi-save" iconPos="right" />
             </div>
@@ -763,7 +788,6 @@ import { schema } from '@/utils/schemas/klimarelevanzpruefungEingabeFb1'
 import { fetchItems } from '@/composables/crud'
 // import ToggleSwitch from 'primevue/toggleswitch'
 import Button from 'primevue/button'
-import Divider from 'primevue/divider'
 import InputText from 'primevue/inputtext'
 import InputNumber from 'primevue/inputnumber'
 import FloatLabel from 'primevue/floatlabel'
@@ -774,6 +798,7 @@ import StepList from 'primevue/steplist'
 import StepPanels from 'primevue/steppanels'
 import Step from 'primevue/step'
 import StepPanel from 'primevue/steppanel'
+import Message from 'primevue/message'
 
 const isLoading = ref(false)
 const optionBoolean = ref()
@@ -807,6 +832,8 @@ const fetchData = async () => {
 const { defineField, handleSubmit, errors, setValues } = useForm({
   validationSchema: schema
 })
+
+const hasErrors = computed(() => Object.keys(errors.value).length > 0)
 
 const [a1q1] = defineField('a1q1')
 const [a1q2] = defineField('a1q2')
@@ -899,4 +926,22 @@ const onSubmit = handleSubmit(async (values) => {
 })
 </script>
 
-<style></style>
+<style scoped>
+ol {
+  counter-reset: question;
+  list-style: none;
+  padding-left: 0;
+}
+
+ol > li {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  counter-increment: question;
+}
+
+ol > li > span:first-child::before {
+  content: counter(question) '. ';
+  font-weight: bold;
+}
+</style>
