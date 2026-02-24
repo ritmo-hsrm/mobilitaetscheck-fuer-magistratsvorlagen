@@ -48,7 +48,7 @@
             <ButtonBearbeiten v-if="userRolleZugang(['politik'])" @click="onCopy" color="green"
               >In meine Datenbank kopieren</ButtonBearbeiten
             >
-            <Button icon="pi pi-download" @click="onExport" label="PDF-Export" size="small" />
+            <Button icon="pi pi-download" @click="onExport" label="PDF-Export" size="small" :disabled="exportDisabled" />
           </div>
           <div class="flex justify-end">
             <ButtonLoeschen v-if="userRolleZugang" @delete-confirmed="onDelete" />
@@ -60,7 +60,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 
 import ToggleButton from 'primevue/togglebutton'
@@ -121,6 +121,12 @@ const onDelete = () => {
 const onCopy = () => {
   emit('copy-item', props.item.id)
 }
+
+const exportDisabled = computed(() =>
+  (props.item.eingabeZielOber ?? []).some(
+    (ober) => ober.tangiert && !(ober.eingabeZielUnter ?? []).some((unter) => unter.tangiert)
+  )
+)
 </script>
 
 <style></style>
