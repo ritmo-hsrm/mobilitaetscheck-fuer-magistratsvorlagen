@@ -36,6 +36,12 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
         comment="Einheit des Benutzers innerhalb der Gemeinde",
     )
     einheit: Mapped[Optional["GemeindeEinheit"]] = relationship(lazy="selectin")
+    gruppe_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("user_gruppe.id", ondelete="SET NULL"),
+        nullable=True,
+        comment="Gruppe des Benutzers",
+    )
+    gruppe: Mapped[Optional["UserGruppe"]] = relationship(lazy="selectin")
     erstellt_am: Mapped[datetime] = mapped_column(
         nullable=False,
         server_default=text("now()"),
@@ -46,3 +52,4 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
 from app.models.gemeinde import Gemeinde
 from app.models.gemeinde_einheit import GemeindeEinheit
 from app.models.user_rolle import UserRolle
+from app.models.user_gruppe import UserGruppe

@@ -6,7 +6,6 @@ import { fetchItem } from '@/composables/crud'
 export const schema = yup.object({
   vorname: yup.string().required('Vorname ist erforderlich').label('Vorname'),
   nachname: yup.string().required('Nachname ist erforderlich').label('Nachname'),
-  rolleId: yup.number().required('BenutzerRolle ist erforderlich').label('Benutzerrolle'),
   gemeindeId: yup.number().required('Gemeinde ist erforderlich').label('Gemeinde'),
   email: yup
     .string()

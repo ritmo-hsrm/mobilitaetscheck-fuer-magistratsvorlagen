@@ -1,6 +1,6 @@
 from typing import AsyncGenerator
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException, status
 from fastapi_users import FastAPIUsers
 from fastapi_users.authentication import (
     AuthenticationBackend,
@@ -57,3 +57,18 @@ fastapi_users = FastAPIUsers[User, UUID](get_user_manager, [auth_backend])
 current_user = fastapi_users.current_user()
 current_active_user = fastapi_users.current_user(active=True, verified=True)
 current_superuser = fastapi_users.current_user(superuser=True)
+
+ADMIN_ROLLE_NAME = "Admin"
+VERWALTUNG_ROLLE_NAME = "Verwaltung"
+
+
+async def current_platform_admin(user: User = Depends(current_active_user)) -> User:
+    if not user.is_superuser or user.rolle.name != ADMIN_ROLLE_NAME:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Keine Berechtigung")
+    return user
+
+
+async def current_gemeinde_admin(user: User = Depends(current_active_user)) -> User:
+    if not user.is_superuser or user.rolle.name != VERWALTUNG_ROLLE_NAME:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Keine Berechtigung")
+    return user

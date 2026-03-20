@@ -21,6 +21,8 @@ class UserRead(schemas.BaseUser[UUID]):
     gemeinde: "GemeindeRead" = Field(
         ..., description="Detailed information about the associated municipality."
     )
+    gruppe_id: Optional[int] = Field(None)
+    gruppe: Optional["UserGruppeRead"] = Field(None)
     erstellt_am: datetime = Field(
         ..., description="Zeitstempel der Erstellung des Benutzers."
     )
@@ -35,6 +37,20 @@ class UserCreate(schemas.BaseUserCreate):
     nachname: str = Field(..., description="User's last name.")
     rolle_id: int = Field(..., description="Role of the user in the system.")
     gemeinde_id: int = Field(..., description="ID of the associated municipality.")
+    gruppe_id: Optional[int] = Field(None, description="Gruppe des Benutzers.")
+    einladungs_token: Optional[str] = Field(
+        None, description="Invite token (required for Verwaltung registration)."
+    )
+
+    def create_update_dict(self):
+        d = super().create_update_dict()
+        d.pop("einladungs_token", None)
+        return d
+
+    def create_update_dict_superuser(self):
+        d = super().create_update_dict_superuser()
+        d.pop("einladungs_token", None)
+        return d
 
 
 class UserUpdate(schemas.BaseUserUpdate):
@@ -55,3 +71,4 @@ class UserUpdate(schemas.BaseUserUpdate):
 # Late import for forward references
 from app.schemas.gemeinde import GemeindeRead
 from app.schemas.user_rolle import UserRolleRead
+from app.schemas.user_gruppe import UserGruppeRead

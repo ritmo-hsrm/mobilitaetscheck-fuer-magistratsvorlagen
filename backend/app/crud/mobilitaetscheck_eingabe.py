@@ -17,12 +17,14 @@ class CRUDMobilitySubmission(CRUDEingabe[Model, CreateSchema, UpdateSchema]):
         super().__init__(Model)
 
     async def copy(self, db: AsyncSession, id: int, user: User) -> Model:
+        original = await self.get(db, id)
         exclude = ["id", "erstellt_am"]
 
         updates = {
             "erstellt_von": user.id,
             "zuletzt_bearbeitet_von": user.id,
             "veroeffentlicht": False,
+            "name": f"Kopie von {original.name}",
         }
 
         nested_attributes = {

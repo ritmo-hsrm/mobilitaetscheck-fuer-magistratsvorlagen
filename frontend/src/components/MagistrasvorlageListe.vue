@@ -199,6 +199,7 @@
                           />
                         </router-link>
                         <router-link
+                          v-if="!isPolitik"
                           :to="{
                             name: 'magistratsvorlage-id-klimarelevanzpruefung',
                             params: { id: item.id }
@@ -230,6 +231,7 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue'
 import { fetchItems } from '@/composables/crud'
+import { useAuthStore } from '@/stores/auth'
 import Button from 'primevue/button'
 import Card from 'primevue/card'
 import DataView from 'primevue/dataview'
@@ -241,6 +243,9 @@ import SelectButton from 'primevue/selectbutton'
 import Skeleton from 'primevue/skeleton'
 import ToggleSwitch from 'primevue/toggleswitch'
 import Listbox from 'primevue/listbox'
+
+const authStore = useAuthStore()
+const isPolitik = computed(() => authStore.userRolleId === 2)
 
 const magistratsvorlageListe = ref([])
 const searchQuery = ref('')

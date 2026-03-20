@@ -161,10 +161,17 @@ const authMenuItems = ref([
   },
   {
     name: 'Einstellungen',
-    link: '/einstellungen/leitziel',
+    link: '/einstellungen/leitziel-sets',
     icon: 'MaterialSymbolsSettings.svg',
     requiresAuth: true,
     requiresUserRolleId: [1]
+  },
+  {
+    name: 'Administration',
+    link: '/admin/gemeinden',
+    icon: 'MaterialSymbolsSettings.svg',
+    requiresAuth: true,
+    requiresUserRolleId: [3]
   }
 ])
 

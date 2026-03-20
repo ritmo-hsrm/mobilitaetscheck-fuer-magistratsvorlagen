@@ -19,11 +19,18 @@ from app.api.routers import (
     mobilitaetscheck_eingabe_ziel_ober,
     mobilitaetscheck_eingabe_ziel_unter,
     mobilitaetscheck_ziel_ober,
+    mobilitaetscheck_ziel_set,
+    mobilitaetscheck_ziel_set_ober,
+    mobilitaetscheck_ziel_set_unter,
     mobilitaetscheck_ziel_unter,
     option,
+    platform_admin,
     tag,
     textblock,
     user,
+    user_einladung,
+    user_gruppe,
+    einstellungen_benutzer,
     public,
 )
 from app.schemas.user import UserRead, UserCreate, UserUpdate
@@ -144,8 +151,43 @@ router.include_router(
     tags=["Einstellungen", "Mobilitätscheck"],
 )
 router.include_router(
+    mobilitaetscheck_ziel_set_ober.router,
+    prefix="/einstellungen/mobilitaetscheck/ziel-set-ober",
+    tags=["Einstellungen", "Mobilitätscheck"],
+)
+router.include_router(
+    mobilitaetscheck_ziel_set_unter.router,
+    prefix="/einstellungen/mobilitaetscheck/ziel-set-unter",
+    tags=["Einstellungen", "Mobilitätscheck"],
+)
+router.include_router(
+    mobilitaetscheck_ziel_set.router,
+    prefix="/einstellungen/mobilitaetscheck/ziel-set",
+    tags=["Einstellungen", "Mobilitätscheck"],
+)
+router.include_router(
     bool_erweitert.router,
     prefix="/einstellungen/bool-erweitert",
     tags=["Einstellungen", "Boolean Erweitert"],
 )
 router.include_router(option.router, prefix="/option", tags=["Option"])
+router.include_router(
+    user_einladung.router,
+    prefix="/einstellungen/einladung",
+    tags=["Einstellungen", "Einladung"],
+)
+router.include_router(
+    platform_admin.router,
+    prefix="/admin",
+    tags=["Platform Admin"],
+)
+router.include_router(
+    user_gruppe.router,
+    prefix="/einstellungen/gruppe",
+    tags=["Einstellungen", "Gruppe"],
+)
+router.include_router(
+    einstellungen_benutzer.router,
+    prefix="/einstellungen/benutzer",
+    tags=["Einstellungen", "Benutzer"],
+)

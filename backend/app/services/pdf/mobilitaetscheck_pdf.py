@@ -1,3 +1,4 @@
+import datetime
 from io import BytesIO
 from os import path
 
@@ -5,347 +6,539 @@ from app.models.mobilitaetscheck_eingabe import MobilitaetscheckEingabe
 from app.services.pdf.base_pdf import BasePDF
 from app.utils.pdf_util import calculate_average_impact, get_display_impact
 
+# Colour palette – mirrors Tailwind classes used in the Vue UI
+BLUE_500 = (59, 130, 246)
+BLUE_600 = (37, 99, 235)
+BLUE_700 = (29, 78, 216)
+BLUE_100 = (219, 234, 254)
+GRAY_100 = (243, 244, 246)
+GRAY_200 = (229, 231, 235)
+GRAY_500 = (107, 114, 128)
+GRAY_700 = (55, 65, 81)
+GRAY_900 = (17, 24, 39)
+WHITE = (255, 255, 255)
+RED_600 = (220, 38, 38)
+
+# All eight impact levels with their PDF-display colors
+LEGEND_ITEMS = [
+    ("stark negativ", {"r": 255, "g": 16, "b": 16}),
+    ("negativ", {"r": 255, "g": 95, "b": 95}),
+    ("leicht negativ", {"r": 255, "g": 175, "b": 175}),
+    ("neutral", {"r": GRAY_200[0], "g": GRAY_200[1], "b": GRAY_200[2]}),
+    ("leicht positiv", {"r": 176, "g": 222, "b": 171}),
+    ("positiv", {"r": 97, "g": 189, "b": 88}),
+    ("stark positiv", {"r": 18, "g": 157, "b": 5}),
+    ("nicht tangiert", {"r": WHITE[0], "g": WHITE[1], "b": WHITE[2]}),
+]
+
+
+def _luminance(r: int, g: int, b: int) -> float:
+    return 0.299 * r + 0.587 * g + 0.114 * b
+
+
+def _pdf_di(di: dict) -> dict:
+    """PDF colour overrides: neutral → gray, nicht tangiert → white."""
+    if di["label"] == "neutral":
+        return {**di, "color": {"r": GRAY_200[0], "g": GRAY_200[1], "b": GRAY_200[2]}}
+    if di["label"] == "Ziel nicht tangiert":
+        return {**di, "color": {"r": WHITE[0], "g": WHITE[1], "b": WHITE[2]}}
+    return di
+
 
 class MobilitaetscheckPDF(BasePDF):
+
+    # ── page chrome ──────────────────────────────────────────────────
+
+    def header(self):
+        script_dir = path.dirname(path.abspath(__file__))
+        image_path = path.normpath(path.join(script_dir, "./assests/pimoo-logo.png"))
+        try:
+            self.image(image_path, 10, 8, 30)
+        except Exception as e:
+            print(e)
+        self.set_font("free-sans", "", 9)
+        self.set_xy(self.l_margin, 8)
+        if getattr(self, "is_politik_autor", False):
+            self.set_text_color(*RED_600)
+            self.set_font("free-sans", "B", 9)
+            self.cell(0, 8, "Nicht von Verwaltung", align="C")
+            self.set_font("free-sans", "", 9)
+            self.set_xy(self.l_margin, 8)
+        self.set_text_color(*GRAY_500)
+        self.cell(0, 8, datetime.date.today().strftime("%d.%m.%Y"), align="R")
+        self.set_text_color(*GRAY_900)
+        self.ln(12)
+
     def footer(self):
-        self.set_y(-20)
-        # self.set_font("free-sans", "", 8)
-        # self.cell(
-        #     0,
-        #     10,
-        #     "Hinweis: Die zu den Indiaktoren zugehörigen Dokumente finden Sie alle im Wissensspeicher",
-        #     new_x="LMARGIN",
-        #     new_y="NEXT",
-        # )
-        self.cell(0, 10, f"Seite {self.page_no()}/{{nb}}", align="C")
+        self.set_y(-12)
+        self.set_text_color(*GRAY_500)
+        self.set_font("free-sans", "", 8)
+        self.cell(0, 8, f"Seite {self.page_no()}/{{nb}}", align="C")
+        self.set_text_color(*GRAY_900)
+
+    # ── helpers ───────────────────────────────────────────────────────
+
+    def _label(self, x: float, text: str, w: float = 0):
+        """Small bold uppercase blue label. w>0 → stays on same line."""
+        self.set_x(x)
+        self.set_text_color(*BLUE_700)
+        self.set_font("free-sans", "B", 7)
+        if w:
+            self.cell(w, 4, text.upper())
+        else:
+            self.cell(0, 4, text.upper(), new_x="LMARGIN", new_y="NEXT")
+        self.set_text_color(*GRAY_900)
+
+    def _h_divider(self, x: float, w: float):
+        self.set_draw_color(*GRAY_200)
+        self.set_line_width(0.2)
+        self.line(x, self.get_y(), x + w, self.get_y())
+
+    def _pill(self, x: float, y: float, w: float, h: float, di: dict):
+        """Coloured rounded pill with _pdf_di colour overrides applied."""
+        di = _pdf_di(di)
+        c = di["color"]
+        r, g, b = c["r"], c["g"], c["b"]
+        self.set_fill_color(r, g, b)
+        if _luminance(r, g, b) > 200:
+            self.set_draw_color(*GRAY_200)
+            self.set_line_width(0.2)
+            self.rect(x, y, w, h, style="FD", corner_radius=h / 2)
+        else:
+            self.set_draw_color(r, g, b)
+            self.rect(x, y, w, h, style="F", corner_radius=h / 2)
+        tc = GRAY_900 if _luminance(r, g, b) > 180 else WHITE
+        self.set_text_color(*tc)
+        self.set_font("free-sans", "B", 7)
+        self.set_xy(x, y)
+        self.cell(w, h, di["label"], align="C")
+        self.set_text_color(*GRAY_900)
+
+    def _legend(self, x: float, y: float):
+        """Full 8-item legend strip with automatic line wrapping."""
+        ph = 5
+        max_x = self.l_margin + self.epw
+
+        # "Legende:" prefix
+        self.set_font("free-sans", "", 7)
+        self.set_text_color(*GRAY_500)
+        lbl = "Legende: "
+        lw = self.get_string_width(lbl) + 1
+        self.set_xy(x, y)
+        self.cell(lw, ph, lbl)
+        px = x + lw
+        py = y
+
+        self.set_font("free-sans", "B", 7)
+        for label, col in LEGEND_ITEMS:
+            tw = self.get_string_width(label) + 4
+            if px + tw > max_x and px > x + lw:
+                px = x + lw
+                py += ph + 2
+            r, g, b = col["r"], col["g"], col["b"]
+            self.set_fill_color(r, g, b)
+            if _luminance(r, g, b) > 200:
+                self.set_draw_color(*GRAY_200)
+                self.set_line_width(0.2)
+                self.rect(px, py, tw, ph, style="FD", corner_radius=ph / 2)
+            else:
+                self.set_draw_color(r, g, b)
+                self.rect(px, py, tw, ph, style="F", corner_radius=ph / 2)
+            tc = GRAY_900 if _luminance(r, g, b) > 180 else WHITE
+            self.set_text_color(*tc)
+            self.set_xy(px, py)
+            self.cell(tw, ph, label, align="C")
+            self.set_text_color(*GRAY_900)
+            px += tw + 2
+
+        self.set_y(py + ph)
+
+    # ── export ────────────────────────────────────────────────────────
 
     def export(self, eingabe: MobilitaetscheckEingabe):
         self.alias_nb_pages()
         self.set_auto_page_break(auto=True, margin=20)
+        self.is_politik_autor = bool(
+            eingabe.autor
+            and getattr(eingabe.autor, "rolle", None)
+            and eingabe.autor.rolle.name == "Politik"
+        )
         self.add_page()
-        self.set_font("free-sans", "B", 16)
+        self.set_text_color(*GRAY_900)
+        cx, cw = self.l_margin, self.epw
+
+        # ── title ─────────────────────────────────────────────────────
+        self.set_font("free-sans", "B", 17)
         self.cell(
             0,
             10,
             "Mobilitätscheck für Magistratsvorlagen",
-            border=False,
             align="C",
             new_x="LMARGIN",
             new_y="NEXT",
         )
-        self.set_font("free-sans", "", 10)
-
-        self.cell(52, 5, txt="**Magistratsvorlagennummer:**", markdown=True)
-        self.cell(
-            0,
-            5,
-            txt=f"{eingabe.magistratsvorlage.verwaltungsvorgang_nr}",
-            new_x="LMARGIN",
-            new_y="NEXT",
-        )
-        self.ln(2)
-        self.cell(52, 5, txt="**Datum der Magistratssitzung:**", markdown=True)
-        self.cell(
-            0,
-            5,
-            txt=f"{eingabe.magistratsvorlage.verwaltungsvorgang_datum.strftime('%d.%m.%Y')}",
-            new_x="LMARGIN",
-            new_y="NEXT",
-        )
-        self.ln(2)
-        self.cell(35, 5, txt="**Maßnahme:**", markdown=True)
-        self.multi_cell(0, 5, txt=f"{eingabe.name}", new_x="LMARGIN", new_y="NEXT")
-        self.ln(2)
-        self.cell(35, 5, txt="**Beschreibung:**", markdown=True)
-        self.multi_cell(
-            0,
-            5,
-            txt=f"{eingabe.magistratsvorlage.beschreibung}",
-            new_x="LMARGIN",
-            new_y="NEXT",
-        )
-        # self.ln(2)
-        # self.cell(35, 5, txt="**Sachbearbeitung:**", markdown=True)
-        # editors = ""
-        # if eingabe.erstellt_von:
-        #     editors = f"{eingabe.autor.vorname} {eingabe.autor.nachname}"
-        # if eingabe.zuletzt_bearbeitet_von:
-        #     if eingabe.erstellt_von != eingabe.zuletzt_bearbeitet_von:
-        #         editors += f", {eingabe.letzter_bearbeiter.vorname} {eingabe.letzter_bearbeiter.nachname}"
-
-        # self.cell(0, 5, txt=editors, new_x="LMARGIN", new_y="NEXT")
-
         self.cell(0, 3, new_x="LMARGIN", new_y="NEXT")
 
-        durchschnitt_auswirkung_oberziel = calculate_average_impact(eingabe)
+        # ── meta card ─────────────────────────────────────────────────
+        pad = 4
+        card_top = self.get_y()
+        col_w = (cw - 2 * pad) / 2
 
-        box_x = self.get_x()
-        box_y = self.get_y()
-
-        self.cell(
-            0,
-            10,
-            "**Zielampel laut verkehrlichem Leitbild**",
-            markdown=True,
-            align="L",
-            new_x="LMARGIN",
-            new_y="NEXT",
-        )
-
-        script_dir = path.dirname(path.abspath(__file__))
-        image_path = path.join(
-            script_dir, "./assests/legende.png"
-        )  # Navigate to assets
-        # Normalize the path for compatibility
-        image_path = path.normpath(image_path)
-        self.image(image_path, box_x + 115, box_y + 3, 70)
-        self.set_font("free-sans", "", 10)
-
-        for oberziel in eingabe.eingabe_ziel_ober:
-            display_impact = get_display_impact(
-                durchschnitt_auswirkung_oberziel[oberziel.ziel_ober_id],
-                oberziel.tangiert,
-            )
-
-            # Draw rounded rectangle for background
-            current_x = self.get_x()
-            current_y = self.get_y()
-            cell_height = 8
-
-            self.set_fill_color(
-                r=display_impact["color"]["r"],
-                g=display_impact["color"]["g"],
-                b=display_impact["color"]["b"],
-            )
-            self.rect(
-                current_x, current_y, self.epw, cell_height, style="F", corner_radius=3
-            )
-
-            # Place text on top
+        self.set_xy(cx + pad, card_top + pad)
+        self.set_text_color(*BLUE_700)
+        self.set_font("free-sans", "B", 7)
+        self.cell(col_w, 4, "MAGISTRATSVORLAGENNUMMER")
+        if eingabe.magistratsvorlage.verwaltungsvorgang_datum:
             self.cell(
-                0,
-                cell_height,
-                txt=f"{oberziel.ziel_ober.nr}. {oberziel.ziel_ober.name}",
-                markdown=True,
-                fill=False,
-                new_y="NExT",
-                new_x="LMARGIN",
+                col_w, 4, "DATUM DER MAGISTRATSSITZUNG", new_x="LMARGIN", new_y="NEXT"
             )
-        box_h = self.get_y() - box_y
-        self.rect(box_x, box_y, self.epw, box_h, corner_radius=5)
+        else:
+            self.cell(0, 4, new_x="LMARGIN", new_y="NEXT")
 
-        # All main objective and only targeted sub objectives are displayed
-
-        self.set_font("free-sans", "", 11)
-        self.cell(0, 5, new_x="LMARGIN", new_y="NEXT")
-
-        padding = [0, 10, 0, 0]
-
-        for ix, oberziel in enumerate(eingabe.eingabe_ziel_ober):
-
-            self.set_line_width(0.25)
-
-            self.cell(10, 10, txt=f"**{oberziel.ziel_ober.nr}**", markdown=True)
-
-            self.multi_cell(
-                145,
-                10,
-                txt=f"**{oberziel.ziel_ober.name}**",
-                markdown=True,
-                max_line_height=5,
-                padding=padding,
-                new_y="TOP",
-            )
-
-            display_impact = get_display_impact(
-                durchschnitt_auswirkung_oberziel[oberziel.ziel_ober_id],
-                oberziel.tangiert,
-            )
-
-            # Draw rounded rectangle for Gesamtwirkung background
-            gesamt_x = self.get_x()
-            gesamt_y = self.get_y()
-            gesamt_width = 35
-            gesamt_height = 10
-
-            self.set_fill_color(
-                r=display_impact["color"]["r"],
-                g=display_impact["color"]["g"],
-                b=display_impact["color"]["b"],
-            )
-            self.rect(
-                gesamt_x,
-                gesamt_y,
-                gesamt_width,
-                gesamt_height,
-                style="F",
-                corner_radius=3,
-            )
-
-            # Place text on top
-            self.multi_cell(
-                gesamt_width,
-                gesamt_height,
-                txt=f"**Gesamtwirkung:** \n{display_impact["label"]}",
-                markdown=True,
-                fill=False,
-                max_line_height=5,
+        self.set_xy(cx + pad, self.get_y())
+        self.set_text_color(*GRAY_900)
+        self.set_font("free-sans", "B", 10)
+        self.cell(col_w, 5, str(eingabe.magistratsvorlage.verwaltungsvorgang_nr))
+        if eingabe.magistratsvorlage.verwaltungsvorgang_datum:
+            self.cell(
+                col_w,
+                5,
+                eingabe.magistratsvorlage.verwaltungsvorgang_datum.strftime("%d.%m.%Y"),
                 new_x="LMARGIN",
                 new_y="NEXT",
             )
+        else:
+            self.cell(0, 5, new_x="LMARGIN", new_y="NEXT")
+        self.cell(0, 2, new_x="LMARGIN", new_y="NEXT")
 
-            self.set_line_width(0.1)
+        # Maßnahme
+        self._h_divider(cx + pad, cw - 2 * pad)
+        self.cell(0, 2, new_x="LMARGIN", new_y="NEXT")
+        self._label(cx + pad, "Maßnahme")
+        self.set_x(cx + pad)
+        self.set_font("free-sans", "", 10)
+        self.multi_cell(
+            cw - 2 * pad, 5, str(eingabe.name), new_x="LMARGIN", new_y="NEXT"
+        )
+        self.cell(0, 2, new_x="LMARGIN", new_y="NEXT")
 
-            for index, unterziel in enumerate(oberziel.eingabe_ziel_unter):
+        # Beschreibung (optional)
+        if eingabe.magistratsvorlage.beschreibung:
+            self._h_divider(cx + pad, cw - 2 * pad)
+            self.cell(0, 2, new_x="LMARGIN", new_y="NEXT")
+            self._label(cx + pad, "Beschreibung")
+            self.set_x(cx + pad)
+            self.set_font("free-sans", "", 9)
+            self.multi_cell(
+                cw - 2 * pad,
+                4.5,
+                str(eingabe.magistratsvorlage.beschreibung),
+                new_x="LMARGIN",
+                new_y="NEXT",
+            )
+            self.cell(0, 2, new_x="LMARGIN", new_y="NEXT")
 
-                if unterziel.tangiert:
-                    if index == 0:
-                        self.set_line_width(0.25)
-                    else:
-                        self.set_line_width(0.1)
+        # Sachbearbeitung / Ersteller:in
+        if eingabe.autor and self.is_politik_autor:
+            self._h_divider(cx + pad, cw - 2 * pad)
+            self.cell(0, 2, new_x="LMARGIN", new_y="NEXT")
+            self._label(cx + pad, "Ersteller:in")
+            autor_name = f"{eingabe.autor.vorname} {eingabe.autor.nachname}".strip()
+            if eingabe.autor.gruppe:
+                autor_name += f" ({eingabe.autor.gruppe.name})"
+            self.set_x(cx + pad)
+            self.set_font("free-sans", "", 10)
+            self.cell(cw - 2 * pad, 5, autor_name, new_x="LMARGIN", new_y="NEXT")
+            self.cell(0, 2, new_x="LMARGIN", new_y="NEXT")
+        elif eingabe.autor and eingabe.autor.gruppe:
+            self._h_divider(cx + pad, cw - 2 * pad)
+            self.cell(0, 2, new_x="LMARGIN", new_y="NEXT")
+            self._label(cx + pad, "Sachbearbeitung")
+            self.set_x(cx + pad)
+            self.set_font("free-sans", "", 10)
+            self.cell(
+                cw - 2 * pad,
+                5,
+                eingabe.autor.gruppe.name,
+                new_x="LMARGIN",
+                new_y="NEXT",
+            )
+            self.cell(0, 2, new_x="LMARGIN", new_y="NEXT")
 
-                    self.cell(0, 0, border="T", new_x="LMARGIN", new_y="NEXT")
+        meta_card_h = self.get_y() - card_top + pad
+        self.set_draw_color(*GRAY_200)
+        self.set_line_width(0.3)
+        self.rect(cx, card_top, cw, meta_card_h, corner_radius=3)
+        self.set_y(card_top + meta_card_h + 5)
 
-                    self.cell(
-                        10,
-                        10,
-                        txt=f"{oberziel.ziel_ober.nr}.{
-                    unterziel.ziel_unter.nr}",
-                        markdown=True,
-                        border="T",
-                    )
+        # ── Zielampel ─────────────────────────────────────────────────
+        durchschnitt = calculate_average_impact(eingabe)
 
+        self.set_font("free-sans", "B", 11)
+        self.cell(
+            0, 7, "Zielampel laut verkehrlichem Leitbild", new_x="LMARGIN", new_y="NEXT"
+        )
+        self.cell(0, 1, new_x="LMARGIN", new_y="NEXT")
+
+        for oberziel in eingabe.eingabe_ziel_ober:
+            di = _pdf_di(
+                get_display_impact(
+                    durchschnitt[oberziel.ziel_ober_id], oberziel.tangiert
+                )
+            )
+            row_y, row_h = self.get_y(), 7
+            c = di["color"]
+            r, g, b = c["r"], c["g"], c["b"]
+            self.set_fill_color(r, g, b)
+            if _luminance(r, g, b) > 200:
+                self.set_draw_color(*GRAY_200)
+                self.set_line_width(0.2)
+                self.rect(cx, row_y, cw, row_h, style="FD", corner_radius=3)
+            else:
+                self.set_draw_color(r, g, b)
+                self.rect(cx, row_y, cw, row_h, style="F", corner_radius=3)
+            tc = GRAY_900 if _luminance(r, g, b) > 180 else WHITE
+            self.set_text_color(*tc)
+            self.set_font("free-sans", "", 9)
+            self.set_xy(cx + 4, row_y)
+            self.cell(
+                cw - 8, row_h, f"{oberziel.ziel_ober.nr}. {oberziel.ziel_ober.name}"
+            )
+            self.set_text_color(*GRAY_900)
+            self.ln(row_h + 1)
+
+        # full 8-item legend
+        self.cell(0, 3, new_x="LMARGIN", new_y="NEXT")
+        self._legend(cx, self.get_y())
+        self.cell(0, 5, new_x="LMARGIN", new_y="NEXT")
+
+        # ── Detailbewertung ───────────────────────────────────────────
+        self.set_font("free-sans", "B", 12)
+        self.cell(0, 7, "Detailbewertung", new_x="LMARGIN", new_y="NEXT")
+        self.cell(0, 3, new_x="LMARGIN", new_y="NEXT")
+
+        pill_w = 42
+
+        for oberziel in eingabe.eingabe_ziel_ober:
+            tangiert = oberziel.tangiert
+            di = _pdf_di(
+                get_display_impact(durchschnitt[oberziel.ziel_ober_id], tangiert)
+            )
+
+            # header colours: background = Gesamtwirkung colour
+            if tangiert:
+                hc = di["color"]
+                hdr_bg = (hc["r"], hc["g"], hc["b"])
+                lum_hdr = _luminance(*hdr_bg)
+                title_tc = GRAY_900 if lum_hdr > 180 else WHITE
+                badge_bg = GRAY_200 if lum_hdr > 180 else WHITE
+                badge_tc = GRAY_900 if lum_hdr > 180 else hdr_bg
+            else:
+                hdr_bg = GRAY_100
+                title_tc = GRAY_700
+                badge_bg = BLUE_100
+                badge_tc = BLUE_700
+
+            # dynamic header height for long names
+            bsz = 6
+            name_x_off = 3 + bsz + 2
+            name_w_hdr = cw - name_x_off - pill_w - 6
+            self.set_font("free-sans", "B", 9)
+            nw = self.get_string_width(oberziel.ziel_ober.name)
+            name_lines = max(1, int(nw / name_w_hdr) + 1 if nw > name_w_hdr else 1)
+            header_h = max(10, name_lines * 5 + 4)
+
+            # pre-emptive page break so header + first line of content start together
+            if self.get_y() + header_h + 18 > self.h - self.b_margin:
+                self.add_page()
+
+            card_start_page = self.page_no()
+            card_top = self.get_y()
+
+            # ── header bar ──────────────────────────────────────────
+            self.set_fill_color(*hdr_bg)
+            self.set_draw_color(*hdr_bg)
+            self.rect(cx, card_top, cw, header_h, style="F")
+
+            # circle number badge
+            bx = cx + 3
+            by = card_top + (header_h - bsz) / 2
+            self.set_fill_color(*badge_bg)
+            self.set_draw_color(*badge_bg)
+            self.rect(bx, by, bsz, bsz, style="F", corner_radius=bsz / 2)
+            self.set_text_color(*badge_tc)
+            self.set_font("free-sans", "B", 7)
+            self.set_xy(bx, by)
+            self.cell(bsz, bsz, str(oberziel.ziel_ober.nr), align="C")
+
+            # oberziel name
+            self.set_text_color(*title_tc)
+            self.set_font("free-sans", "B", 9)
+            name_top = card_top + (header_h - name_lines * 5) / 2
+            self.set_xy(cx + name_x_off, name_top)
+            self.multi_cell(
+                name_w_hdr, 5, oberziel.ziel_ober.name, new_x="RIGHT", new_y="TOP"
+            )
+
+            # Gesamtwirkung pill – inverted (white) on any coloured header
+            ph = 6
+            pill_x = cx + cw - pill_w - 3
+            pill_y = card_top + (header_h - ph) / 2
+            if tangiert and _luminance(*hdr_bg) <= 200:
+                self.set_fill_color(*WHITE)
+                self.set_draw_color(*WHITE)
+                self.rect(pill_x, pill_y, pill_w, ph, style="F", corner_radius=ph / 2)
+                self.set_text_color(*hdr_bg)
+                self.set_font("free-sans", "B", 7)
+                self.set_xy(pill_x, pill_y)
+                self.cell(pill_w, ph, di["label"], align="C")
+                self.set_text_color(*GRAY_900)
+            else:
+                self._pill(pill_x, pill_y, pill_w, ph, di)
+
+            self.set_y(card_top + header_h)
+
+            # ── tangierte Unterziele ──────────────────────────────────
+            for unterziel in oberziel.eingabe_ziel_unter:
+                if not unterziel.tangiert:
+                    continue
+
+                uz_di = _pdf_di(
+                    get_display_impact(unterziel.auswirkung, unterziel.tangiert)
+                )
+
+                # pre-emptive page break before unterziel (rough min height: 30mm)
+                if self.get_y() + 30 > self.h - self.b_margin:
+                    self.add_page()
+
+                uz_start_page = self.page_no()
+                uz_start_y = self.get_y()
+                ind_x = cx + 7  # content, clear of accent line at cx
+
+                # thin gray row divider
+                self._h_divider(cx, cw)
+                row_y = uz_start_y + 3
+
+                # sub-number (blue)
+                nr_text = f"{oberziel.ziel_ober.nr}.{unterziel.ziel_unter.nr}"
+                nr_w = 13
+                self.set_text_color(*BLUE_600)
+                self.set_font("free-sans", "B", 8)
+                self.set_xy(ind_x, row_y)
+                self.cell(nr_w, 5, nr_text)
+
+                # name – full available width (no impact pill in this row)
+                name_w2 = cw - (ind_x - cx) - nr_w - 3
+                self.set_text_color(*GRAY_900)
+                self.set_font("free-sans", "", 9)
+                self.set_xy(ind_x + nr_w, row_y)
+                self.multi_cell(
+                    name_w2, 5, unterziel.ziel_unter.name, new_x="LMARGIN", new_y="NEXT"
+                )
+                self.set_y(max(self.get_y(), row_y + 5) + 3)
+
+                # detail row: [impact pill]  |  [RÄUMLICHE AUSWIRKUNG / value]
+                detail_x = ind_x + nr_w
+                half_w = (cw - (detail_x - cx) - 3) / 2
+
+                # only label the right column
+                self._label(detail_x, "Wirkungsrichtung und -stärke", w=-1)
+                self._label(detail_x + half_w, "Räumliche Auswirkung")
+
+                val_y = self.get_y()
+                wir_pw, wir_ph = 38, 5
+                self._pill(detail_x, val_y, wir_pw, wir_ph, uz_di)
+
+                raeumlich = getattr(unterziel.auswirkung_raeumlich, "name", None) or "–"
+                self.set_font("free-sans", "", 9)
+                self.set_xy(detail_x + half_w, val_y)
+                self.cell(half_w, wir_ph, raeumlich)
+                self.set_y(val_y + wir_ph + 3)
+
+                # Erläuterung
+                content_w = cw - (detail_x - cx) - 3
+                if unterziel.anmerkung:
+                    self._label(detail_x, "Erläuterung")
+                    self.set_x(detail_x)
+                    self.set_text_color(*GRAY_700)
+                    self.set_font("free-sans", "", 9)
                     self.multi_cell(
-                        145,
-                        10,
-                        txt=f"{unterziel.ziel_unter.name}",
-                        markdown=True,
-                        max_line_height=5,
-                        border="T",
-                        padding=padding,
-                        new_y="TOP",
-                    )
-                    display_impact = get_display_impact(
-                        unterziel.auswirkung, unterziel.tangiert
-                    )
-
-                    # Draw rounded rectangle for Wirkung background
-                    wirkung_x = self.get_x()
-                    wirkung_y = self.get_y()
-                    wirkung_width = 35
-                    wirkung_height = 10
-
-                    self.set_fill_color(
-                        r=display_impact["color"]["r"],
-                        g=display_impact["color"]["g"],
-                        b=display_impact["color"]["b"],
-                    )
-                    self.rect(
-                        wirkung_x,
-                        wirkung_y,
-                        wirkung_width,
-                        wirkung_height,
-                        style="F",
-                        corner_radius=3,
-                    )
-
-                    # Draw top border
-                    self.line(
-                        wirkung_x, wirkung_y, wirkung_x + wirkung_width, wirkung_y
-                    )
-
-                    # Place text on top
-                    self.multi_cell(
-                        wirkung_width,
-                        wirkung_height,
-                        txt=f"**Wirkung:**\n{display_impact["label"]}",
-                        markdown=True,
-                        border=False,
-                        max_line_height=5,
-                        fill=False,
-                        new_x="LEFT",
+                        content_w,
+                        4.5,
+                        unterziel.anmerkung,
+                        new_x="LMARGIN",
                         new_y="NEXT",
                     )
+                    self.set_text_color(*GRAY_900)
+                    self.cell(0, 2, new_x="LMARGIN", new_y="NEXT")
 
-                    raeumlich_name = getattr(
-                        unterziel.auswirkung_raeumlich, "name", None
-                    )
-                    if not raeumlich_name:
-                        raeumlich_name = "k/A"
-                    self.multi_cell(
-                        35,
-                        10,
-                        txt=f"**Räumlich:**\n{raeumlich_name}",
-                        markdown=True,
-                        max_line_height=5,
-                        new_x="LMARGIN",
-                        new_y="TOP",
-                    )
-                    self.cell(10, 5)
-                    # table_x = self.get_x()
-                    self.cell(25, 5, txt="**Anmerkung:**", markdown=True)
-                    if unterziel.anmerkung:
-                        self.multi_cell(
-                            120,
-                            5,
-                            txt=unterziel.anmerkung,
-                            padding=padding,
-                            new_x="LMARGIN",
-                            new_y="NEXT",
+                # Indikatoren
+                if unterziel.indikatoren:
+                    self._label(detail_x, "Indikatoren")
+                    ind_ph = 5
+                    ind_px = detail_x
+                    ind_py = self.get_y()
+                    max_px = cx + cw - 3
+                    self.set_font("free-sans", "", 8)
+                    for ind in unterziel.indikatoren:
+                        tw = self.get_string_width(ind.name) + 6
+                        if ind_px + tw > max_px and ind_px > detail_x:
+                            ind_px = detail_x
+                            ind_py += ind_ph + 2
+                        self.set_fill_color(*BLUE_600)
+                        self.set_draw_color(*BLUE_600)
+                        self.rect(
+                            ind_px,
+                            ind_py,
+                            tw,
+                            ind_ph,
+                            style="F",
+                            corner_radius=ind_ph / 2,
                         )
-                        self.cell(145, 1, new_x="LMARGIN", new_y="NEXT")
+                        self.set_text_color(*WHITE)
+                        self.set_font("free-sans", "", 8)
+                        self.set_xy(ind_px, ind_py)
+                        quelle = getattr(ind, "quelle_url", None)
+                        if quelle:
+                            self.cell(tw, ind_ph, ind.name, link=quelle, align="C")
+                        else:
+                            self.cell(tw, ind_ph, ind.name, align="C")
+                        self.set_text_color(*GRAY_900)
+                        ind_px += tw + 2
+                    self.set_y(ind_py + ind_ph + 3)
 
-                    else:
-                        self.cell(0, 5, txt="-", new_x="LMARGIN", new_y="NEXT")
+                self.cell(0, 3, new_x="LMARGIN", new_y="NEXT")
 
-                    self.cell(10, 5)
-                    # self.cell(25,5, txt="**Indikatoren:**", markdown=True)
-                    # self.multi_cell(120,5, txt=', '.join(indicator.label for indicator in sub_objective.indicators), markdown=True, padding=padding, new_x="LMARGIN", new_y="NEXT")
-                    # Set the label for "Indikatoren:"
-                    self.cell(25, 5, txt="**Indikatoren:**", markdown=True)
-                    if unterziel.indikatoren:
-
-                        # Fixed indentation for bullet points
-                        bullet_indent = (
-                            45  # Adjust this value to align with "Indikatoren:"
+                # vertical accent line – only when the unterziel is on a single page
+                if self.page_no() == uz_start_page:
+                    uz_h = self.get_y() - uz_start_y
+                    if uz_h > 0:
+                        uc = uz_di["color"]
+                        lc = (
+                            (uc["r"], uc["g"], uc["b"])
+                            if _luminance(uc["r"], uc["g"], uc["b"]) <= 200
+                            else BLUE_500
                         )
+                        self.set_draw_color(*lc)
+                        self.set_line_width(1.5)
+                        self.line(cx + 0.75, uz_start_y, cx + 0.75, uz_start_y + uz_h)
 
-                        # Start adding indicators as a bulleted list on the same line
-                        for i, indikator in enumerate(unterziel.indikatoren):
-                            # Set the x position for bullet points alignment
-                            self.set_x(bullet_indent)
+            # card border – only when the entire card fits on one page
+            card_h = self.get_y() - card_top
+            if self.page_no() == card_start_page and card_h > 0:
+                bc = di["color"]
+                bl = _luminance(bc["r"], bc["g"], bc["b"])
+                border_color = (bc["r"], bc["g"], bc["b"]) if bl <= 220 else GRAY_200
+                self.set_draw_color(*border_color if tangiert else GRAY_200)
+                self.set_line_width(0.5 if tangiert else 0.3)
+                self.rect(cx, card_top, cw, card_h, corner_radius=3)
+            else:
+                # card spans pages: draw a closing rule on the current page
+                self._h_divider(cx, cw)
 
-                            # Set bullet point and label text
-                            bullet_point = "• "
-                            label_text = bullet_point + indikator.name
+            self.cell(0, 4, new_x="LMARGIN", new_y="NEXT")
 
-                            # Add hyperlink if a source URL exists, otherwise just add text
-                            if indikator.quelle_url:
-                                self.set_text_color(
-                                    0, 0, 255
-                                )  # Optional: set link color to blue
-                                self.cell(
-                                    0, 5, label_text, link=indikator.quelle_url, ln=1
-                                )
-                                self.set_text_color(
-                                    0, 0, 0
-                                )  # Reset color after the link text
-                            else:
-                                self.cell(0, 5, label_text, ln=1)
-                    else:
-                        self.cell(
-                            0, 5, txt="-", markdown=True, new_x="LMARGIN", new_y="NEXT"
-                        )
-
-            if not ix == len(eingabe.eingabe_ziel_ober) - 1:
-                self.set_line_width(0.5)
-                self.cell(0, 1, border="B", new_x="LMARGIN", new_y="NEXT")
-                self.cell(0, 1, new_x="LMARGIN", new_y="NEXT")
-        # Create a bytes buffer to save the self
         pdf_output = BytesIO()
         self.output(pdf_output)
-
-        # Move the buffer pointer to the beginning
         pdf_output.seek(0)
-
         return pdf_output

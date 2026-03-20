@@ -2,6 +2,42 @@
   <div>
     <ConfirmDialog></ConfirmDialog>
     <BaseSpinner v-if="isLoading" />
+
+    <!-- Read-only view for Politik -->
+    <div v-else-if="isPolitik" class="grid grid-cols-1 gap-y-4 my-7">
+      <div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+        <div>
+          <p class="font-semibold text-gray-500 mb-1">Magistratsvorlagennummer</p>
+          <p>{{ vorlage?.verwaltungsvorgangNr || '—' }}</p>
+        </div>
+        <div>
+          <p class="font-semibold text-gray-500 mb-1">Datum der Magistratssitzung</p>
+          <p>{{ vorlage?.verwaltungsvorgangDatum ? new Date(vorlage.verwaltungsvorgangDatum).toLocaleDateString('de-DE') : '—' }}</p>
+        </div>
+        <div class="col-span-2">
+          <p class="font-semibold text-gray-500 mb-1">Titel der Magistratsvorlage</p>
+          <p>{{ vorlage?.name || '—' }}</p>
+        </div>
+        <div v-if="vorlage?.gemeindeGebiete?.length">
+          <p class="font-semibold text-gray-500 mb-1">Gebiete</p>
+          <div class="flex flex-wrap gap-1">
+            <Tag v-for="gebiet in vorlage.gemeindeGebiete" :key="gebiet.id" :value="gebiet.name" severity="secondary" />
+          </div>
+        </div>
+        <div v-if="vorlage?.tags?.length">
+          <p class="font-semibold text-gray-500 mb-1">Tags</p>
+          <div class="flex flex-wrap gap-1">
+            <Tag v-for="tag in vorlage.tags" :key="tag.id" :value="'#' + tag.name" severity="info" />
+          </div>
+        </div>
+        <div v-if="vorlage?.beschreibung" class="col-span-2">
+          <p class="font-semibold text-gray-500 mb-1">Beschreibung der Maßnahme</p>
+          <p class="whitespace-pre-wrap">{{ vorlage.beschreibung }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Editable form for Verwaltung -->
     <form v-else class="grid grid-cols-1 gap-y-4 my-7" @submit.prevent="onSubmit">
       <div class="form-group field">
         <FloatLabel variant="on">
@@ -132,8 +168,9 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import { useForm } from 'vee-validate'
 import { schema } from '@/utils/schemas/magistratsvorlage'
 import { toTypedSchema } from '@vee-validate/yup'
@@ -147,8 +184,11 @@ import DatePicker from 'primevue/datepicker'
 import Textarea from 'primevue/textarea'
 import FloatLabel from 'primevue/floatlabel'
 import MultiSelect from 'primevue/multiselect'
+import Tag from 'primevue/tag'
 
 const confirm = useConfirm()
+const authStore = useAuthStore()
+const isPolitik = computed(() => authStore.userRolleId === 2)
 
 const props = defineProps({
   editMode: {
@@ -162,6 +202,7 @@ const route = useRoute()
 const isLoading = ref(false)
 const gebiete = ref([])
 const tagOptions = ref([])
+const vorlage = ref(null)
 
 const { defineField, handleSubmit, errors, setValues } = useForm({
   validationSchema: toTypedSchema(schema)
@@ -178,7 +219,9 @@ onMounted(async () => {
   if (props.editMode) {
     await fetchMagistratsvorlage()
   }
-  await fetchOptions()
+  if (!isPolitik.value) {
+    await fetchOptions()
+  }
 })
 
 const fetchOptions = async () => {
@@ -191,9 +234,10 @@ const fetchOptions = async () => {
 const fetchMagistratsvorlage = async () => {
   isLoading.value = true
   const response = await fetchItems(`/magistratsvorlage/${route.params.id}`)
+  vorlage.value = response
   setValues({
     verwaltungsvorgangNr: response.verwaltungsvorgangNr,
-    verwaltungsvorgangDatum: new Date(response.verwaltungsvorgangDatum),
+    verwaltungsvorgangDatum: response.verwaltungsvorgangDatum ? new Date(response.verwaltungsvorgangDatum) : null,
     name: response.name,
     beschreibung: response.beschreibung,
     gemeindeId: response.gemeindeId,

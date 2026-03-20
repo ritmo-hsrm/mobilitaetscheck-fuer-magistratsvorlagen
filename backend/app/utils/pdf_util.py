@@ -14,49 +14,18 @@ def get_display_impact(value, target):
 
     if value < -2.5:
         return {"label": "stark negativ", "color": {"r": 255, "g": 16, "b": 16}}
-    elif value <= -1.5:
+    elif value < -1.5:
         return {"label": "negativ", "color": {"r": 255, "g": 95, "b": 95}}
     elif value < 0:
         return {"label": "leicht negativ", "color": {"r": 255, "g": 175, "b": 175}}
     elif value == 0:
         return {"label": "neutral", "color": {"r": 255, "g": 255, "b": 255}}
-    elif value <= 0.5:
-        return {"label": "leicht positiv", "color": {"r": 176, "g": 222, "b": 171}}
     elif value <= 1.5:
+        return {"label": "leicht positiv", "color": {"r": 176, "g": 222, "b": 171}}
+    elif value <= 2.5:
         return {"label": "positiv", "color": {"r": 97, "g": 189, "b": 88}}
-    elif value > 1.5:
-        return {"label": "stark positiv", "color": {"r": 18, "g": 157, "b": 5}}
     else:
-        return {"label": "keine Angabe", "color": {"r": None, "g": None, "b": None}}
-
-    # if not target:
-    #     return {"label": "Ziel nicht tangiert",
-    #             "color": [229, 229, 229]}
-
-    # if value < -2.5:
-    #     return {"label": "stark negativ",
-    #             "color": [255, 16, 16]}
-    # elif value <= -1.5:
-    #     return {"label": "negativ",
-    #             "color": [255, 95, 95]}
-    # elif value < 0:
-    #     return {"label": "leicht negativ",
-    #             "color": [255, 175, 175]}
-    # elif value == 0:
-    #     return {"label": "neutral",
-    #             "color": [255,255,255]}
-    # elif value <= 0.5:
-    #     return {"label": "leicht positiv",
-    #             "color": [176, 222, 171]}
-    # elif value <= 1.5:
-    #     return {"label": "positiv",
-    #             "color": [97, 189, 88]}
-    # elif value > 1.5:
-    #     return {"label": "stark positiv",
-    #             "color": [18, 157, 5]}
-    # else:
-    #     return {"label": "keine Angabe",
-    #             "color": None}
+        return {"label": "stark positiv", "color": {"r": 18, "g": 157, "b": 5}}
 
 
 def calculate_average_impact(data):

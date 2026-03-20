@@ -36,13 +36,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { fetchItem } from '@/composables/crud'
 import { useRoute } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import Button from 'primevue/button'
 import Menu from 'primevue/menu'
 
 const route = useRoute()
+const authStore = useAuthStore()
+const isPolitik = computed(() => authStore.userRolleId === 2)
 
 const vorlage = ref(null)
 
@@ -50,7 +53,7 @@ onMounted(async () => {
   vorlage.value = await fetchItem(`/magistratsvorlage/${route.params.id}`)
 })
 
-const items = ref([
+const allItems = [
   {
     label: 'Allgemeine Daten',
     route: `/magistratsvorlage/${route.params.id}/daten`
@@ -59,15 +62,16 @@ const items = ref([
     label: 'Mobilitätschecks',
     route: `/magistratsvorlage/${route.params.id}/mobilitaetscheck`
   },
-  // {
-  //   label: 'Klimachecks',
-  //   route: `/magistratsvorlage/${route.params.id}/klimacheck`
-  // },
   {
     label: 'Klimarelevanzprüfung',
-    route: `/magistratsvorlage/${route.params.id}/klimarelevanzpruefung`
+    route: `/magistratsvorlage/${route.params.id}/klimarelevanzpruefung`,
+    verwaltungOnly: true
   }
-])
+]
+
+const items = computed(() =>
+  allItems.filter((item) => !item.verwaltungOnly || !isPolitik.value)
+)
 </script>
 
 <style></style>

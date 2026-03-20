@@ -1,197 +1,201 @@
 <template>
   <div>
-    <BaseHeading>Mobilitätscheck für Magistratsvorlagen</BaseHeading>
-    <section>
-      <p>
-        Herzlich willkommen bei dem Mobilitätscheck für Magistratsvorlagen. Dies ist ein
-        Online-Tool, um kommunale Vorhaben mit den verkehrlichen Leitzielen der jeweiligen Kommune
-        abzugleichen. Mit dem Online-Tool wird eine schematische Bewertung von Verkehrsprojekten
-        vorgenommen, die Entscheidungsvorlagen für kommunale Gremien (Ratsvorlagen,
-        Magistratsvorlagen) beigefügt wird.
+    <!-- Hero -->
+    <div class="text-center py-10 px-4">
+      <h1 class="text-3xl font-bold mb-3">Mobilitätscheck für Magistratsvorlagen</h1>
+      <p class="text-gray-600 max-w-xl mx-auto mb-8">
+        Veröffentlichte Mobilitätschecks von Verwaltung und Kommunalpolitik einsehen – ohne
+        Anmeldung.
       </p>
-      <p>
-        Entwickelt wurde das Tool im Projekt pimoo (Plattform für integrierte Mobilität in
-        Oberursel) von der Hochschule RheinMain gemeinsam mit der Stadt Oberursel (Taunus) sowie den
-        Transferkommunen Taunusstein und Frankfurt am Main mit Förderung des Bundesministeriums für
-        Forschung, Technologie und Raumfahrt (FKZ 01UV2428B)
-      </p>
-    </section>
-    <section>
-      <BaseSubheading>Was ist das Ziel des Mobilitätschecks?</BaseSubheading>
-      <p>
-        Der Mobilitätscheck für Magistratsvorlagen soll dabei unterstützen, politisch legitimierte
-        Leitziele einer Kommune einzuhalten und zu fördern. Bei Beratungen und Debatten um
-        Magistratsvorlagen dient der Mobilitätscheck als sachliche Diskussionsgrundlage. Auf diese
-        Weise sollen die Leitziele bei Debatten berücksichtigt werden und Orientierung für den
-        weiteren Verlauf der Debatte bieten. Die Auswirkungen einer Magistratsvorlage auf politisch
-        legitimierte Leitziele werden durch den Mobilitätscheck aufgezeigt und verdeutlicht.
-      </p>
-    </section>
-    <section>
-      <BaseSubheading>An wen richtet sich der Mobilitätscheck?</BaseSubheading>
-      <p>Der Mobilitätscheck für Magistratsvorlagen richtet sich zukünftig an drei Gruppen:</p>
-      <ul class="list-disc list-inside">
-        <li>Verwaltung</li>
-        <li>Kommunalpolitik</li>
-        <li>Bürgerschaft</li>
-      </ul>
-      <p>
-        Aktuell wird der Mobilitätscheck mit einem Fokus auf die Verwaltung erprobt. Grund dafür
-        ist, dass Verwaltungsmitarbeitende Magistratsvorlagen für die Kommunalpolitik erarbeiten.
-        Die initiale Erstellung des Mobilitätschecks für eine Magistratsvorlage geht somit auf die
-        Verwaltung zurück.
-      </p>
-      <p>
-        Sobald der Mobilitätscheck für Magistratsvorlagen mit Verwaltungsmitarbeitenden erprobt
-        wurde, wird das Tool für die Kommunalpolitik erweitert. Die Kommunalpolitik wird die
-        Möglichkeit haben, Mobilitätschecks der Verwaltung einzusehen und in einer Kopie eigene
-        Ergänzungen machen.
-      </p>
-      <p>
-        Der letzte Schritt in der Entwicklung des Mobilitätschecks ist die Veröffentlichung für die
-        Bürgerschaft. Bürgerinnen und Bürger werden die Möglichkeit haben die Mobilitätschecks ohne
-        Anmeldung einzusehen. Dies soll die Transparenz kommunalpolitischer Entscheidungsprozesse
-        fördern.
-      </p>
-    </section>
-    <section>
-      <BaseSubheading>Wie funktioniert der Mobilitätscheck?</BaseSubheading>
-      <ol class="list-decimal list-inside">
-        <li>
-          Idealerweise sollte die Kommune für die Nutzung des Mobilitätschecks bereits politisch
-          legitimierte Leitziele vereinbart haben. Andernfalls besteht die Möglichkeit sich an den
-          Leitzielen von anderen Kommunen zu orientieren oder es muss ein eigenes Zielsystem
-          entwickelt werden.
-        </li>
-        <li>
-          Die Leitziele werden von einem Verwaltungsmitglied im Mobilitätscheck für
-          Magistratsvorlagen hinterlegt.
-        </li>
-        <li>
-          Bei der Erarbeitung einer Magistratsvorlage hinterlegt ein Verwaltungsmitglied zunächst
-          eine Magistratsvorlage im Tool und gibt Basisinformationen zu dieser an.
-        </li>
-        <li>
-          Anschließend können bei Bedarf mehrere Mobilitätschecks je Magistratsvorlage erstellt
-          werden.
-        </li>
-        <li>
-          Die Mobilitätschecks sind abschließend als PDF exportierbar und sind der Magistratsvorlage
-          beizulegen. Zusätzlich ist es möglich Mobilitätschecks im Tool die Kommunalpolitik und
-          Bürgerschaft zu veröffentlichen.
-        </li>
-        <li>
-          Die Magistratsvorlage wird in der Kommunalpolitik u. a. auf Basis des Mobilitätschecks
-          diskutiert.
-        </li>
-        <li>
-          Kommunalpolitikerinnen und -politiker können von der Verwaltung veröffentlichte
-          Mobilitätschecks einsehen, duplizieren und bearbeiten. Duplizierte Mobilitätschecks können
-          wiederum die Diskussionsgrundlage erweitern. Im Tool können Kommunalpolitikerinnen und
-          -politiker ihre Mobilitätschecks ebenfalls veröffentlichen.
-        </li>
-        <li>
-          Die Bürgerschaft hat Einsicht in alle veröffentlichten Mobilitätschecks der Verwaltung und
-          Kommunalpolitik.
-        </li>
-      </ol>
-    </section>
-    <section>
-      <BaseSubheading>Sie sind Verwaltungsmitglied. Das sind ihre ersten Schritte.</BaseSubheading>
-      <p>
-        Falls ihre Kommune bisher kein Teil des Mobilitätschecks für Magistratsvorlagen ist, melden
-        Sie sich gerne per Mail bei Johann Grobe (<a href="mailto:johann.grobe@hs-rm.de"
-          >johann.grobe@hs-rm.de</a
-        >). Er bespricht mit Ihnen das weitere Vorgehen.
-      </p>
-      <p>
-        Falls Sie Verwaltungsmitglied der Stadt Oberursel (Taunus), Stadt Taunusstein oder Stadt
-        Frankfurt am Main sind, können Sie den Mobilitätscheck bereits nutzen.
-      </p>
-      <ol class="list-decimal list-inside">
-        <li>
-          Registrieren Sie sich mit ihrer dienstlichen E-Mail-Adresse. Wählen Sie "Verwaltung" als
-          ihre Benutzerrolle aus.
-        </li>
-        <li>
-          Nach der Registrierung erhalten Sie eine E-Mail mit einem Bestätigungslink. Klicken Sie
-          auf den Link, um Ihre Registrierung abzuschließen.
-        </li>
-        <li>
-          Nach der erfolgreichen Registrierung können Sie sich mit ihrer E-Mail-Adresse und dem
-          gewählten Passwort anmelden.
-        </li>
-        <li>
-          Erstellen Sie eine Magistratsvorlage. Nun können Sie Mobilitäts- und Klimachecks sowie
-          Klimarelevanzprüfungen zu der Magistratsvorlage erstellen.
-        </li>
-        <li>
-          Erstellen Sie einen Mobilitätscheck und exportieren Sie diesen als PDF. Der PDF-Export
-          kann der Magistratsvorlage beigelegt werden.
-        </li>
-      </ol>
-    </section>
-    <section>
-      <BaseSubheading
-        >Sie sind Mandatsträgerin oder -träger in der Kommunalpolitik. Das sind ihre ersten
-        Schritte.</BaseSubheading
-      >
-      <p>
-        Falls ihre Kommune bisher kein Teil des Mobilitätschecks für Magistratsvorlagen ist,
-        sprechen Sie sich mit ihrer Verwaltung ab und melden Sie sich gerne per Mail bei Johann
-        Grobe (<a href="mailto:johann.grobe@hs-rm.de">johann.grobe@hs-rm.de</a>). Er bespricht mit
-        Ihnen das weitere Vorgehen.
-      </p>
-      <p>
-        Falls Sie Mandatsträgerin oder -träger der Stadt Oberursel (Taunus), Stadt Taunusstein oder
-        Stadt Frankfurt am Main sind, können Sie den Mobilitätscheck bereits nutzen. Bitte beachten
-        Sie, dass das Tool noch nicht vollständig für die Kommunalpolitik entwickelt ist.
-      </p>
-      <ol class="list-decimal list-inside">
-        <li>
-          Registrieren Sie sich mit ihrer E-Mail-Adresse. Wählen Sie "Politik" als ihre
-          Benutzerrolle aus.
-        </li>
-        <li>
-          Nach der Registrierung erhalten Sie eine E-Mail mit einem Bestätigungslink. Klicken Sie
-          auf den Link, um Ihre Registrierung abzuschließen.
-        </li>
-        <li>
-          Nach der erfolgreichen Registrierung können Sie sich mit ihrer E-Mail-Adresse und dem
-          gewählten Passwort anmelden.
-        </li>
-        <li>
-          Nun können Sie veröffentlichte Mobilitätschecks der Verwaltung einsehen und duplizieren.
-          Duplizieren Sie den gewünschten Mobilitätscheck und bearbeiten Sie diesen.
-        </li>
-        <li>
-          Exportieren Sie ihren bearbeiteten Mobilitätscheck als PDF. Der PDF-Export kann mit
-          anderen Mandatsträgerinnen und -trägern sowie der Verwaltung geteilt werden.
-        </li>
-      </ol>
-    </section>
-    <section>
-      <BaseSubheading>Sie sind Bürgerin oder Bürger. Das sind ihre ersten Schritte.</BaseSubheading>
-      <p>
-        Zukünftig werden Sie alle von der Verwaltung und Kommunalpolitik veröffentlichen
-        Mobilitätschecks einsehen können. Hierfür wird keine Registrierung notwendig sein.
-      </p>
-    </section>
-    <section>
-      <BaseSubheading>Ihre Kommune möchte den Mobilitätscheck ausprobieren?</BaseSubheading>
-      <p>
-        Dann melden Sie sich gerne per Mail bei Johann Grobe (<a href="mailto:johann.grobe@hs-rm.de"
-          >johann.grobe@hs-rm.de</a
-        >).
-      </p>
-    </section>
+
+      <div class="flex flex-col items-center gap-2">
+        <label class="font-semibold text-lg">Gemeinde oder Stadt auswählen</label>
+        <Select
+          v-model="selectedGemeindeId"
+          :options="gemeinden"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="Gemeinde auswählen..."
+          class="w-80"
+          :loading="isLoadingGemeinden"
+          filter
+          filterPlaceholder="Suchen..."
+          @change="onGemeindeChange"
+        />
+      </div>
+    </div>
+
+    <!-- Magistratsvorlage list -->
+    <template v-if="selectedGemeindeId !== null">
+      <div class="flex items-center gap-3 mb-4">
+        <InputText
+          v-model="searchQuery"
+          placeholder="Nach Magistratsvorlage suchen..."
+          class="w-full max-w-md"
+        />
+        <span class="text-gray-500 text-sm whitespace-nowrap">
+          {{ filteredVorlagen.length }} Vorlage{{ filteredVorlagen.length !== 1 ? 'n' : '' }}
+        </span>
+      </div>
+
+      <BaseSpinner v-if="isLoadingVorlagen" class="m-10" />
+      <template v-else>
+        <p v-if="magistratsvorlagen.length === 0" class="text-gray-500 text-center py-8">
+          Keine veröffentlichten Magistratsvorlagen für diese Gemeinde vorhanden.
+        </p>
+        <DataView v-else :value="filteredVorlagen" paginator :rows="10">
+          <template #list="slotProps">
+            <div class="flex flex-col">
+              <div v-for="item in slotProps.items" :key="item.id">
+                <router-link
+                  :to="{
+                    name: 'oeffentlich-magistratsvorlage-id',
+                    params: { id: item.id },
+                    query: { gemeinde: selectedGemeindeId }
+                  }"
+                  custom
+                  v-slot="{ navigate, href }"
+                >
+                  <BaseCard
+                    class="hover:bg-gray-50 cursor-pointer"
+                    :data-href="href"
+                    @click="navigate"
+                    @keydown.enter.prevent="navigate"
+                    @keydown.space.prevent="navigate"
+                    tabindex="0"
+                  >
+                    <template #header>
+                      <span class="font-bold text-lg">{{ item.name }}</span>
+                    </template>
+                    <div class="grid grid-cols-12 gap-4 mt-2">
+                      <div class="col-span-7 grid grid-cols-5 gap-x-2 text-sm">
+                        <div class="col-span-2 font-semibold grid grid-cols-1 gap-y-1">
+                          <div>Nr.</div>
+                          <div>Datum</div>
+                          <div v-if="item.gemeindeGebiete?.length > 0">Gebiete</div>
+                          <div v-if="item.tags?.length > 0">Tags</div>
+                        </div>
+                        <div class="col-span-3 grid grid-cols-1 gap-y-1">
+                          <div>{{ item.verwaltungsvorgangNr }}</div>
+                          <div>{{ datumFormatieren(item.verwaltungsvorgangDatum) }}</div>
+                          <div v-if="item.gemeindeGebiete?.length > 0" class="flex flex-wrap gap-1">
+                            <Tag
+                              v-for="g in item.gemeindeGebiete"
+                              :key="g.id"
+                              :value="g.name"
+                              severity="secondary"
+                              size="small"
+                            />
+                          </div>
+                          <div v-if="item.tags?.length > 0" class="flex flex-wrap gap-1">
+                            <Tag
+                              v-for="t in item.tags"
+                              :key="t.id"
+                              :value="'#' + t.name"
+                              severity="info"
+                              size="small"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-span-5 flex items-center justify-center gap-4">
+                        <div class="flex flex-col items-center gap-1">
+                          <i
+                            :class="[
+                              'pi text-xl',
+                              item.mobilitaetschecks?.length > 0
+                                ? 'pi-check-circle text-green-500'
+                                : 'pi-times-circle text-gray-300'
+                            ]"
+                          />
+                          <span class="text-xs text-gray-500">Mobilitätschecks</span>
+                        </div>
+                        <i class="pi pi-chevron-right text-gray-400" />
+                      </div>
+                    </div>
+                  </BaseCard>
+                </router-link>
+              </div>
+            </div>
+          </template>
+        </DataView>
+      </template>
+    </template>
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { ref, computed, watch, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { apiClient } from '@/services/axios'
+import BaseSpinner from '@/components/BaseSpinner.vue'
+import DataView from 'primevue/dataview'
+import InputText from 'primevue/inputtext'
+import Select from 'primevue/select'
+import Tag from 'primevue/tag'
 
-<style scoped>
-p {
-  @apply mb-4;
+const route = useRoute()
+const router = useRouter()
+
+const gemeinden = ref([])
+const selectedGemeindeId = ref(null)
+const magistratsvorlagen = ref([])
+const searchQuery = ref('')
+const isLoadingGemeinden = ref(true)
+const isLoadingVorlagen = ref(false)
+
+const filteredVorlagen = computed(() => {
+  const q = searchQuery.value.trim().toLowerCase()
+  if (!q) return magistratsvorlagen.value
+  return magistratsvorlagen.value.filter(
+    (v) =>
+      v.name?.toLowerCase().includes(q) ||
+      v.verwaltungsvorgangNr?.toLowerCase().includes(q)
+  )
+})
+
+const fetchGemeinden = async () => {
+  isLoadingGemeinden.value = true
+  const res = await apiClient.get('/public/gemeinden')
+  gemeinden.value = res.data
+  isLoadingGemeinden.value = false
 }
-</style>
+
+const fetchMagistratsvorlagen = async (gemeindeId) => {
+  isLoadingVorlagen.value = true
+  magistratsvorlagen.value = []
+  const res = await apiClient.get('/public/magistratsvorlage', {
+    params: { gemeinde_id: gemeindeId }
+  })
+  magistratsvorlagen.value = res.data
+  isLoadingVorlagen.value = false
+}
+
+const onGemeindeChange = () => {
+  searchQuery.value = ''
+  router.replace({ query: { gemeinde: selectedGemeindeId.value } })
+}
+
+onMounted(async () => {
+  await fetchGemeinden()
+  const fromQuery = route.query.gemeinde ? Number(route.query.gemeinde) : null
+  if (fromQuery) {
+    selectedGemeindeId.value = fromQuery
+    await fetchMagistratsvorlagen(fromQuery)
+  }
+})
+
+watch(selectedGemeindeId, (id) => {
+  if (id) fetchMagistratsvorlagen(id)
+  else magistratsvorlagen.value = []
+})
+
+const datumFormatieren = (datum) => {
+  if (!datum) return '–'
+  return new Date(datum).toLocaleDateString('de-DE', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  })
+}
+</script>

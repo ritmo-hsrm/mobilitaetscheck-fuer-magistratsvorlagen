@@ -77,6 +77,12 @@ class MobilitaetscheckEingabe(Base):
         default=False,
         comment="Markiert, ob die Eingabe veröffentlicht ist oder nicht",
     )
+    ziel_set_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("mobilitaetscheck_ziel_set.id", ondelete="CASCADE"),
+        nullable=True,
+        comment="ID des Leitziele-Sets, auf dem dieser Mobilitätscheck basiert",
+    )
+    ziel_set: Mapped[Optional["MobilitaetscheckZielSet"]] = relationship(lazy="selectin")
 
 
 # Late imports
@@ -86,3 +92,4 @@ from app.models.mobilitaetscheck_eingabe_ziel_ober import (
 from app.models.gemeinde import Gemeinde
 from app.models.magistratsvorlage import Magistratsvorlage
 from app.models.user import User
+from app.models.mobilitaetscheck_ziel_set import MobilitaetscheckZielSet

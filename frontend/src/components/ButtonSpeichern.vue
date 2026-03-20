@@ -1,5 +1,5 @@
 <template>
-  <Button icon="pi pi-save" v-tooltip.top="'speichern'" :label="label" />
+  <Button icon="pi pi-save" v-tooltip.top="'speichern'" :label="label" :loading="loading" />
 </template>
 
 <script setup>
@@ -8,6 +8,10 @@ import Button from 'primevue/button'
 
 const props = defineProps({
   noLabel: {
+    type: Boolean,
+    default: false
+  },
+  loading: {
     type: Boolean,
     default: false
   }

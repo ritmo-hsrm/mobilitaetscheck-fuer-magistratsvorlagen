@@ -2,7 +2,7 @@
   <div class="mx-auto p-6">
     <div class="flex items-center gap-5">
       <BaseHeading>Magistratsvorlagen</BaseHeading>
-      <RouterLink :to="{ name: 'magistratsvorlage-neu' }">
+      <RouterLink v-if="authStore.userRolleId === 1" :to="{ name: 'magistratsvorlage-neu' }">
         <Button
           v-tooltip="'Neue Magistratsvorlage anlegen'"
           icon="pi pi-plus"
@@ -18,6 +18,9 @@
 <script setup>
 import MagistrasvorlageListe from '@/components/MagistrasvorlageListe.vue'
 import Button from 'primevue/button'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
 </script>
 
 <style></style>

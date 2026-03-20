@@ -42,7 +42,7 @@ class MobilitaetscheckEingabeZielOberRead(MobilitaetscheckEingabeZielOberBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int = Field(..., description="Unique identifier for the mobility result.")
-    ziel_ober: "MobilitaetscheckZielOberBaseRead" = Field(
+    ziel_ober: "MobilitaetscheckZielSetOberRead" = Field(
         ..., description="Basic information about the related main objective."
     )
     eingabe_ziel_unter: List["MobilitaetscheckEingabeZielUnterRead"] = Field(
@@ -62,7 +62,7 @@ class MobilitaetscheckEingabeZielOberRead(MobilitaetscheckEingabeZielOberBase):
 
 
 # Late imports for forward references
-from app.schemas.mobilitaetscheck_ziel_ober import MobilitaetscheckZielOberBaseRead
+from app.schemas.mobilitaetscheck_ziel_set import MobilitaetscheckZielSetOberRead
 from app.schemas.mobilitaetscheck_eingabe_ziel_unter import (
     MobilitaetscheckEingabeZielUnterRead,
 )

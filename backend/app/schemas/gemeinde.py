@@ -8,6 +8,7 @@ class GemeindeBase(BaseModel):
     """
 
     name: str = Field(..., description="The name of the Gemeinde.")
+    verwaltung_email_domain: Optional[str] = Field(None, description="Erlaubte E-Mail-Domain für Verwaltung-Benutzer (z.B. muenchen.de).")
 
 
 class GemeindeCreate(GemeindeBase):
@@ -24,6 +25,7 @@ class GemeindeUpdate(BaseModel):
     """
 
     name: Optional[str] = Field(None, description="The updated name of the Gemeinde.")
+    verwaltung_email_domain: Optional[str] = Field(None, description="Erlaubte E-Mail-Domain für Verwaltung-Benutzer (z.B. muenchen.de).")
 
 
 class GemeindeRead(GemeindeBase):
@@ -34,3 +36,5 @@ class GemeindeRead(GemeindeBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int = Field(..., description="Unique identifier for the Gemeinde.")
+    standard_ziel_set_id: Optional[int] = Field(None, description="ID des Standard-Leitziele-Sets.")
+    verwaltung_email_domain: Optional[str] = Field(None, description="Erlaubte E-Mail-Domain für Verwaltung-Benutzer.")

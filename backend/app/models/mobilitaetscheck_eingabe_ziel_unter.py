@@ -32,11 +32,11 @@ class MobilitaetscheckEingabeZielUnter(Base):
         back_populates="eingabe_ziel_unter", lazy="selectin"
     )
     ziel_unter_id: Mapped[int] = mapped_column(
-        ForeignKey("mobilitaetscheck_ziel_unter.id", ondelete="CASCADE"),
+        ForeignKey("mobilitaetscheck_ziel_set_unter.id", ondelete="CASCADE"),
         nullable=False,
-        comment="ID des Mobilitätscheck Unterziels, mit dem die Eingabe verknüpft ist",
+        comment="ID des Unterziels (Set-Version), mit dem die Eingabe verknüpft ist",
     )
-    ziel_unter: Mapped["MobilitaetscheckZielUnter"] = relationship(lazy="selectin")
+    ziel_unter: Mapped["MobilitaetscheckZielSetUnter"] = relationship(lazy="selectin")
 
     @hybrid_property
     def ziel_unter_nr(self):
@@ -45,11 +45,11 @@ class MobilitaetscheckEingabeZielUnter(Base):
     @ziel_unter_nr.expression
     def ziel_unter_nr(cls):
         # local import avoids early reference / circular import
-        from app.models.mobilitaetscheck_ziel_unter import MobilitaetscheckZielUnter
+        from app.models.mobilitaetscheck_ziel_set_unter import MobilitaetscheckZielSetUnter
 
         return (
-            select(MobilitaetscheckZielUnter.nr)
-            .where(MobilitaetscheckZielUnter.id == cls.ziel_unter_id)
+            select(MobilitaetscheckZielSetUnter.nr)
+            .where(MobilitaetscheckZielSetUnter.id == cls.ziel_unter_id)
             .correlate(cls)
             .scalar_subquery()
         )
@@ -86,7 +86,7 @@ from app.models.mobilitaetscheck_auswirkung_raeumlich import (
     MobilitaetscheckAuswirkungRaeumlich,
 )
 from app.models.indikator import Indikator
-from app.models.mobilitaetscheck_ziel_unter import MobilitaetscheckZielUnter
+from app.models.mobilitaetscheck_ziel_set_unter import MobilitaetscheckZielSetUnter
 from app.models.mobilitaetscheck_eingabe_ziel_ober import (
     MobilitaetscheckEingabeZielOber,
 )

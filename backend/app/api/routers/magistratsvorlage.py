@@ -23,6 +23,9 @@ association_fields = {
 }
 
 
+POLITIK_ROLLE_NAME = "Politik"
+
+
 @router.get("", response_model=List[ReadSchema])
 async def get_magistratsvorlagen(
     db: AsyncSession = Depends(get_async_session),
@@ -30,10 +33,15 @@ async def get_magistratsvorlagen(
 ):
     sort_params = [("erstellt_am", "desc")]
 
-    return await crud.get_by_key(
+    is_politik = not user.is_superuser and user.rolle.name == POLITIK_ROLLE_NAME
+
+    keys = {"gemeinde_id": user.gemeinde_id}
+    if is_politik:
+        keys["veroeffentlicht"] = True
+
+    return await crud.get_by_multi_keys(
         db=db,
-        key="gemeinde_id",
-        value=user.gemeinde_id,
+        keys=keys,
         sort_params=sort_params,
     )
 

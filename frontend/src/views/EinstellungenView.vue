@@ -26,12 +26,16 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed } from 'vue'
 import Menu from 'primevue/menu'
+import { useAuthStore } from '@/stores/auth'
 
-const items = ref([
+const authStore = useAuthStore()
+
+const allItems = [
   {
     label: 'Gemeinde',
+    requiresRolleId: [1],
     items: [
       {
         label: 'Gebiete',
@@ -41,10 +45,11 @@ const items = ref([
   },
   {
     label: 'Mobilitätscheck',
+    requiresRolleId: [1],
     items: [
       {
         label: 'Leitziele',
-        route: '/einstellungen/leitziel'
+        route: '/einstellungen/leitziel-sets'
       },
       {
         label: 'Textblöcke',
@@ -62,14 +67,37 @@ const items = ref([
   },
   {
     label: 'Administration',
+    requiresRolleId: [1],
     items: [
       {
         label: 'Accountverwaltung',
         route: '/einstellungen/accountverwaltung'
+      },
+      {
+        label: 'Einladungen',
+        route: '/einstellungen/einladungen'
+      },
+      {
+        label: 'Gruppen',
+        route: '/einstellungen/gruppen'
+      }
+    ]
+  },
+  {
+    label: 'Einladungen',
+    requiresRolleId: [2],
+    items: [
+      {
+        label: 'Einladungen',
+        route: '/einstellungen/einladungen'
       }
     ]
   }
-])
+]
+
+const items = computed(() =>
+  allItems.filter((group) => group.requiresRolleId.includes(authStore.userRolleId))
+)
 </script>
 
 <style></style>

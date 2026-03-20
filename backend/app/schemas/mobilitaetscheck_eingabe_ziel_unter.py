@@ -62,7 +62,7 @@ class MobilitaetscheckEingabeZielUnterRead(MobilitaetscheckEingabeZielUnterBase)
     model_config = ConfigDict(from_attributes=True)
 
     id: int = Field(..., description="Unique identifier for the mobility sub-result.")
-    ziel_unter: "MobilitaetscheckZielUnterBaseRead" = Field(
+    ziel_unter: "MobilitaetscheckZielSetUnterRead" = Field(
         ..., description="The associated sub-objective details."
     )
     auswirkung_raeumlich: Optional["MobilitaetscheckAuswirkungRaeumlichRead"] = Field(
@@ -83,4 +83,4 @@ from app.schemas.mobilitaetscheck_auswirkung_raeumlich import (
     MobilitaetscheckAuswirkungRaeumlichRead,
 )
 from app.schemas.indikator import IndikatorBaseRead
-from app.schemas.mobilitaetscheck_ziel_unter import MobilitaetscheckZielUnterBaseRead
+from app.schemas.mobilitaetscheck_ziel_set import MobilitaetscheckZielSetUnterRead

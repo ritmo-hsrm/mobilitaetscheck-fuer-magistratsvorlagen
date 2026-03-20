@@ -1,8 +1,10 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, status, Response
+from sqlalchemy import or_
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 
 from app.crud.mobilitaetscheck_eingabe import crud_mobility_submission as crud
 from app.core.deps import current_active_user, get_async_session
@@ -19,14 +21,16 @@ from app.schemas.mobilitaetscheck_eingabe_ziel_ober import (
 from app.schemas.mobilitaetscheck_eingabe_ziel_unter import (
     MobilitaetscheckEingabeZielUnterCreate,
 )
+from app.models.magistratsvorlage import Magistratsvorlage
+from app.models.mobilitaetscheck_eingabe import MobilitaetscheckEingabe as EingabeModel
 from app.utils.auth_util import check_user_authorization
-from app.api.routers.mobilitaetscheck_ziel_ober import get_mobilitaetscheck_ziel_ober
 from app.api.routers.mobilitaetscheck_eingabe_ziel_ober import (
     create_mobilitaetscheck_eingabe_ziel_ober,
 )
 from app.api.routers.mobilitaetscheck_eingabe_ziel_unter import (
     create_mobilitaetscheck_eingabe_ziel_unter,
 )
+from app.crud.mobilitaetscheck_ziel_set import crud_ziel_set
 from app.services.pdf.mobilitaetscheck_pdf import MobilitaetscheckPDF
 
 router = APIRouter()
@@ -78,28 +82,47 @@ async def filter_mobility_submissions(
     return await crud.get_by_multi_keys(db=db, keys=keys, sort_params=sort_params)
 
 
+POLITIK_ROLLE_NAME = "Politik"
+
+
 @router.get(
     "/magistratsvorlage/{magistratsvorlage_id}",
     response_model=List[ReadSchema],
     status_code=status.HTTP_200_OK,
-    dependencies=[Depends(current_active_user)],
 )
 async def get_mobility_submission(
     magistratsvorlage_id: int,
     db: AsyncSession = Depends(get_async_session),
+    user: User = Depends(current_active_user),
 ):
     sort_params = [("erstellt_am", "desc")]
 
-    instances = await crud.get_by_key(
-        db=db,
-        key="magistratsvorlage_id",
-        value=magistratsvorlage_id,
-        sort_params=sort_params,
-    )
+    is_politik = not user.is_superuser and user.rolle.name == POLITIK_ROLLE_NAME
+
+    if is_politik:
+        stmt = (
+            select(EingabeModel)
+            .where(EingabeModel.magistratsvorlage_id == magistratsvorlage_id)
+            .where(or_(
+                EingabeModel.veroeffentlicht == True,
+                EingabeModel.erstellt_von == user.id,
+            ))
+            .order_by(EingabeModel.erstellt_am.desc())
+        )
+        result = await db.execute(stmt)
+        instances = result.scalars().all()
+    else:
+        try:
+            instances = await crud.get_by_multi_keys(
+                db=db,
+                keys={"magistratsvorlage_id": magistratsvorlage_id},
+                sort_params=sort_params,
+            )
+        except Exception:
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
 
     if not instances:
         return Response(status_code=status.HTTP_204_NO_CONTENT)
-
     return instances
 
 
@@ -156,22 +179,18 @@ async def create_mobilitaetscheck_eingabe(
 ):
     instance = await crud.create(db=db, obj_in=eingabe, user=user)
 
-    ziel_ober_liste = await get_mobilitaetscheck_ziel_ober(db=db, user=user)
-
-    print("ziel_ober_liste", ziel_ober_liste)
-
-    for ziel_ober in ziel_ober_liste:
+    ziel_set = await crud_ziel_set.get(db, eingabe.ziel_set_id)
+    for set_ober in sorted(ziel_set.ziele_ober, key=lambda o: o.nr):
         obj_in_ziel_ober = MobilitaetscheckEingabeZielOberCreate(
-            eingabe_id=instance.id, ziel_ober_id=ziel_ober.id
+            eingabe_id=instance.id, ziel_ober_id=set_ober.id
         )
         eingabe_ziel_ober = await create_mobilitaetscheck_eingabe_ziel_ober(
             obj_in=obj_in_ziel_ober, db=db
         )
-
-        for ziel_unter in ziel_ober.ziel_unter:
+        for set_unter in sorted(set_ober.ziele_unter, key=lambda u: u.nr):
             obj_in_ziel_unter = MobilitaetscheckEingabeZielUnterCreate(
                 eingabe_ziel_ober_id=eingabe_ziel_ober.id,
-                ziel_unter_id=ziel_unter.id,
+                ziel_unter_id=set_unter.id,
                 auswirkung=0,
             )
             await create_mobilitaetscheck_eingabe_ziel_unter(
@@ -190,7 +209,18 @@ async def update_mobility_submission(
 ):
     instance = await crud.get(db, id)
     check_user_authorization(user, instance.gemeinde_id)
-    return await crud.update(db, id, updates, user)
+    instance = await crud.update(db, id, updates, user)
+
+    if updates.veroeffentlicht is True and instance.magistratsvorlage_id is not None:
+        result = await db.execute(
+            select(Magistratsvorlage).where(Magistratsvorlage.id == instance.magistratsvorlage_id)
+        )
+        magistratsvorlage = result.scalar_one_or_none()
+        if magistratsvorlage and not magistratsvorlage.veroeffentlicht:
+            magistratsvorlage.veroeffentlicht = True
+            await db.commit()
+
+    return instance
 
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)

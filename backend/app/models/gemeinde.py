@@ -1,5 +1,6 @@
 from typing import Optional, List
 
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.db import Base
@@ -17,6 +18,14 @@ class Gemeinde(Base):
     )
     name: Mapped[str] = mapped_column(
         nullable=False, comment="Name der Gemeinde oder Stadt"
+    )
+    verwaltung_email_domain: Mapped[Optional[str]] = mapped_column(
+        nullable=True, comment="Erlaubte E-Mail-Domain für Verwaltung-Benutzer (z.B. muenchen.de)"
+    )
+    standard_ziel_set_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("mobilitaetscheck_ziel_set.id", ondelete="SET NULL"),
+        nullable=True,
+        comment="ID des Standard-Leitziele-Sets dieser Gemeinde",
     )
     users: Mapped[Optional[List["User"]]] = relationship(
         back_populates="gemeinde", lazy="selectin"

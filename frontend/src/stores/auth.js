@@ -28,13 +28,14 @@ export const useAuthStore = defineStore(
     })
 
     const userId = useStorage('userId')
+    const userEmail = useStorage('userEmail')
+    const isVerified = useStorage('isVerified', false)
 
     const router = useRouter()
 
     async function register(data) {
       loading.value = true
       await apiClient.post('/auth/register', data)
-      await apiClient.post('/auth/request-verify-token', { email: data.email })
       loading.value = false
     }
 
@@ -59,7 +60,13 @@ export const useAuthStore = defineStore(
         userRolleId.value = user.rolleId
         gemeindeId.value = user.gemeindeId
         userId.value = user.id
-        router.replace({ name: 'magistratsvorlage-liste' })
+        userEmail.value = user.email
+        isVerified.value = user.isVerified
+        if (user.rolleId === 3) {
+          router.replace({ name: 'admin-gemeinden' })
+        } else {
+          router.replace({ name: 'magistratsvorlage-liste' })
+        }
       } else {
         isLoggedIn.value = false
       }
@@ -72,6 +79,7 @@ export const useAuthStore = defineStore(
 
         await apiClient.post('/auth/logout')
         isLoggedIn.value = false
+        isVerified.value = false
         userRolleId.value = null
         router.replace({ name: 'startseite' })
       } catch (error) {
@@ -97,8 +105,8 @@ export const useAuthStore = defineStore(
     apiClient.interceptors.response.use(
       (response) => response, // Pass through if response is successful
       (error) => {
-        if (error.response && error.response.status === 401) {
-          // Handle the 401 error: log out the user or redirect to login
+        if (error.response && error.response.status === 401 && isLoggedIn.value) {
+          // Only redirect to login if the user had an active session
           router.replace({ name: 'anmelden', query: { redirect: 'sessionExpired' } })
           isLoggedIn.value = false
           userRolleId.value = null
@@ -162,9 +170,12 @@ export const useAuthStore = defineStore(
     return {
       loading,
       isLoggedIn,
+      isVerified,
       userInitialien,
       gemeindeId,
+      userId,
       userRolleId,
+      userEmail,
       register,
       login,
       logout,

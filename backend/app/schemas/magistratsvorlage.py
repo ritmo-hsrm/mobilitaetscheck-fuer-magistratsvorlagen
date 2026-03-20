@@ -14,13 +14,13 @@ class MagistratsvorlageBase(BaseModel):
         ..., description="A descriptive title for the mobility submission."
     )
     beschreibung: Optional[str] = Field(
-        ..., description="Detailed description of the submission."
+        None, description="Detailed description of the submission."
     )
     verwaltungsvorgang_nr: str = Field(
         ..., description="Internal tracking number assigned by the administration."
     )
-    verwaltungsvorgang_datum: date = Field(
-        ..., description="Date when the submission was registered."
+    verwaltungsvorgang_datum: Optional[date] = Field(
+        None, description="Date when the submission was registered."
     )
     veroeffentlicht: bool = Field(
         False,

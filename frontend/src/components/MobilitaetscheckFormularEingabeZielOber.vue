@@ -1,7 +1,7 @@
 <template>
   <div>
     <form @submit.prevent="onSubmit">
-      <div class="w-full">
+      <div v-if="!props.readOnly" class="w-full">
         <FloatLabel variant="on">
           <InputText id="name" v-model="name" class="w-full" :invalid="!!errors.name" />
           <label for="name" class="text-lg flex items-center justify-center gap-2 font-bold">
@@ -9,17 +9,17 @@
           </label>
         </FloatLabel>
       </div>
-      <div v-for="(eingabeZielOber, index) in props.item.eingabeZielOber" :key="eingabeZielOber.id">
-        <BaseCard>
-          {{ eingabeZielOber.name }}
+      <div class="flex flex-col gap-3 mt-6">
+        <div v-for="(eingabeZielOber, index) in props.item.eingabeZielOber" :key="eingabeZielOber.id">
           <MobilitaetscheckFormularEingabeZielOberItem
             :editMode="props.editMode"
+            :readOnly="props.readOnly"
             :item="eingabeZielOber"
             :ref="(el) => registerOberRef(el, index)"
           />
-        </BaseCard>
+        </div>
       </div>
-      <div class="flex justify-end items-center mt-4">
+      <div v-if="!props.readOnly" class="flex justify-end items-center mt-4">
         <Button
           icon="pi pi-save"
           @click="handleSubmit"
@@ -36,7 +36,8 @@
 import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
-import { updateItem } from '@/composables/crud'
+import { updateItem, updateItemSilent } from '@/composables/crud'
+import { useDebounceFn } from '@vueuse/core'
 import { schema } from '@/utils/schemas/mobilitaetscheckEingabe'
 import InputText from 'primevue/inputtext'
 import FloatLabel from 'primevue/floatlabel'
@@ -50,6 +51,10 @@ const isLoading = ref(false)
 
 const props = defineProps({
   editMode: {
+    type: Boolean,
+    default: false
+  },
+  readOnly: {
     type: Boolean,
     default: false
   },
@@ -70,6 +75,7 @@ const { defineField, handleSubmit, errors, setValues } = useForm({
   validationSchema: schema
 })
 const [name] = defineField('name')
+const isInitialized = ref(false)
 
 onMounted(async () => {})
 
@@ -80,10 +86,22 @@ watch(
       setValues({
         name: props.item.name
       })
+      isInitialized.value = true
     }
   },
   { immediate: true }
 )
+
+const autoSaveName = useDebounceFn(async () => {
+  if (!isInitialized.value || props.readOnly) return
+  await updateItemSilent({
+    model: 'mobilitaetscheck/eingabe',
+    modelId: props.item.id,
+    values: { name: name.value }
+  })
+}, 1500)
+
+watch([name], autoSaveName)
 
 const emit = defineEmits(['close-modal', 'reload-item'])
 

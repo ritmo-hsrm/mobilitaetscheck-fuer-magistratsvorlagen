@@ -13,17 +13,31 @@
       </div>
     </template>
     <template #center>
-      <div v-if="authStore.isLoggedIn">
-        <router-link :to="{ name: 'magistratsvorlage-liste' }">
-          <Button label="Magistratsvorlagen" />
+      <div class="flex items-center gap-2">
+        <router-link :to="{ name: 'startseite' }">
+          <Button label="Startseite" severity="primary" />
         </router-link>
+        <template v-if="authStore.isLoggedIn">
+          <router-link
+            v-if="![3].includes(authStore.userRolleId)"
+            :to="{ name: 'magistratsvorlage-liste' }"
+          >
+            <Button label="Magistratsvorlagen" />
+          </router-link>
+          <router-link v-if="[3].includes(authStore.userRolleId)" :to="{ name: 'admin-gemeinden' }">
+            <Button label="Administration" />
+          </router-link>
+        </template>
       </div>
     </template>
 
     <template #end>
       <div v-if="authStore.isLoggedIn" class="flex items-center gap-2">
-        <router-link v-if="[1].includes(authStore.userRolleId)" :to="{ name: 'leitziel' }">
+        <router-link v-if="[1].includes(authStore.userRolleId)" :to="{ name: 'leitziel-sets' }">
           <Button v-tooltip.left="'Einstellungen'" icon="pi pi-cog" />
+        </router-link>
+        <router-link v-if="[2].includes(authStore.userRolleId)" :to="{ name: 'einladungen' }">
+          <Button v-tooltip.left="'Einladungen'" icon="pi pi-user-plus" />
         </router-link>
 
         <Avatar
@@ -35,7 +49,7 @@
 
         <Popover ref="op">
           <div class="flex flex-col gap-4 w-[8rem]">
-            <router-link v-if="[1].includes(authStore.userRolleId)" :to="{ name: 'profil' }">
+            <router-link :to="{ name: 'profil' }">
               <Button icon="pi pi-user" label="Profil" class="w-full" text plain />
             </router-link>
             <Button

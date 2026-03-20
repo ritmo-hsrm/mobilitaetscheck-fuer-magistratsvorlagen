@@ -30,14 +30,14 @@ class Magistratsvorlage(Base):
         unique=True,
         comment="Verwaltungsvorgangsnummer",
     )
-    verwaltungsvorgang_datum: Mapped[date] = mapped_column(
-        nullable=False,
+    verwaltungsvorgang_datum: Mapped[Optional[date]] = mapped_column(
+        nullable=True,
         comment="Datum des Verwaltungsvorgangs",
     )
     name: Mapped[str] = mapped_column(
         nullable=False, comment="Name oder Titel der Mobilitätschecks"
     )
-    beschreibung: Mapped[str] = mapped_column(
+    beschreibung: Mapped[Optional[str]] = mapped_column(
         nullable=True, comment="Beschreibung der Mobilitätschecks"
     )
     gemeinde_gebiete: Mapped[Optional[List["GemeindeGebiet"]]] = relationship(

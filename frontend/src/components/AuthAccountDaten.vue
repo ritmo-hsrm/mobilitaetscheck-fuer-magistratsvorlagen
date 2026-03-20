@@ -1,100 +1,69 @@
 <template>
   <BaseCard>
-    <!-- block my-5 mx-auto max-w-md -->
     <h4 class="text-xl font-bold dark:text-white mb-4">Benutzerangaben</h4>
     <BaseSpinner v-if="isLoading" />
-    <form v-else @submit.prevent="onSubmit" class="grid grid-cols-1 gap-y-4">
+    <form v-else @submit.prevent="onSubmit" class="grid grid-cols-1 gap-y-4 max-w-md">
+
+      <!-- Read-only info -->
+      <div class="bg-gray-50 rounded-lg p-3 grid grid-cols-1 gap-y-1 text-sm">
+        <div class="flex gap-2">
+          <span class="text-gray-500 w-24 shrink-0">Gemeinde</span>
+          <span class="font-medium">{{ gemeindeName }}</span>
+        </div>
+        <div class="flex gap-2">
+          <span class="text-gray-500 w-24 shrink-0">Rolle</span>
+          <span class="font-medium">{{ rolleName }}</span>
+        </div>
+      </div>
+
       <div class="field">
         <FloatLabel variant="on">
-          <InputText
-            id="vorname"
-            v-model="vorname"
-            class="w-full"
-            :invalid="!!errors.vorname"
-            aria-describedby="vorname-help"
-          />
+          <InputText id="vorname" v-model="vorname" class="w-full" :invalid="!!errors.vorname" />
           <label for="vorname">Vorname</label>
         </FloatLabel>
-        <small v-if="errors.vorname" id="vorname-help" class="p-error block">{{
-          errors.vorname
-        }}</small>
+        <small v-if="errors.vorname" class="p-error block">{{ errors.vorname }}</small>
       </div>
+
       <div class="field">
         <FloatLabel variant="on">
-          <InputText
-            id="nachname"
-            v-model="nachname"
-            class="w-full"
-            :invalid="!!errors.nachname"
-            aria-describedby="nachname-help"
-          />
+          <InputText id="nachname" v-model="nachname" class="w-full" :invalid="!!errors.nachname" />
           <label for="nachname">Nachname</label>
         </FloatLabel>
-        <small v-if="errors.nachname" id="nachname-help" class="p-error block">{{
-          errors.nachname
-        }}</small>
+        <small v-if="errors.nachname" class="p-error block">{{ errors.nachname }}</small>
       </div>
-      <div class="field">
+
+      <!-- Email: only for Politik and Admin -->
+      <div v-if="canEditEmail" class="field">
         <FloatLabel variant="on">
-          <Select
-            id="gemeinde"
-            v-model="gemeindeId"
-            :options="gemeindeOptions"
-            optionLabel="name"
-            optionValue="id"
-            class="w-full"
-            :invalid="!!errors.gemeinde"
-            aria-describedby="gemeinde-help"
-            placeholder="Gemeinde auswählen"
-            disabled
-          />
-          <label for="gemeinde">Gemeinde</label>
-        </FloatLabel>
-        <small v-if="errors.gemeinde" id="gemeinde-help" class="p-error block">{{
-          errors.gemeinde
-        }}</small>
-      </div>
-      <div class="field">
-        <FloatLabel variant="on">
-          <Select
-            id="rolleId"
-            v-model="rolleId"
-            :options="userRolleOptions"
-            optionLabel="name"
-            optionValue="id"
-            class="w-full"
-            :invalid="!!errors.rolleId"
-            aria-describedby="rolleId-help"
-            placeholder="Benutzerrolle auswählen"
-          />
-          <label for="rolleId">Benutzerrolle</label>
-        </FloatLabel>
-        <small v-if="errors.rolleId" id="rolleId-help" class="p-error block">{{
-          errors.rolleId
-        }}</small>
-      </div>
-      <div class="field">
-        <FloatLabel variant="on">
-          <InputText
-            id="email"
-            v-model="email"
-            class="w-full"
-            :invalid="!!errors.email"
-            aria-describedby="email-help"
-          />
+          <InputText id="email" v-model="email" class="w-full" :invalid="!!errors.email" />
           <label for="email">E-Mail</label>
         </FloatLabel>
-        <small v-if="errors.email" id="email-help" class="p-error block">{{ errors.email }}</small>
+        <small v-if="errors.email" class="p-error block">{{ errors.email }}</small>
       </div>
-      <div class="flex gap-4">
-        <ButtonSave type="submit" class="w-full">speichern</ButtonSave>
+
+      <!-- Gruppe: for Verwaltung and Politik -->
+      <div v-if="canEditGruppe" class="field">
+        <FloatLabel variant="on">
+          <Select
+            id="gruppeId"
+            v-model="gruppeId"
+            :options="gruppenOptions"
+            optionLabel="name"
+            optionValue="id"
+            class="w-full"
+            showClear
+          />
+          <label for="gruppeId">{{ gruppeLabel }}</label>
+        </FloatLabel>
       </div>
+
+      <ButtonSave type="submit" class="w-fit">Speichern</ButtonSave>
     </form>
   </BaseCard>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { schema } from '@/utils/schemas/accountDaten.js'
 import { useForm } from 'vee-validate'
@@ -103,11 +72,23 @@ import FloatLabel from 'primevue/floatlabel'
 import InputText from 'primevue/inputtext'
 import Select from 'primevue/select'
 import { apiClient } from '@/services/axios'
-import BaseSpinner from './BaseSpinner.vue'
 import ButtonSave from './ButtonSpeichern.vue'
 
-const gemeindeOptions = ref(null)
-const userRolleOptions = ref(null)
+const isLoading = ref(true)
+const gemeindeName = ref('')
+const rolleName = ref('')
+const userRolleName = ref('')
+const gruppen = ref([])
+
+const isVerwaltung = computed(() => userRolleName.value === 'Verwaltung')
+const isPolitik = computed(() => userRolleName.value === 'Politik')
+const canEditGruppe = computed(() => isVerwaltung.value || isPolitik.value)
+const canEditEmail = computed(() => ['Politik', 'Admin'].includes(userRolleName.value))
+const gruppeLabel = computed(() => isPolitik.value ? 'Fraktion / Partei' : 'Gruppe')
+const gruppenOptions = computed(() => [
+  { id: null, name: isPolitik.value ? 'Keine Fraktion' : 'Keine Gruppe' },
+  ...gruppen.value,
+])
 
 const { defineField, handleSubmit, errors, setFieldValue } = useForm({
   validationSchema: schema
@@ -116,62 +97,57 @@ const { defineField, handleSubmit, errors, setFieldValue } = useForm({
 const [email] = defineField('email')
 const [vorname] = defineField('vorname')
 const [nachname] = defineField('nachname')
-const [gemeindeId] = defineField('gemeindeId')
-const [rolleId] = defineField('rolleId')
+const [gruppeId] = defineField('gruppeId')
 
 const authStore = useAuthStore()
 
-const setUserValues = async () => {
-  const user = await authStore.getUser()
-
-  setFieldValue('email', user.email)
-  setFieldValue('vorname', user.vorname)
-  setFieldValue('nachname', user.nachname)
-  setFieldValue('gemeindeId', user.gemeindeId)
-  setFieldValue('rolleId', user.rolleId)
-}
-
-const fetchGemeindeOptions = async () => {
+onMounted(async () => {
   try {
-    const response = await apiClient.get('/option/gemeinde')
-    gemeindeOptions.value = response.data
-  } catch (error) {
-    gemeindeOptions.value = []
-  }
-}
+    const [userRes, gemeindenRes, rollenRes] = await Promise.all([
+      authStore.getUser(),
+      apiClient.get('/option/gemeinde'),
+      apiClient.get('/option/user-rolle'),
+    ])
+    setFieldValue('email', userRes.email)
+    setFieldValue('vorname', userRes.vorname)
+    setFieldValue('nachname', userRes.nachname)
+    setFieldValue('gruppeId', userRes.gruppeId ?? null)
 
-const fetchUserRolleOptions = async () => {
-  try {
-    const response = await apiClient.get('/option/user-rolle')
-    userRolleOptions.value = response.data
-  } catch (error) {
-    userRolleOptions.value = []
+    const g = gemeindenRes.data.find((g) => g.id === userRes.gemeindeId)
+    const r = rollenRes.data.find((r) => r.id === userRes.rolleId)
+    gemeindeName.value = g?.name ?? '–'
+    rolleName.value = r?.name ?? '–'
+    userRolleName.value = r?.name ?? ''
+
+    if (isVerwaltung.value) {
+      const gruppenRes = await apiClient.get('/einstellungen/gruppe')
+      gruppen.value = gruppenRes.data.filter((g) => g.rolleId === userRes.rolleId)
+    } else if (isPolitik.value) {
+      const gruppenRes = await apiClient.get('/public/gruppen', {
+        params: { gemeinde_id: userRes.gemeindeId, rolle_id: userRes.rolleId }
+      })
+      gruppen.value = gruppenRes.data
+    }
+  } catch { /* */ } finally {
+    isLoading.value = false
   }
-}
-onMounted(() => {
-  fetchGemeindeOptions()
-  fetchUserRolleOptions()
-  setUserValues()
 })
 
 const toast = useToast()
 
 const onSubmit = handleSubmit(async (values) => {
   try {
-    await authStore.updateUser(values)
-    toast.add({
-      severity: 'success',
-      summary: 'Profil erfolgreich aktualisiert',
-      life: 3000
-    })
-  } catch (error) {
-    toast.add({
-      severity: 'error',
-      summary: 'Fehler beim Aktualisieren des Profils',
-      life: 3000
-    })
+    const updateData = { vorname: values.vorname, nachname: values.nachname }
+    if (canEditEmail.value) updateData.email = values.email
+    await authStore.updateUser(updateData)
+
+    if (canEditGruppe.value) {
+      await apiClient.patch('/users/me/gruppe', { gruppe_id: values.gruppeId ?? null })
+    }
+
+    toast.add({ severity: 'success', summary: 'Profil aktualisiert', life: 3000 })
+  } catch {
+    toast.add({ severity: 'error', summary: 'Fehler beim Aktualisieren', life: 3000 })
   }
 })
 </script>
-
-<style></style>

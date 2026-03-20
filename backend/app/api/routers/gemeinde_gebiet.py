@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud.gemeinde_gebiet import crud_gemeinde_gebiet as crud
+from app.crud.exceptions import NotFoundError
 from app.core.deps import current_active_user, get_async_session
 from app.models.gemeinde_gebiet import GemeindeGebiet
 from app.models.user import User
@@ -24,9 +25,12 @@ async def get_gemeinede_gebiete(
 ):
 
     sort_params = [("name", "asc")]
-    return await crud.get_all(
-        db=db, gemeinde_id=user.gemeinde_id, sort_params=sort_params
-    )
+    try:
+        return await crud.get_all(
+            db=db, gemeinde_id=user.gemeinde_id, sort_params=sort_params
+        )
+    except NotFoundError:
+        return []
 
 
 @router.get("/{id}", response_model=GemeindeGebietRead)

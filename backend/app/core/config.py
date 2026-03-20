@@ -55,6 +55,7 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str = secrets.token_urlsafe(32)
     RESET_PASSWORD_TOKEN_SECRET: str = secrets.token_urlsafe(32)
     VERIFICATION_TOKEN_SECRET: str = secrets.token_urlsafe(32)
+    EINLADUNG_TOKEN_SECRET: str = secrets.token_urlsafe(32)
     JWT_LIFETIME_SECONDS: int = 60 * 60 * 12  # 12 hours
 
     # FastAPI Settings

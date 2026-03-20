@@ -2,6 +2,23 @@ import { createRouter, createWebHistory } from 'vue-router'
 import StartseiteView from '@/views/StartseiteView.vue'
 import UeberDasToolView from '@/views/UeberDasToolView.vue'
 import { useAuthStore } from '@/stores/auth'
+import { apiClient } from '@/services/axios'
+
+let setupStatusPromise = null
+
+export function resetSetupStatus() {
+  setupStatusPromise = null
+}
+
+function getSetupStatus() {
+  if (!setupStatusPromise) {
+    setupStatusPromise = apiClient
+      .get('/public/setup-status')
+      .then((r) => r.data.needsSetup)
+      .catch(() => false)
+  }
+  return setupStatusPromise
+}
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -36,12 +53,26 @@ const router = createRouter({
       }
     },
     {
+      path: '/auth/registrieren/einladung',
+      name: 'registrieren-einladung',
+      component: () => import('@/views/AuthRegistrierenView.vue'),
+      meta: {
+        requiresAuth: false
+      }
+    },
+    {
       path: '/auth/account-bestaetigen',
       name: 'account-bestaetigen',
       component: () => import('@/views/AuthAccountBestaetigenView.vue'),
       meta: {
         requiresAuth: false
       }
+    },
+    {
+      path: '/auth/account-nicht-verifiziert',
+      name: 'account-nicht-verifiziert',
+      component: () => import('@/views/AuthNichtVerifiziertView.vue'),
+      meta: { requiresAuth: false }
     },
     {
       path: '/auth/passwort-vergessen',
@@ -133,7 +164,7 @@ const router = createRouter({
       component: () => import('@/views/EinstellungenView.vue'),
       meta: {
         requiresAuth: true,
-        requiredUserRolleId: [1]
+        requiredUserRolleId: [1, 2]
       },
       children: [
         {
@@ -165,19 +196,73 @@ const router = createRouter({
           path: 'gemeinde-gebiet',
           name: 'gemeinde-gebiet',
           component: () => import('@/views/EinstellungenGemeindeGebietView.vue')
+        },
+        {
+          path: 'leitziel-sets',
+          name: 'leitziel-sets',
+          component: () => import('@/views/EinstellungenZielSetView.vue')
+        },
+        {
+          path: 'einladungen',
+          name: 'einladungen',
+          component: () => import('@/views/EinstellungenEinladungenView.vue')
+        },
+        {
+          path: 'gruppen',
+          name: 'gruppen',
+          component: () => import('@/views/EinstellungenGruppenView.vue')
         }
       ]
     },
     {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('@/views/AdminView.vue'),
+      meta: {
+        requiresAuth: true,
+        requiresPlatformAdmin: true,
+      },
+      children: [
+        {
+          path: 'gemeinden',
+          name: 'admin-gemeinden',
+          component: () => import('@/views/AdminGemeindenView.vue'),
+        },
+        {
+          path: 'benutzer',
+          name: 'admin-benutzer',
+          component: () => import('@/views/AdminUsersView.vue'),
+        },
+        {
+          path: 'einladungen',
+          name: 'admin-einladungen',
+          component: () => import('@/views/AdminEinladungenView.vue'),
+        },
+      ],
+    },
+    {
       path: '/einstellungen/profil',
       name: 'profil',
-      component: () => import('@/views/EinstellungenProfilView.vue')
+      component: () => import('@/views/EinstellungenProfilView.vue'),
+      meta: { requiresAuth: true }
     },
 
+    {
+      path: '/oeffentlich/magistratsvorlage/:id',
+      name: 'oeffentlich-magistratsvorlage-id',
+      component: () => import('@/views/OeffentlichMagistratsvorlageIdView.vue'),
+      meta: { requiresAuth: false }
+    },
     {
       path: '/keine-zugangsberechtigung',
       name: 'keine-zugangsberechtigung',
       component: () => import('@/views/KeineZugangsberechtigungView.vue')
+    },
+    {
+      path: '/setup',
+      name: 'setup',
+      component: () => import('@/views/SetupView.vue'),
+      meta: { requiresAuth: false }
     }
   ],
   scrollBehavior(to, from, savedPosition) {
@@ -189,14 +274,29 @@ const router = createRouter({
   }
 })
 
-router.beforeEach((to, _) => {
+router.beforeEach(async (to) => {
+  const needsSetup = await getSetupStatus()
+
+  if (needsSetup) {
+    if (to.name !== 'setup') return { name: 'setup' }
+    return
+  }
+
+  if (to.name === 'setup') return { name: 'startseite' }
+
   const authStore = useAuthStore()
 
-  if (to.meta.requiresAuth) {
+  if (to.meta.requiresAuth || to.meta.requiresPlatformAdmin) {
     if (!authStore.isLoggedIn) {
       return { name: 'anmelden' }
     }
-    if (to.meta.requiredUserRolle && !to.meta.requiredUserRolleId.includes(authStore.userRolleId)) {
+    if (!authStore.isVerified) {
+      return { name: 'account-nicht-verifiziert' }
+    }
+    if (to.meta.requiresPlatformAdmin && authStore.userRolleId !== 3) {
+      return { name: 'keine-zugangsberechtigung' }
+    }
+    if (to.meta.requiredUserRolleId && !to.meta.requiredUserRolleId.includes(authStore.userRolleId)) {
       return { name: 'keine-zugangsberechtigung' }
     }
   }

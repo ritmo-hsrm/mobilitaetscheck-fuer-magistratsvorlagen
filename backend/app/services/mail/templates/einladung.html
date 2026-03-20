@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Einladung zur Registrierung</title>
+</head>
+<body>
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <p>Hallo,</p>
+
+        <p>Sie wurden eingeladen, sich als <strong>{{ rolle }}</strong> für die Gemeinde <strong>{{ gemeinde }}</strong> beim Mobilitätscheck für Magistratsvorlagen zu registrieren.</p>
+
+        <p>Klicken Sie auf den folgenden Link, um Ihre Registrierung abzuschließen:</p>
+        <p><a href="{{ url }}" style="color: #1a73e8;">Jetzt registrieren</a></p>
+
+        <p>Falls Sie diesen Link nicht anklicken können, kopieren Sie die folgende URL in Ihren Browser:</p>
+        <p>{{ url }}</p>
+
+        <p>Der Link ist für {{ gueltigkeitsdauer }} gültig.</p>
+
+        <p>Viele Grüße,<br>
+        Ihr pimoo-Forschungsteam</p>
+    </div>
+</body>
+</html>

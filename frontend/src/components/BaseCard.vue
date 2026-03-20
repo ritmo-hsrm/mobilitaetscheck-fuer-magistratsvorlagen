@@ -13,8 +13,14 @@
         <img src="../assets/icons/MaterialSymbolsCancel.svg" alt="Close" class="w-6 h-6" />
       </button>
       <div class="gap-2">
-        <div @click="toggleCollapse" class="cursor-pointer items-center">
-          <slot name="header"></slot>
+        <div @click="toggleCollapse" :class="['items-center', collapsible ? 'cursor-pointer' : '']">
+          <div v-if="collapsible" class="flex items-center gap-2">
+            <i :class="['pi text-gray-400 text-sm transition-transform duration-200', isCollapsed ? 'pi-chevron-right' : 'pi-chevron-down']" />
+            <div class="flex-1 min-w-0">
+              <slot name="header"></slot>
+            </div>
+          </div>
+          <slot v-else name="header"></slot>
         </div>
 
         <Transition name="collapse">
@@ -28,7 +34,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 // Props to control collapsible behavior, initial visibility, and close button visibility
 const props = defineProps({
@@ -51,6 +57,10 @@ const props = defineProps({
 })
 
 const isCollapsed = ref(props.initiallyCollapsed)
+
+watch(() => props.initiallyCollapsed, (val) => {
+  if (!val) isCollapsed.value = false
+})
 const visible = ref(props.visible)
 
 // Method to toggle collapse

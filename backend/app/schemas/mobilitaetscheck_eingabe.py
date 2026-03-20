@@ -26,7 +26,7 @@ class MobilitaetscheckEingabeCreate(MobilitaetscheckEingabeBase):
     Inherits fields from MobilitaetscheckEingabeBase.
     """
 
-    pass
+    ziel_set_id: Optional[int] = Field(None, description="ID des Leitziele-Sets")
 
 
 class MobilitaetscheckEingabeUpdate(BaseModel):
@@ -53,6 +53,7 @@ class MobilitaetscheckEingabeBaseRead(MobilitaetscheckEingabeBase):
     magistratsvorlage_id: int = Field(
         ..., description="ID of the associated magistrate submission."
     )
+    ziel_set_id: Optional[int] = Field(None, description="ID des Leitziele-Sets")
     eingabe_ziel_ober: List["MobilitaetscheckEingabeZielOberRead"] = Field(
         default_factory=list,
         description="List of mobility results associated with the submission.",

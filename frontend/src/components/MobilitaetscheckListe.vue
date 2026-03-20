@@ -1,39 +1,113 @@
 <template>
   <div class="my-5">
-    <!-- <FloatLabel variant="on">
-      <InputText id="searchQuery" v-model="searchQuery" class="w-full" />
-      <label for="searchQuery">Nach Mobilitätscheck suchen</label>
-    </FloatLabel> -->
+    <ConfirmDialog />
     <BaseSpinner v-if="isLoading" class="m-10" />
-    <div v-else-if="filteredEingaben.length === 0">
-      <p class="font-lg font-bold m-5">Keine Mobilitätschecks gefunden.</p>
-    </div>
-    <div v-else>
-      <div v-for="eingabe in filteredEingaben" :key="eingabe.id">
-        <MobilitaetscheckListeItem
-          :item="eingabe"
-          @publish-item="onPublish"
-          @copy-item="onCopy"
-          @delete-item="onDelete"
-          @export-item="onExport"
-          @reload-item="refetchEingabe"
-        />
-      </div>
-    </div>
+    <Tabs v-else :value="activeTab" @update:value="activeTab = $event">
+      <TabList>
+        <Tab v-if="isPolitik" value="meine">Meine</Tab>
+        <Tab value="verwaltung">Verwaltung</Tab>
+        <Tab value="politik">Politik</Tab>
+      </TabList>
+      <TabPanels>
+        <!-- Meine (Politik only) — editable -->
+        <TabPanel v-if="isPolitik" value="meine">
+          <Message severity="info" :closable="false" class="mt-3 mb-3">
+            Sie können einen eigenen Mobilitätscheck erstellen, indem Sie auf
+            <i class="pi pi-plus mx-1" style="font-size: 0.75rem" /> klicken, oder einen
+            bestehenden Mobilitätscheck aus dem Tab <strong>Verwaltung</strong> oder
+            <strong>Politik</strong> duplizieren.
+          </Message>
+          <DataView :value="meineListe" dataKey="id">
+            <template #list="slotProps">
+              <MobilitaetscheckListeItem
+                v-for="eingabe in slotProps.items"
+                :key="eingabe.id"
+                :item="eingabe"
+                :readOnly="false"
+                @publish-item="onPublish"
+                @delete-item="onDelete"
+                @export-item="onExport"
+                @reload-item="refetchEingabe"
+                @copy-item="onCopy"
+              />
+            </template>
+            <template #empty>
+              <p class="text-gray-500 text-sm p-4">Keine Mobilitätschecks gefunden.</p>
+            </template>
+          </DataView>
+        </TabPanel>
+
+        <!-- Verwaltung — editable for Verwaltung, read-only for Politik -->
+        <TabPanel value="verwaltung">
+          <DataView :value="verwaltungListe" dataKey="id">
+            <template #list="slotProps">
+              <MobilitaetscheckListeItem
+                v-for="eingabe in slotProps.items"
+                :key="eingabe.id"
+                :item="eingabe"
+                :readOnly="isPolitik"
+                @publish-item="onPublish"
+                @delete-item="onDelete"
+                @export-item="onExport"
+                @reload-item="refetchEingabe"
+                @copy-item="onCopy"
+              />
+            </template>
+            <template #empty>
+              <p class="text-gray-500 text-sm p-4">Keine Mobilitätschecks gefunden.</p>
+            </template>
+          </DataView>
+        </TabPanel>
+
+        <!-- Politik — read-only for everyone -->
+        <TabPanel value="politik">
+          <DataView :value="politikListe" dataKey="id">
+            <template #list="slotProps">
+              <MobilitaetscheckListeItem
+                v-for="eingabe in slotProps.items"
+                :key="eingabe.id"
+                :item="eingabe"
+                :readOnly="true"
+                @publish-item="onPublish"
+                @delete-item="onDelete"
+                @export-item="onExport"
+                @reload-item="refetchEingabe"
+                @copy-item="onCopy"
+              />
+            </template>
+            <template #empty>
+              <p class="text-gray-500 text-sm p-4">Keine Mobilitätschecks gefunden.</p>
+            </template>
+          </DataView>
+        </TabPanel>
+      </TabPanels>
+    </Tabs>
   </div>
 </template>
 
 <script setup>
 import { computed, ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import { copyItem, deleteItem, exportItem, fetchItems, updateItem } from '@/composables/crud'
 import MobilitaetscheckListeItem from '@/components/MobilitaetscheckListeItem.vue'
 import BaseSpinner from '@/components/BaseSpinner.vue'
+import ConfirmDialog from 'primevue/confirmdialog'
+import DataView from 'primevue/dataview'
+import Message from 'primevue/message'
+import Tabs from 'primevue/tabs'
+import TabList from 'primevue/tablist'
+import Tab from 'primevue/tab'
+import TabPanels from 'primevue/tabpanels'
+import TabPanel from 'primevue/tabpanel'
 
 const route = useRoute()
+const authStore = useAuthStore()
 const isLoading = ref(false)
 const eingaben = ref([])
-const searchQuery = ref('')
+
+const isPolitik = computed(() => authStore.userRolleId === 2)
+const activeTab = ref(authStore.userRolleId === 2 ? 'meine' : 'verwaltung')
 
 const fetchEingaben = async () => {
   isLoading.value = true
@@ -42,29 +116,35 @@ const fetchEingaben = async () => {
 }
 
 const refetchEingabe = async (id) => {
-  const index = eingaben.value.findIndex((eingabe) => eingabe.id === id)
+  const index = eingaben.value.findIndex((e) => e.id === id)
   if (index !== -1) {
     eingaben.value[index] = await fetchItems(`mobilitaetscheck/eingabe/${id}`)
   }
 }
 
-onMounted(async () => {
-  await fetchEingaben()
-})
+onMounted(fetchEingaben)
 
-// Computed property to filter submissions by multiple fields
-const filteredEingaben = computed(() => {
-  return eingaben.value.filter((eingabe) => {
-    const query = searchQuery.value.toLowerCase()
-    isLoading.value = true
-    let results =
-      eingabe.name.toLowerCase().includes(query) ||
-      eingabe.autor.toLowerCase().includes(query) ||
-      eingabe.erstelltAm.includes(query) // Date format remains the same, no need to lowercase
-    isLoading.value = false
-    return results
-  })
-})
+// Meine: own items (Politik only)
+const meineListe = computed(() =>
+  eingaben.value.filter((e) => String(e.erstelltVon) === String(authStore.userId))
+)
+
+// Verwaltung: Verwaltung-role items; Politik sees only published ones
+const verwaltungListe = computed(() =>
+  eingaben.value.filter(
+    (e) => e.autor?.rolle?.name === 'Verwaltung' && (!isPolitik.value || e.veroeffentlicht)
+  )
+)
+
+// Politik: published Politik-role items excluding own
+const politikListe = computed(() =>
+  eingaben.value.filter(
+    (e) =>
+      e.autor?.rolle?.name === 'Politik' &&
+      e.veroeffentlicht &&
+      e.autor?.id !== authStore.userId
+  )
+)
 
 const onPublish = async ({ modelId, values }) => {
   const response = await updateItem({
@@ -72,26 +152,12 @@ const onPublish = async ({ modelId, values }) => {
     modelId,
     values,
     detail: {
-      success: values.veroeffentlicht
-        ? 'Mobilitätscheck veröffentlicht'
-        : 'Veröffentlichung zurückgezogen',
+      success: values.veroeffentlicht ? 'Mobilitätscheck veröffentlicht' : 'Veröffentlichung zurückgezogen',
       error: 'Fehler beim Veröffentlichen des Mobilitätschecks'
     }
   })
-  const index = eingaben.value.findIndex((eingabe) => eingabe.id === modelId)
+  const index = eingaben.value.findIndex((e) => e.id === modelId)
   eingaben.value[index].veroeffentlicht = response.veroeffentlicht
-}
-
-const onCopy = async (modelId) => {
-  const response = await copyItem({
-    model: 'mobilitaetscheck/eingabe',
-    modelId,
-    detail: {
-      success: 'Mobilitätscheck erfolgreich kopiert',
-      error: 'Fehler beim Kopieren des Mobilitätschecks'
-    }
-  })
-  eingaben.value.unshift(response)
 }
 
 const onDelete = async (modelId) => {
@@ -103,7 +169,7 @@ const onDelete = async (modelId) => {
       error: 'Fehler beim Löschen des Mobilitätschecks'
     }
   })
-  const index = eingaben.value.findIndex((eingabe) => eingabe.id === modelId)
+  const index = eingaben.value.findIndex((e) => e.id === modelId)
   eingaben.value.splice(index, 1)
 }
 
@@ -117,8 +183,19 @@ const onExport = async (modelId) => {
     }
   })
 }
-</script>
 
-<style scoped>
-/* Add your styling here */
-</style>
+const onCopy = async (modelId) => {
+  const newItem = await copyItem({
+    model: 'mobilitaetscheck',
+    modelId,
+    detail: {
+      success: 'Mobilitätscheck erfolgreich dupliziert',
+      error: 'Fehler beim Duplizieren des Mobilitätschecks'
+    }
+  })
+  if (newItem) {
+    await fetchEingaben()
+    activeTab.value = isPolitik.value ? 'meine' : 'verwaltung'
+  }
+}
+</script>
