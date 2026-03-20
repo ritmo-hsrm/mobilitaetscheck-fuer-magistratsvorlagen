@@ -5,13 +5,24 @@
         <div class="grid grid-cols-2 items-center justify-center gap-4">
           <div class="grid grid-cols-1 items-center justify-center gap-2">
             <div class="bg-white flex w-fit p-2 rounded justify-center items-center">
-              <img src="../assets/logos/pimoo_3logos.png" class="h-8 sm:h-8" alt="pimoo Logos" />
+              <div class="flex items-center justify-center gap-x-6 h-10 mx-auto mb-4">
+                <img
+                  src="../assets/logos/HSRM_Unterzeile_farbig_RGB.png"
+                  alt="Logo Hochschule RheinMain"
+                  class="h-10"
+                />
+                <img
+                  src="../assets/logos/oberursel-logo.webp"
+                  alt="Logo Stadt Oberursel"
+                  class="h-11"
+                />
+              </div>
             </div>
             <div class="bg-white flex w-fit p-2 rounded justify-center items-center">
-              <img src="../assets/logos/BMFTR.jpg" class="h-14 sm:h-14" alt="pimoo Logos" />
+              <img src="../assets/logos/BMFTR.jpg" class="h-20 sm:h-20" alt="Logo BMFTR" />
             </div>
             <div class="bg-white flex w-fit p-2 rounded justify-center items-center">
-              <img src="../assets/logos/FONA.jpg" class="h-10 sm:h-10" alt="pimoo Logos" />
+              <img src="../assets/logos/FONA.jpg" class="h-20 sm:h-14" alt="Logo FONA" />
             </div>
           </div>
           <div>

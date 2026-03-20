@@ -1,7 +1,6 @@
 <template>
   <div class="flex items-start justify-center pt-12 px-4">
     <div class="w-full max-w-md">
-
       <BaseAlert
         v-show="sessionExpired"
         type="warning"
@@ -12,7 +11,19 @@
 
       <BaseCard class="p-2">
         <div class="text-center mb-8">
-          <img src="../assets/pimoo_3logos.png" class="h-10 mx-auto mb-4" alt="pimoo" />
+          <div class="flex items-center justify-center gap-x-6 h-10 mx-auto mb-4">
+            <img
+              src="../assets/logos/HSRM_Unterzeile_farbig_RGB.png"
+              alt="Logo Hochschule RheinMain"
+              class="h-10"
+            />
+            <img src="../assets/logos/Pimoo-Logo-Primaer.png" alt="Logo pimoo" class="h-10" />
+            <img
+              src="../assets/logos/oberursel-logo.webp"
+              alt="Logo Stadt Oberursel"
+              class="h-11"
+            />
+          </div>
           <h1 class="text-xl font-bold text-gray-800">Mobilitätscheck</h1>
           <p class="text-sm text-gray-500">für Magistratsvorlagen</p>
         </div>
@@ -31,12 +42,7 @@
         <form v-else @submit.prevent="onSubmit" class="grid grid-cols-1 gap-y-4">
           <div class="field">
             <FloatLabel variant="on">
-              <InputText
-                id="email"
-                v-model="email"
-                class="w-full"
-                autocomplete="email"
-              />
+              <InputText id="email" v-model="email" class="w-full" autocomplete="email" />
               <label for="email">E-Mail</label>
             </FloatLabel>
           </div>
