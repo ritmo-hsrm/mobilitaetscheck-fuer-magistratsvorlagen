@@ -17,9 +17,16 @@ class KlimarelevanzpruefungEingabeFb3(Base):
         unique=True,
         comment="Gemeindeeinehit ID",
     )
-    c1q1: Mapped[int] = mapped_column(
-        ForeignKey("bool_erweitert.id", ondelete="SET NULL"),
+    fertig: Mapped[bool] = mapped_column(
         nullable=False,
+        default=False,
+        server_default="false",
+        comment="Fragebogen vollständig ausgefüllt",
+    )
+
+    c1q1: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("bool_erweitert.id", ondelete="SET NULL"),
+        nullable=True,
         comment="Teil 1 Frage 1",
     )
     c1q2: Mapped[Optional[int]] = mapped_column(
@@ -53,9 +60,9 @@ class KlimarelevanzpruefungEingabeFb3(Base):
         comment="Teil 1 Frage 9",
     )
 
-    c2q1: Mapped[int] = mapped_column(
+    c2q1: Mapped[Optional[int]] = mapped_column(
         ForeignKey("bool_erweitert.id", ondelete="SET NULL"),
-        nullable=False,
+        nullable=True,
         comment="Teil 2 Frage 1",
     )
     c2q2: Mapped[Optional[int]] = mapped_column(

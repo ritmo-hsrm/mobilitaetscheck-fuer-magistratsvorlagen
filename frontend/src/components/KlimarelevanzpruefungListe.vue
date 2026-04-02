@@ -53,10 +53,10 @@
                     </div>
                     <div class="col-span-4 font-bold flex items-center justify-end">
                       <div class="flex items-center gap-2">
-                        <Tag value="A" :severity="getTagSeverity(item.f1, item.fb1Id)" />
-                        <Tag value="B" :severity="getTagSeverity(item.f2, item.fb2Id)" />
-                        <Tag value="C" :severity="getTagSeverity(item.f3, item.fb3Id)" />
-                        <Tag value="D" :severity="getTagSeverity(item.f4, item.fb4Id)" />
+                        <Tag value="A" :severity="getTagSeverity(item.f1, item.fb1)" />
+                        <Tag value="B" :severity="getTagSeverity(item.f2, item.fb2)" />
+                        <Tag value="C" :severity="getTagSeverity(item.f3, item.fb3)" />
+                        <Tag value="D" :severity="getTagSeverity(item.f4, item.fb4)" />
                         <Tag value="E" :severity="item.f5 ? 'success' : 'secondary'" />
                       </div>
                     </div>
@@ -75,6 +75,8 @@
                           @click="onExport(item.id)"
                           label="PDF-Export"
                           size="small"
+                          :disabled="!canExport(item)"
+                          v-tooltip="!canExport(item) ? 'Bitte alle Fragebögen vollständig ausfüllen' : undefined"
                         />
                       </div>
                     </div>
@@ -131,10 +133,21 @@ const datumFormatieren = (datum) => {
   })
 }
 
-const getTagSeverity = (fEnabled, fbId) => {
-  if (fbId) return 'success' // green - completed
-  if (fEnabled) return 'info' // blue - enabled but not completed
-  return 'secondary' // gray - disabled
+const getTagSeverity = (fEnabled, fb) => {
+  if (!fEnabled) return 'secondary'
+  if (fb?.fertig) return 'success'
+  if (fb) return 'warn'
+  return 'info'
+}
+
+const canExport = (item) => {
+  const checks = [
+    { f: item.f1, fb: item.fb1 },
+    { f: item.f2, fb: item.fb2 },
+    { f: item.f3, fb: item.fb3 },
+    { f: item.f4, fb: item.fb4 }
+  ]
+  return checks.every(({ f, fb }) => !f || fb?.fertig === true)
 }
 
 const onExport = async (modelId) => {
@@ -153,8 +166,8 @@ const onDelete = async (modelId) => {
     model: 'klimarelevanzpruefung/eingabe',
     modelId,
     detail: {
-      success: 'Klimarelevanzprüfung erfolgreich gelöscht',
-      error: 'Fehler beim Löschen des Klimarelevanzprüfung'
+      success: 'Klimacheck erfolgreich gelöscht',
+      error: 'Fehler beim Löschen des Klimacheck'
     }
   })
   const index = klimarelevanzpruefungListe.value.findIndex((eingabe) => eingabe.id === modelId)

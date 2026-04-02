@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+  {% if page.url_to_print_page %}
+    <div class="md-print-buttons">
+      <a href="{{ page.url_to_print_page }}" title="Drucken" class="md-content__button md-icon">
+        {% include ".icons/material/printer.svg" %}
+      </a>
+      <a href="{{ page.url_to_pdf if page.url_to_pdf else page.url_to_print_page }}" title="Als PDF herunterladen" class="md-content__button md-icon">
+        {% include ".icons/material/file-pdf-box.svg" %}
+      </a>
+    </div>
+  {% endif %}
+  {{ super() }}
+{% endblock content %}

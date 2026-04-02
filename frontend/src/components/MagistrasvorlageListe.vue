@@ -13,7 +13,7 @@
           />
         </div>
         <div>
-          <label class="mb-2 block font-bold">Gemeindegebiet</label>
+          <label class="mb-2 block font-bold">Gebiet</label>
           <Listbox
             v-model="selectedGebiete"
             :options="gebietOptions"
@@ -57,7 +57,7 @@
                 <ToggleSwitch v-model="filterKlimacheckVorhanden" />
               </div>
               <div class="flex items-center justify-between">
-                <label>Klimarelevanzprüfung vorhanden</label>
+                <label>Klimacheck vorhanden</label>
                 <ToggleSwitch v-model="filterKlimarelevanzpruefungVorhanden" />
               </div>
             </div>
@@ -211,7 +211,7 @@
                                 ? 'pi pi-check-circle text-green-500'
                                 : 'pi pi-times-circle text-red-400'
                             "
-                            label="Klimarelevanzprüfung"
+                            label="Klimacheck"
                             variant="text"
                           />
                         </router-link>

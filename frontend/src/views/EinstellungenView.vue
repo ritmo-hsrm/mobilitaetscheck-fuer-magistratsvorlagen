@@ -34,7 +34,7 @@ const authStore = useAuthStore()
 
 const allItems = [
   {
-    label: 'Gemeinde',
+    label: 'Kommune',
     requiresRolleId: [1],
     items: [
       {

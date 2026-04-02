@@ -63,7 +63,7 @@ export const useAuthStore = defineStore(
         userEmail.value = user.email
         isVerified.value = user.isVerified
         if (user.rolleId === 3) {
-          router.replace({ name: 'admin-gemeinden' })
+          router.replace({ name: 'admin-kommunen' })
         } else {
           router.replace({ name: 'magistratsvorlage-liste' })
         }

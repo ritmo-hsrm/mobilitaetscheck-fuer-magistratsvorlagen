@@ -1,33 +1,7 @@
 <template>
-  <BaseModal v-model="isModalOpen">
-    <template #header>
-      <BaseSubheading>Möchtest du den Eintrag wirklich löschen?</BaseSubheading>
-    </template>
-    <slot></slot>
-    <template #footer>
-      <div class="flex items-center justify-end gap-4 w-full">
-        <Button
-          icon="pi pi-trash"
-          class="p-button-danger"
-          @click="handleDelete"
-          label="löschen"
-          size="small"
-          severity="danger"
-        />
-        <Button
-          icon="pi pi-times"
-          class="p-button-secondary"
-          @click="toggleModal"
-          label="Abbrechen"
-          size="small"
-          severity="secondary"
-        />
-      </div>
-    </template>
-  </BaseModal>
   <Button
     icon="pi pi-trash"
-    @click="toggleModal"
+    @click="confirmDelete"
     size="small"
     severity="danger"
     :label="label"
@@ -36,9 +10,9 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import Button from 'primevue/button'
-import BaseModal from './BaseModal.vue'
+import { useConfirm } from 'primevue/useconfirm'
 
 const props = defineProps({
   noLabel: {
@@ -51,20 +25,20 @@ const props = defineProps({
   }
 })
 
-const label = computed(() => {
-  return props.noLabel ? '' : 'löschen'
-})
-
-const isModalOpen = ref(false)
-
-const toggleModal = () => {
-  isModalOpen.value = !isModalOpen.value
-}
+const label = computed(() => (props.noLabel ? '' : 'löschen'))
 
 const emit = defineEmits(['delete-confirmed'])
 
-const handleDelete = () => {
-  emit('delete-confirmed')
-  toggleModal()
+const confirm = useConfirm()
+
+const confirmDelete = () => {
+  confirm.require({
+    message: 'Möchtest du den Eintrag wirklich löschen?',
+    header: 'Löschen bestätigen',
+    icon: 'pi pi-exclamation-triangle',
+    rejectProps: { label: 'Abbrechen', severity: 'secondary', outlined: true },
+    acceptProps: { label: 'Löschen', severity: 'danger' },
+    accept: () => emit('delete-confirmed')
+  })
 }
 </script>

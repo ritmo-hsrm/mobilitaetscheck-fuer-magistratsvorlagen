@@ -16,7 +16,7 @@
         <span class="font-medium break-all">{{ inviteData.email }}</span>
       </div>
       <div class="flex gap-2">
-        <span class="text-gray-500 w-24 shrink-0">Gemeinde</span>
+        <span class="text-gray-500 w-24 shrink-0">Kommune</span>
         <span class="font-medium">{{ inviteData.gemeindeName }}</span>
       </div>
       <div class="flex gap-2">
@@ -201,7 +201,10 @@ const onSubmit = handleSubmit(async (values) => {
       gruppeId: gruppeId.value ?? undefined,
       einladungs_token: token
     })
-    router.replace({ name: 'account-bestaetigen', query: { verify: 'check-mail', email: inviteData.value.email } })
+    router.replace({
+      name: 'account-bestaetigen',
+      query: { verify: 'check-mail', email: inviteData.value.email }
+    })
   } catch {
     toast.add({
       severity: 'error',

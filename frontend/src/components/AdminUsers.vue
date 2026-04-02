@@ -1,7 +1,5 @@
 <template>
   <div>
-    <ConfirmDialog />
-
     <BaseCard>
       <div class="flex items-center justify-between mb-3">
         <h5 class="text-lg font-semibold">Alle Benutzer</h5>
@@ -18,7 +16,7 @@
           :options="gemeindeFilterOptions"
           optionLabel="name"
           optionValue="name"
-          placeholder="Gemeinde"
+          placeholder="Kommune"
           showClear
           size="small"
           class="w-48"
@@ -53,7 +51,7 @@
         <Column field="vorname" header="Vorname" sortable />
         <Column field="nachname" header="Nachname" sortable />
         <Column field="email" header="E-Mail" sortable />
-        <Column field="gemeinde.name" header="Gemeinde" sortable>
+        <Column field="gemeinde.name" header="Kommune" sortable>
           <template #body="{ data }">{{ data.gemeinde?.name }}</template>
         </Column>
         <Column field="rolle.name" header="Rolle" sortable>
@@ -63,14 +61,25 @@
           <template #body="{ data }">
             <div class="flex gap-1">
               <Button icon="pi pi-pencil" text size="small" @click="openEdit(data)" />
-              <Button icon="pi pi-trash" text size="small" severity="danger" @click="confirmDelete(data)" />
+              <Button
+                icon="pi pi-trash"
+                text
+                size="small"
+                severity="danger"
+                @click="confirmDelete(data)"
+              />
             </div>
           </template>
         </Column>
       </DataTable>
     </BaseCard>
 
-    <Dialog v-model:visible="editVisible" header="Benutzer bearbeiten" :modal="true" class="w-full max-w-md">
+    <Dialog
+      v-model:visible="editVisible"
+      header="Benutzer bearbeiten"
+      :modal="true"
+      class="w-full max-w-md"
+    >
       <div class="grid grid-cols-1 gap-y-4 mt-2">
         <!-- Read-only overview -->
         <div class="bg-gray-50 rounded-lg p-3 grid grid-cols-1 gap-y-1 text-sm">
@@ -134,7 +143,6 @@ import { useConfirm } from 'primevue/useconfirm'
 import Button from 'primevue/button'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
-import ConfirmDialog from 'primevue/confirmdialog'
 import Dialog from 'primevue/dialog'
 import Select from 'primevue/select'
 import FloatLabel from 'primevue/floatlabel'
@@ -157,7 +165,7 @@ const editData = reactive({
   erstelltAm: '',
   gemeinde_id: null,
   rolle_id: null,
-  is_superuser: false,
+  is_superuser: false
 })
 const toast = useToast()
 const confirm = useConfirm()
@@ -166,17 +174,19 @@ const filterGemeinde = ref(null)
 const filterRolle = ref(null)
 
 const filters = ref({
-  global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+  global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 })
 
 const gemeindeFilterOptions = computed(() =>
-  [...new Map(users.value.map((u) => [u.gemeinde?.name, u.gemeinde]).filter(([n]) => n)).values()]
-    .sort((a, b) => a.name.localeCompare(b.name))
+  [
+    ...new Map(users.value.map((u) => [u.gemeinde?.name, u.gemeinde]).filter(([n]) => n)).values()
+  ].sort((a, b) => a.name.localeCompare(b.name))
 )
 
 const rolleFilterOptions = computed(() =>
-  [...new Map(users.value.map((u) => [u.rolle?.name, u.rolle]).filter(([n]) => n)).values()]
-    .sort((a, b) => a.name.localeCompare(b.name))
+  [...new Map(users.value.map((u) => [u.rolle?.name, u.rolle]).filter(([n]) => n)).values()].sort(
+    (a, b) => a.name.localeCompare(b.name)
+  )
 )
 
 const filteredUsers = computed(() => {
@@ -193,12 +203,14 @@ onMounted(async () => {
     const [usersRes, gemeindenRes, rollenRes] = await Promise.all([
       apiClient.get('/admin/user'),
       apiClient.get('/admin/gemeinde'),
-      apiClient.get('/option/user-rolle'),
+      apiClient.get('/option/user-rolle')
     ])
     users.value = usersRes.data
     gemeindeOptions.value = gemeindenRes.data
     rolleOptions.value = rollenRes.data
-  } catch { /* */ } finally {
+  } catch {
+    /* */
+  } finally {
     isLoading.value = false
   }
 })
@@ -209,7 +221,11 @@ const openEdit = (user) => {
   editData.nachname = user.nachname
   editData.email = user.email
   editData.erstelltAm = user.erstelltAm
-    ? new Date(user.erstelltAm).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    ? new Date(user.erstelltAm).toLocaleDateString('de-DE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      })
     : '–'
   editData.gemeinde_id = user.gemeindeId
   editData.rolle_id = user.rolleId
@@ -223,14 +239,19 @@ const saveEdit = async () => {
     const res = await apiClient.patch(`/admin/user/${editData.user_id}`, {
       gemeinde_id: editData.gemeinde_id,
       rolle_id: editData.rolle_id,
-      is_superuser: editData.is_superuser,
+      is_superuser: editData.is_superuser
     })
     const idx = users.value.findIndex((u) => u.id === editData.user_id)
     if (idx !== -1) users.value[idx] = res.data
     editVisible.value = false
     toast.add({ severity: 'success', summary: 'Gespeichert', life: 3000 })
   } catch {
-    toast.add({ severity: 'error', summary: 'Fehler', detail: 'Änderung fehlgeschlagen', life: 3000 })
+    toast.add({
+      severity: 'error',
+      summary: 'Fehler',
+      detail: 'Änderung fehlgeschlagen',
+      life: 3000
+    })
   } finally {
     isSaving.value = false
   }
@@ -249,9 +270,14 @@ const confirmDelete = (user) => {
         users.value = users.value.filter((u) => u.id !== user.id)
         toast.add({ severity: 'success', summary: 'Benutzer gelöscht', life: 3000 })
       } catch {
-        toast.add({ severity: 'error', summary: 'Fehler', detail: 'Benutzer konnte nicht gelöscht werden.', life: 3000 })
+        toast.add({
+          severity: 'error',
+          summary: 'Fehler',
+          detail: 'Benutzer konnte nicht gelöscht werden.',
+          life: 3000
+        })
       }
-    },
+    }
   })
 }
 </script>

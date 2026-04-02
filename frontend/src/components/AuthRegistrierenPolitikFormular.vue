@@ -13,7 +13,7 @@
           :invalid="!!errors.gemeindeId"
           aria-describedby="gemeindeId-help"
         />
-        <label for="gemeinde">Gemeinde</label>
+        <label for="gemeinde">Kommune</label>
       </FloatLabel>
       <small v-if="errors.gemeindeId" id="gemeindeId-help" class="p-error block">{{
         errors.gemeindeId
@@ -79,9 +79,7 @@
         />
         <label for="email">E-Mail</label>
       </FloatLabel>
-      <small v-if="errors.email" id="email-help" class="p-error block">{{
-        errors.email
-      }}</small>
+      <small v-if="errors.email" id="email-help" class="p-error block">{{ errors.email }}</small>
     </div>
 
     <div class="field">
@@ -178,7 +176,7 @@ onMounted(async () => {
   try {
     const [gemeindeRes, rollenRes] = await Promise.all([
       apiClient.get('/option/gemeinde'),
-      apiClient.get('/option/user-rolle'),
+      apiClient.get('/option/user-rolle')
     ])
     gemeindeOptions.value = gemeindeRes.data
     politikRolleId.value = rollenRes.data.find((r) => r.name === 'Politik')?.id ?? null
@@ -205,7 +203,10 @@ const onSubmit = handleSubmit(async (values) => {
   try {
     isLoading.value = true
     await register({ ...values, rolle_id: 2, gruppeId: gruppeId.value ?? undefined })
-    router.replace({ name: 'account-bestaetigen', query: { verify: 'check-mail', email: values.email } })
+    router.replace({
+      name: 'account-bestaetigen',
+      query: { verify: 'check-mail', email: values.email }
+    })
   } catch (error) {
     console.log(error)
     toast.add({

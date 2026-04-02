@@ -6,8 +6,9 @@ from pydantic import BaseModel, Field, ConfigDict
 class KlimarelevanzpruefungEingabeFb3Base(BaseModel):
     """Required (non-nullable) fields"""
 
-    c1q1: int
-    c2q1: int
+    fertig: bool = False
+    c1q1: Optional[int] = None
+    c2q1: Optional[int] = None
 
 
 class KlimarelevanzpruefungEingabeFb3Optional(BaseModel):
@@ -45,6 +46,7 @@ class KlimarelevanzpruefungEingabeFb3Create(
 class KlimarelevanzpruefungEingabeFb3Update(KlimarelevanzpruefungEingabeFb3Optional):
     """Schema for updating entries (all fields optional)"""
 
+    fertig: Optional[bool] = None
     c1q1: Optional[int] = None
     c2q1: Optional[int] = None
 

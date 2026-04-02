@@ -39,7 +39,9 @@ class KlimarelevanzpruefungPDF(BasePDF):
             if num in self.FOOTNOTES and num not in self.rendered_footnotes:
                 marker = superscripts.get(num, str(num))
                 text = f"{marker} {self.FOOTNOTES[num]}"
-                lines = self.multi_cell(content_width, 3.5, text, border=0, split_only=True)
+                lines = self.multi_cell(
+                    content_width, 3.5, text, border=0, split_only=True
+                )
                 height += len(lines) * 3.5 + 2
         return height
 
@@ -60,7 +62,9 @@ class KlimarelevanzpruefungPDF(BasePDF):
             self.set_draw_color(180, 180, 180)
             self.set_line_width(0.3)
             line_width = content_width * 0.3
-            self.line(self.l_margin, self.get_y(), self.l_margin + line_width, self.get_y())
+            self.line(
+                self.l_margin, self.get_y(), self.l_margin + line_width, self.get_y()
+            )
             self.ln(3)
 
             # Render footnotes
@@ -70,7 +74,14 @@ class KlimarelevanzpruefungPDF(BasePDF):
                 if footnote_num in self.FOOTNOTES:
                     marker = superscripts.get(footnote_num, str(footnote_num))
                     text = f"{marker} {self.FOOTNOTES[footnote_num]}"
-                    self.multi_cell(content_width, 3.5, text, border=0, new_x="LMARGIN", new_y="NEXT")
+                    self.multi_cell(
+                        content_width,
+                        3.5,
+                        text,
+                        border=0,
+                        new_x="LMARGIN",
+                        new_y="NEXT",
+                    )
                     self.ln(1)
                     self.rendered_footnotes.add(footnote_num)
 
@@ -79,22 +90,84 @@ class KlimarelevanzpruefungPDF(BasePDF):
         self.set_font("free-sans", "", 8)
         self.cell(0, 10, f"Seite {self.page_no()}/{{nb}}", align="C")
 
+    NUM_COL_WIDTH = 10
+    CHECK_COL_WIDTH = 15
+    RULE_INSET = 1.5  # mm gap on each side of a column boundary (midrule only)
+
+    @staticmethod
+    def _fmt_num(value) -> str:
+        """Format a number with comma as decimal separator and no trailing zeros."""
+        if value is None:
+            return "?"
+        formatted = f"{float(value):g}"
+        return formatted.replace(".", ",")
+
+    def _get_text_col_width(self):
+        return self.w - 20 - self.NUM_COL_WIDTH - 2 * self.CHECK_COL_WIDTH
+
+    def _col_x(self):
+        """Return the five x-positions that bound the four columns."""
+        x0 = self.l_margin
+        x1 = x0 + self.NUM_COL_WIDTH
+        x2 = x1 + self._get_text_col_width()
+        x3 = x2 + self.CHECK_COL_WIDTH
+        x4 = x3 + self.CHECK_COL_WIDTH
+        return x0, x1, x2, x3, x4
+
+    def _draw_h_rule(self, y: float, line_width: float = 0.3):
+        """Solid full-width horizontal rule."""
+        x0, x1, x2, x3, x4 = self._col_x()
+        self.set_line_width(line_width)
+        self.set_draw_color(0, 0, 0)
+        self.line(x0, y, x4, y)
+
+    def _draw_h_rule_gapped(self, y: float, line_width: float = 0.3):
+        """Segmented rule with a small gap at each column boundary."""
+        x0, x1, x2, x3, x4 = self._col_x()
+        g = self.RULE_INSET
+        self.set_line_width(line_width)
+        self.set_draw_color(0, 0, 0)
+        self.line(x0,     y, x1 - g, y)
+        self.line(x1 + g, y, x2 - g, y)
+        self.line(x2 + g, y, x3 - g, y)
+        self.line(x3 + g, y, x4,     y)
+
     def _add_table_header(self):
-        """Add table header with column titles"""
-        self.set_font("free-sans", "B", 10)
-        num_col_width = 10
-        content_col_width = (self.w - 20 - num_col_width) / 2
-        self.cell(num_col_width, 8, "Nr.", border=1, align="C")
-        self.cell(content_col_width, 8, "Positive Klimaauswirkung", border=1, align="C")
-        self.cell(
-            content_col_width,
-            8,
-            "Negative Klimaauswirkung",
-            border=1,
-            align="C",
-            new_x="LMARGIN",
-            new_y="NEXT",
-        )
+        """Booktabs-style header: thick toprule, text, partial midrule, Pos./Neg., midrule."""
+        self.set_font("free-sans", "B", 9)
+        row1_h = 6
+        row2_h = 6
+        total_h = row1_h + row2_h
+        x0, x1, x2, x3, x4 = self._col_x()
+        y_start = self.get_y()
+
+        # Toprule (thick, solid)
+        self._draw_h_rule(y_start, line_width=0.5)
+
+        # Nr. vertically centred across both header rows
+        self.set_xy(x0, y_start + (total_h - 5) / 2)
+        self.cell(self.NUM_COL_WIDTH, 5, "Nr.", border=0, align="C")
+
+        # "Klimawirkung" over the two check columns
+
+        self.set_xy(x2, y_start)
+        self.cell(2 * self.CHECK_COL_WIDTH, row1_h, "Klimawirkung", border=0, align="C")
+
+        # Partial midrule under "Klimawirkung" — solid, spans both check columns
+        self.set_line_width(0.2)
+        self.set_draw_color(0, 0, 0)
+        self.line(x2, y_start + row1_h, x4, y_start + row1_h)
+
+        # Row 2: "Pos." and "Neg."
+        self.set_xy(x2, y_start + row1_h)
+        self.cell(self.CHECK_COL_WIDTH, row2_h, "Pos.", border=0, align="C")
+        self.set_xy(x3, y_start + row1_h)
+        self.cell(self.CHECK_COL_WIDTH, row2_h, "Neg.", border=0, align="C")
+
+        # Midrule below header (gapped at column boundaries)
+        self._draw_h_rule_gapped(y_start + total_h, line_width=0.3)
+
+        self.set_xy(x0, y_start + total_h)
 
     def _add_table_row(
         self,
@@ -103,8 +176,9 @@ class KlimarelevanzpruefungPDF(BasePDF):
         negative_text: str = "",
         draw_top_border: bool = False,
         show_number: bool = True,
+        fill: bool = False,
     ):
-        """Add a row with numbering in first column, positive and negative in separate columns"""
+        """Add a row with numbering, combined text, and x-markers for positive/negative impact"""
         # Detect footnote markers in text (don't track yet - wait until we know the page)
         footnote_markers = {"²": 2, "³": 3, "⁴": 4}
         combined_text = positive_text + negative_text
@@ -113,28 +187,37 @@ class KlimarelevanzpruefungPDF(BasePDF):
             if marker in combined_text:
                 row_footnotes.add(num)
 
-        num_col_width = 10
-        content_col_width = (self.w - 20 - num_col_width) / 2
+        text_col_width = self._get_text_col_width()
+        row_text = positive_text if positive_text else negative_text
+        row_text = (
+            row_text
+            .replace(" Begründung: ", "\nBegründung:\x00")
+            .replace(" Erläuterung: ", "\nErläuterung:\x00")
+            .replace(": ", ":\n")
+            .replace(":\x00", ": ")
+        )
 
         # Calculate height needed for row
         self.set_font("free-sans", "", 9)
-        positive_lines = self.multi_cell(
-            content_col_width, 5, positive_text, border=0, split_only=True
+        text_lines = self.multi_cell(
+            text_col_width, 5, row_text, border=0, split_only=True
         )
-        negative_lines = self.multi_cell(
-            content_col_width, 5, negative_text, border=0, split_only=True
-        )
-        max_lines = max(len(positive_lines), len(negative_lines), 1)
-        row_height = max_lines * 5 + 2
+        row_height = max(len(text_lines), 1) * 5 + 2
 
         # Calculate space needed for footnotes on current page
         current_page = self.page_no()
-        current_footnotes = self.page_footnotes.get(current_page, set()) - self.rendered_footnotes
+        current_footnotes = (
+            self.page_footnotes.get(current_page, set()) - self.rendered_footnotes
+        )
         potential_footnotes = current_footnotes | row_footnotes
-        footnote_space = self._get_footnotes_height(potential_footnotes - self.rendered_footnotes)
+        footnote_space = self._get_footnotes_height(
+            potential_footnotes - self.rendered_footnotes
+        )
 
         # Check if we need a new page (row + footnotes must fit)
-        bottom_margin = max(25, footnote_space + 15)  # At least 25mm, or footnotes + page number
+        bottom_margin = max(
+            25, footnote_space + 15
+        )  # At least 25mm, or footnotes + page number
         page_break_occurred = False
         page_before_break = None
         y_before_break = None
@@ -152,50 +235,38 @@ class KlimarelevanzpruefungPDF(BasePDF):
 
         y_start = self.get_y()
 
-        # Set consistent line width for all borders
-        self.set_line_width(0.2)
-        self.set_draw_color(0, 0, 0)
-
         # Column positions
-        x_num = self.l_margin
-        x_pos = self.l_margin + num_col_width
-        x_neg = self.l_margin + num_col_width + content_col_width
-        x_end = self.l_margin + num_col_width + 2 * content_col_width
+        x0, x1, x2, x3, x4 = self._col_x()
 
-        # Draw positive column text first to determine height
+        # Background shading for alternating rows (full table width)
+        if fill:
+            self.set_fill_color(240, 240, 240)
+            fill_height = max(len(text_lines), 1) * 5
+            self.rect(x1, y_start, x4 - x1, fill_height, style="F")
+
+        # Thin group-separator rule above this row (no vertical lines)
+        if draw_top_border:
+            self._draw_h_rule(y_start, line_width=0.2)
+
+        # Draw text column
         self.set_font("free-sans", "", 9)
-        self.set_xy(x_pos, y_start)
-        self.multi_cell(content_col_width, 5, positive_text, border=0, align="L")
-        y_after_positive = self.get_y()
-
-        # Draw negative column text
-        self.set_xy(x_neg, y_start)
-        self.multi_cell(content_col_width, 5, negative_text, border=0, align="L")
-        y_after_negative = self.get_y()
+        self.set_xy(x1, y_start)
+        self.multi_cell(x2 - x1, 5, row_text, border=0, align="L")
+        y_after_text = self.get_y()
 
         # Calculate actual row height
-        actual_height = max(y_after_positive, y_after_negative) - y_start
+        actual_height = y_after_text - y_start
         y_end = y_start + actual_height
 
-        # Draw borders manually for consistent thickness
-        # Top border (only if new group - to separate from previous group)
-        if draw_top_border:
-            self.line(x_num, y_start, x_end, y_start)
-
-        # NO bottom border here - will be drawn at end of table
-        # This way rows in the same group have no horizontal line between them
-
-        # Left border (outer)
-        self.line(x_num, y_start, x_num, y_end)
-
-        # Right border (outer)
-        self.line(x_end, y_start, x_end, y_end)
-
-        # Vertical line after number column
-        self.line(x_pos, y_start, x_pos, y_end)
-
-        # Vertical line between positive and negative columns
-        self.line(x_neg, y_start, x_neg, y_end)
+        # Draw x-marker in appropriate check column
+        marker_y = y_start + (actual_height - 5) / 2
+        self.set_font("free-sans", "", 9)
+        if positive_text:
+            self.set_xy(x2, marker_y)
+            self.cell(self.CHECK_COL_WIDTH, 5, "x", border=0, align="C")
+        elif negative_text:
+            self.set_xy(x3, marker_y)
+            self.cell(self.CHECK_COL_WIDTH, 5, "x", border=0, align="C")
 
         # Move to next row
         self.set_y(y_end)
@@ -211,7 +282,12 @@ class KlimarelevanzpruefungPDF(BasePDF):
         }
 
     def _draw_group_number_on_page(
-        self, group_num: int, y_start: float, y_end: float, num_col_width: float, page: int
+        self,
+        group_num: int,
+        y_start: float,
+        y_end: float,
+        num_col_width: float,
+        page: int,
     ):
         """Draw the group number on a specific page"""
         # Save current state
@@ -280,7 +356,7 @@ class KlimarelevanzpruefungPDF(BasePDF):
                     (
                         "a1",
                         "",
-                        f"Bei der Auswahl wurde nicht auf Nachhaltigkeitskriterien geachtet, weil {fb1.a1q5 or ''}",
+                        f"Bei der Auswahl wurde nicht auf Nachhaltigkeitskriterien geachtet. Begründung: {fb1.a1q5 or ''}",
                     )
                 )
 
@@ -333,7 +409,7 @@ class KlimarelevanzpruefungPDF(BasePDF):
                     (
                         "a2",
                         "",
-                        f"Bei dem Vorhaben wird nicht darauf geachtet, dass Niederschlag möglichst vor Ort versickert. Erläuterung: {fb1.a2q9 or ''}",
+                        f"Bei dem Vorhaben wird nicht darauf geachtet, dass Niederschlag möglichst vor Ort versickert. Begründung: {fb1.a2q9 or ''}",
                     )
                 )
 
@@ -350,7 +426,7 @@ class KlimarelevanzpruefungPDF(BasePDF):
                     (
                         "a2",
                         "",
-                        f"Bei dem Vorhaben wird nicht darauf geachtet, dass Kaltluftströme ungehindert fließen können. Erläuterung: {fb1.a2q11 or ''}",
+                        f"Bei dem Vorhaben wird nicht darauf geachtet, dass Kaltluftströme ungehindert fließen können. Begründung: {fb1.a2q11 or ''}",
                     )
                 )
 
@@ -367,7 +443,7 @@ class KlimarelevanzpruefungPDF(BasePDF):
                     (
                         "a2",
                         "",
-                        f"Bei dem Vorhaben finden keine Maßnahmen gegen die örtliche Hitzebildung Anwendung. Erläuterung: {fb1.a2q13 or ''}",
+                        f"Bei dem Vorhaben finden keine Maßnahmen gegen die örtliche Hitzebildung Anwendung. Begründung: {fb1.a2q13 or ''}",
                     )
                 )
 
@@ -384,13 +460,13 @@ class KlimarelevanzpruefungPDF(BasePDF):
                     (
                         "a2",
                         "",
-                        f"Bei den Vergabekriterien wurde nicht auf Nachhaltigkeit geachtet, weil {fb1.a2q15 or ''}",
+                        f"Bei den Vergabekriterien wurde nicht auf Nachhaltigkeit geachtet. Begründung: {fb1.a2q15 or ''}",
                     )
                 )
 
             # a3: Flächenversiegelung
             if fb1.a3q1 == 1:
-                neg_text = f"Bei dem Vorhaben werden Flächen im Umfang von {fb1.a3q2 or '?'} m² neu versiegelt.⁴"
+                neg_text = f"Bei dem Vorhaben werden Flächen im Umfang von {self._fmt_num(fb1.a3q2)} m² neu versiegelt.⁴"
                 if fb1.a3q3:
                     neg_text += f" Bisher wurde die Fläche als {fb1.a3q3} genutzt."
                 rows.append(("a3", "", neg_text))
@@ -414,7 +490,7 @@ class KlimarelevanzpruefungPDF(BasePDF):
 
             # a4: Flächenentsiegelung
             if fb1.a4q1 == 1:
-                pos_text = f"Bei dem Vorhaben werden Flächen im Umfang von {fb1.a4q2 or '?'} m² entsiegelt."
+                pos_text = f"Bei dem Vorhaben werden Flächen im Umfang von {self._fmt_num(fb1.a4q2)} m² entsiegelt."
                 if fb1.a4q3:
                     pos_text += f" Bisher wurde die Fläche als {fb1.a4q3} genutzt."
                 rows.append(("a4", pos_text, ""))
@@ -430,7 +506,7 @@ class KlimarelevanzpruefungPDF(BasePDF):
 
             # a5: Grünflächen
             if fb1.a5q1 == 1:
-                pos_text = f"Bei dem Vorhaben werden Grünflächen im Umfang von {fb1.a5q2 or '?'} aufgewertet."
+                pos_text = f"Bei dem Vorhaben werden Grünflächen im Umfang von {fb1.a5q2 or '?'} m² aufgewertet. Erläuterung: {fb1.a5q5 or ''}"
                 if fb1.a5q3:
                     pos_text += f" Bisher wurde die Fläche als {fb1.a5q3} genutzt."
                 rows.append(("a5", pos_text, ""))
@@ -446,7 +522,7 @@ class KlimarelevanzpruefungPDF(BasePDF):
                     (
                         "a6",
                         "",
-                        f"Bei dem Vorhaben wird Begrünung im Umfang von {fb1.a6q2 or '?'} m² entfernt.",
+                        f"Bei dem Vorhaben wird Begrünung entfernt. Erläuterung: {fb1.a6q2 or ''}",
                     )
                 )
 
@@ -548,7 +624,7 @@ class KlimarelevanzpruefungPDF(BasePDF):
                         (
                             "b1",
                             "",
-                            f"Im B-Plan wurden keine weiteren wasserrückhaltende Maßnahmen verankert. Erläuterung: {fb2.b1q11 or ''}",
+                            f"Im B-Plan wurden keine weiteren wasserrückhaltenden Maßnahmen verankert. Erläuterung: {fb2.b1q11 or ''}",
                         )
                     )
 
@@ -565,7 +641,7 @@ class KlimarelevanzpruefungPDF(BasePDF):
                         (
                             "b1",
                             "",
-                            f"Im B-Plan wurden keine weiteren hitzepräventive Maßnahmen verankert. Erläuterung: {fb2.b1q14 or ''}",
+                            f"Im B-Plan wurden keine weiteren hitzepräventiven Maßnahmen verankert. Erläuterung: {fb2.b1q14 or ''}",
                         )
                     )
 
@@ -573,7 +649,7 @@ class KlimarelevanzpruefungPDF(BasePDF):
                     rows.append(
                         (
                             "b1",
-                            f"Im B-Plan wurden ein Fokus auf platzsparendes Bauen gelegt. Erläuterung: {fb2.b1q16 or ''}",
+                            f"Im B-Plan wurden ein Fokus auf platzsparendes Bauen gelegt und möglichst wenig Fläche versiegelt. Erläuterung: {fb2.b1q16 or ''}",
                             "",
                         )
                     )
@@ -582,7 +658,7 @@ class KlimarelevanzpruefungPDF(BasePDF):
                         (
                             "b1",
                             "",
-                            f"Im B-Plan wurden kein Fokus auf platzsparendes Bauen gelegt und möglichst wenig Fläche versiegelt. Erläuterung: {fb2.b1q17 or ''}",
+                            f"Im B-Plan wurde kein Fokus auf platzsparendes Bauen gelegt. Erläuterung: {fb2.b1q17 or ''}",
                         )
                     )
 
@@ -758,7 +834,7 @@ class KlimarelevanzpruefungPDF(BasePDF):
         self.cell(
             0,
             6,
-            f'Klimarelevanzprüfung zur Vorlage „{eingabe.magistratsvorlage.name}"',
+            f'Klimacheck zur Vorlage „{eingabe.magistratsvorlage.name}"',
             border=False,
             align="L",
             new_x="LMARGIN",
@@ -781,11 +857,6 @@ class KlimarelevanzpruefungPDF(BasePDF):
 
         if rows:
             self._add_table_header()
-
-            num_col_width = 10
-            content_col_width = (self.w - 20 - num_col_width) / 2
-            x_num = self.l_margin
-            x_end = self.l_margin + num_col_width + 2 * content_col_width
 
             prev_group = None
             group_num = 0
@@ -812,16 +883,23 @@ class KlimarelevanzpruefungPDF(BasePDF):
                     negative_text,
                     draw_top_border,
                     show_number=False,
+                    fill=bool(i % 2),
                 )
 
                 # Handle page break within a group - draw number on old page first
-                if row_result["page_break"] and group_page_start == row_result["page_before_break"]:
+                if (
+                    row_result["page_break"]
+                    and group_page_start == row_result["page_before_break"]
+                ):
                     # Draw number for the portion on the old page
                     # Calculate bottom of content area on the old page (before footer)
                     old_page_y_end = row_result["y_before_break"]
                     self._draw_group_number_on_page(
-                        group_num, group_y_start, old_page_y_end, num_col_width,
-                        row_result["page_before_break"]
+                        group_num,
+                        group_y_start,
+                        old_page_y_end,
+                        self.NUM_COL_WIDTH,
+                        row_result["page_before_break"],
                     )
                     # Reset group start for the new page (after table header)
                     group_y_start = row_result["y_start"]
@@ -832,16 +910,14 @@ class KlimarelevanzpruefungPDF(BasePDF):
                 # Draw number when group ends (either last row or next row is different group)
                 if is_last_in_group:
                     self._draw_group_number(
-                        group_num, group_y_start, group_y_end, num_col_width
+                        group_num, group_y_start, group_y_end, self.NUM_COL_WIDTH
                     )
 
                 prev_group = group
 
-            # Draw final bottom border for the entire table
+            # Draw final bottomrule (thick)
             if group_y_end is not None:
-                self.set_line_width(0.2)
-                self.set_draw_color(0, 0, 0)
-                self.line(x_num, group_y_end, x_end, group_y_end)
+                self._draw_h_rule(group_y_end, line_width=0.5)
 
         self.ln(5)
 

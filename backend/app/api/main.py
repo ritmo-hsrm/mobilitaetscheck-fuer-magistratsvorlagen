@@ -80,37 +80,37 @@ router.include_router(
 router.include_router(
     klimarelevanzpruefung_eingabe.router,
     prefix="/klimarelevanzpruefung/eingabe",
-    tags=["Klimarelevanzprüfung", "Eingabe"],
+    tags=["Klimacheck", "Eingabe"],
 )
 router.include_router(
     klimarelevanzpruefung_eingabe_fb1.router,
     prefix="/klimarelevanzpruefung/eingabe/fb1",
-    tags=["Klimarelevanzprüfung", "Eingabe"],
+    tags=["Klimacheck", "Eingabe"],
 )
 router.include_router(
     klimarelevanzpruefung_eingabe_fb2.router,
     prefix="/klimarelevanzpruefung/eingabe/fb2",
-    tags=["Klimarelevanzprüfung", "Eingabe"],
+    tags=["Klimacheck", "Eingabe"],
 )
 router.include_router(
     klimarelevanzpruefung_eingabe_fb3.router,
     prefix="/klimarelevanzpruefung/eingabe/fb3",
-    tags=["Klimarelevanzprüfung", "Eingabe"],
+    tags=["Klimacheck", "Eingabe"],
 )
 router.include_router(
     klimarelevanzpruefung_eingabe_fb4.router,
     prefix="/klimarelevanzpruefung/eingabe/fb4",
-    tags=["Klimarelevanzprüfung", "Eingabe"],
+    tags=["Klimacheck", "Eingabe"],
 )
 router.include_router(
     klimarelevanzpruefung_energiestandard.router,
     prefix="/klimarelevanzpruefung/energiestandard",
-    tags=["Klimarelevanzprüfung"],
+    tags=["Klimacheck"],
 )
 router.include_router(
     klimarelevanzpruefung_vorhaben.router,
     prefix="/klimarelevanzpruefung/vorhaben",
-    tags=["Klimarelevanzprüfung"],
+    tags=["Klimacheck"],
 )
 router.include_router(
     mobilitaetscheck_eingabe_ziel_ober.router,
@@ -179,7 +179,7 @@ router.include_router(
 router.include_router(
     platform_admin.router,
     prefix="/admin",
-    tags=["Platform Admin"],
+    tags=["Systemadmin"],
 )
 router.include_router(
     user_gruppe.router,

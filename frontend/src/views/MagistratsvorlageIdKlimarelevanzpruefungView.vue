@@ -1,13 +1,13 @@
 <template>
   <div>
     <div class="flex items-center gap-5">
-      <BaseSubheading>Klimarelevanzprüfung</BaseSubheading>
+      <BaseSubheading>Klimachecks</BaseSubheading>
       <RouterLink :to="`${route.fullPath}/neu`">
         <Button
-          v-tooltip="'Klimarelevanzprüfung hinzufügen'"
+          v-tooltip="'Klimacheck hinzufügen'"
           icon="pi pi-plus"
           rounded
-          aria-label="Klimarelevanzprüfung hinzufügen"
+          aria-label="Klimacheck hinzufügen"
         />
       </RouterLink>
     </div>

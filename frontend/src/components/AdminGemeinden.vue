@@ -2,16 +2,16 @@
   <div>
     <BaseCard>
       <div class="flex items-center justify-between mb-4">
-        <h5 class="text-lg font-semibold">Gemeinden</h5>
-        <Button icon="pi pi-plus" label="Neue Gemeinde" @click="openCreate" />
+        <h5 class="text-lg font-semibold">Kommunen</h5>
+        <Button icon="pi pi-plus" label="Neue Kommune" @click="openCreate" />
       </div>
 
-      <InputText v-model="searchQuery" placeholder="Gemeinde suchen…" class="w-full mb-4" />
+      <InputText v-model="searchQuery" placeholder="Kommune suchen…" class="w-full mb-4" />
 
       <BaseSpinner v-if="isLoading" />
       <DataTable v-else :value="filteredGemeinden" class="w-full">
         <template #empty>
-          <span class="text-gray-400 text-sm">Keine Gemeinden gefunden.</span>
+          <span class="text-gray-400 text-sm">Keine Kommune gefunden.</span>
         </template>
         <Column field="name" header="Name" />
         <Column field="verwaltungEmailDomain" header="E-Mail-Domain">
@@ -46,7 +46,7 @@
     <!-- Create Dialog -->
     <Dialog
       v-model:visible="createVisible"
-      header="Neue Gemeinde anlegen"
+      header="Neue Kommune anlegen"
       :modal="true"
       class="w-full max-w-sm"
     >
@@ -92,7 +92,7 @@
     <!-- Edit Dialog -->
     <Dialog
       v-model:visible="editVisible"
-      header="Gemeinde bearbeiten"
+      header="Kommune bearbeiten"
       :modal="true"
       class="w-full max-w-sm"
     >
@@ -203,8 +203,14 @@ const [editDomain] = defineEditField('verwaltungEmailDomain')
 const toast = useToast()
 
 onKeyStroke('Enter', (e) => {
-  if (createVisible.value) { e.preventDefault(); submitCreate() }
-  if (editVisible.value) { e.preventDefault(); submitEdit() }
+  if (createVisible.value) {
+    e.preventDefault()
+    submitCreate()
+  }
+  if (editVisible.value) {
+    e.preventDefault()
+    submitEdit()
+  }
 })
 
 onKeyStroke('Escape', () => {
@@ -239,14 +245,14 @@ const submitCreate = handleCreate(async (values) => {
       name: values.name,
       verwaltung_email_domain: values.verwaltungEmailDomain
     })
-    toast.add({ severity: 'success', summary: 'Gemeinde angelegt', life: 3000 })
+    toast.add({ severity: 'success', summary: 'Kommune angelegt', life: 3000 })
     createVisible.value = false
     await fetchGemeinden()
   } catch {
     toast.add({
       severity: 'error',
       summary: 'Fehler',
-      detail: 'Gemeinde konnte nicht angelegt werden.',
+      detail: 'Kommune konnte nicht angelegt werden.',
       life: 3000
     })
   } finally {
@@ -290,12 +296,12 @@ const deleteGemeinde = async (id) => {
   try {
     await apiClient.delete(`/admin/gemeinde/${id}`)
     gemeinden.value = gemeinden.value.filter((g) => g.id !== id)
-    toast.add({ severity: 'success', summary: 'Gemeinde gelöscht', life: 3000 })
+    toast.add({ severity: 'success', summary: 'Kommune gelöscht', life: 3000 })
   } catch {
     toast.add({
       severity: 'error',
       summary: 'Fehler',
-      detail: 'Gemeinde konnte nicht gelöscht werden.',
+      detail: 'Kommune konnte nicht gelöscht werden.',
       life: 3000
     })
   }

@@ -1,7 +1,5 @@
 <template>
   <div>
-    <ConfirmDialog />
-
     <BaseCard>
       <div class="flex items-center justify-between mb-3">
         <h5 class="text-lg font-semibold">Benutzer</h5>
@@ -135,7 +133,6 @@ import { useConfirm } from 'primevue/useconfirm'
 import Button from 'primevue/button'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
-import ConfirmDialog from 'primevue/confirmdialog'
 import Dialog from 'primevue/dialog'
 import Select from 'primevue/select'
 import FloatLabel from 'primevue/floatlabel'

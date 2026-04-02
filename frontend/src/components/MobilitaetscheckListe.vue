@@ -1,6 +1,5 @@
 <template>
   <div class="my-5">
-    <ConfirmDialog />
     <BaseSpinner v-if="isLoading" class="m-10" />
     <Tabs v-else :value="activeTab" @update:value="activeTab = $event">
       <TabList>
@@ -92,7 +91,6 @@ import { useAuthStore } from '@/stores/auth'
 import { copyItem, deleteItem, exportItem, fetchItems, updateItem } from '@/composables/crud'
 import MobilitaetscheckListeItem from '@/components/MobilitaetscheckListeItem.vue'
 import BaseSpinner from '@/components/BaseSpinner.vue'
-import ConfirmDialog from 'primevue/confirmdialog'
 import DataView from 'primevue/dataview'
 import Message from 'primevue/message'
 import Tabs from 'primevue/tabs'

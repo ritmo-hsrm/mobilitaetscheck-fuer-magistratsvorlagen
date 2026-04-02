@@ -2,7 +2,6 @@
   <BaseCard>
     <h5 class="text-lg font-semibold mb-4">Einladung senden</h5>
     <form @submit.prevent="onSubmit" class="grid grid-cols-1 gap-y-4 max-w-md">
-
       <div class="field">
         <FloatLabel variant="on">
           <Select
@@ -14,7 +13,7 @@
             class="w-full"
             :invalid="!!errors.gemeindeId"
           />
-          <label for="gemeindeId">Gemeinde</label>
+          <label for="gemeindeId">Kommune</label>
         </FloatLabel>
         <small v-if="errors.gemeindeId" class="p-error block">{{ errors.gemeindeId }}</small>
       </div>
@@ -39,7 +38,7 @@
       <!-- Verwaltung admin toggle -->
       <div v-if="isVerwaltung" class="flex items-center gap-x-3">
         <ToggleSwitch v-model="isVerwaltungAdmin" inputId="verwaltungAdmin" />
-        <label for="verwaltungAdmin" class="text-sm">Als Gemeinde-Administrator einladen</label>
+        <label for="verwaltungAdmin" class="text-sm">Als kommunaler Administrator einladen</label>
       </div>
 
       <div class="field">
@@ -84,7 +83,9 @@
           />
           <label for="gueltigStunden">Gültigkeitsdauer</label>
         </FloatLabel>
-        <small v-if="errors.gueltigStunden" class="p-error block">{{ errors.gueltigStunden }}</small>
+        <small v-if="errors.gueltigStunden" class="p-error block">{{
+          errors.gueltigStunden
+        }}</small>
       </div>
 
       <!-- Role hint -->
@@ -121,7 +122,7 @@ const gueltigkeitsOptionen = [
   { label: '3 Stunden', value: 3 },
   { label: '1 Tag', value: 24 },
   { label: '3 Tage', value: 72 },
-  { label: '7 Tage', value: 168 },
+  { label: '7 Tage', value: 168 }
 ]
 
 const gemeindeOptions = ref([])
@@ -133,12 +134,16 @@ const toast = useToast()
 
 const { defineField, handleSubmit, errors, resetForm, setFieldValue } = useForm({
   validationSchema: yup.object({
-    email: yup.string().required('E-Mail ist erforderlich').email('Ungültige E-Mail-Adresse').label('E-Mail'),
-    gemeindeId: yup.number().required('Gemeinde ist erforderlich').label('Gemeinde'),
+    email: yup
+      .string()
+      .required('E-Mail ist erforderlich')
+      .email('Ungültige E-Mail-Adresse')
+      .label('E-Mail'),
+    gemeindeId: yup.number().required('Kommune ist erforderlich').label('Kommune'),
     rolleId: yup.number().required('Rolle ist erforderlich').label('Rolle'),
-    gueltigStunden: yup.number().required().label('Gültigkeitsdauer'),
+    gueltigStunden: yup.number().required().label('Gültigkeitsdauer')
   }),
-  initialValues: { gueltigStunden: 72 },
+  initialValues: { gueltigStunden: 72 }
 })
 
 const [email] = defineField('email')
@@ -150,20 +155,20 @@ onMounted(async () => {
   try {
     const [gRes, rRes] = await Promise.all([
       apiClient.get('/admin/gemeinde'),
-      apiClient.get('/option/user-rolle'),
+      apiClient.get('/option/user-rolle')
     ])
     gemeindeOptions.value = gRes.data
     rolleOptions.value = rRes.data
-  } catch { /* */ }
+  } catch {
+    /* */
+  }
 })
 
 const selectedGemeinde = computed(() =>
   gemeindeOptions.value.find((g) => g.id === gemeindeId.value)
 )
 
-const isSystemadministration = computed(
-  () => selectedGemeinde.value?.name === SYSTEM_GEMEINDE_NAME
-)
+const isSystemadministration = computed(() => selectedGemeinde.value?.name === SYSTEM_GEMEINDE_NAME)
 
 const availableRollen = computed(() => {
   if (isSystemadministration.value) {
@@ -172,9 +177,7 @@ const availableRollen = computed(() => {
   return rolleOptions.value.filter((r) => r.name !== ADMIN_ROLLE_NAME)
 })
 
-const selectedRolle = computed(() =>
-  rolleOptions.value.find((r) => r.id === rolleId.value)
-)
+const selectedRolle = computed(() => rolleOptions.value.find((r) => r.id === rolleId.value))
 
 const isVerwaltung = computed(() => selectedRolle.value?.name === VERWALTUNG_ROLLE_NAME)
 
@@ -215,7 +218,8 @@ const derivedIsSuperuser = computed(() => {
 
 const roleHint = computed(() => {
   if (isSystemadministration.value) return 'Einladung als Systemadministrator.'
-  if (isVerwaltung.value && isVerwaltungAdmin.value) return 'Einladung als Gemeinde-Administrator (Verwaltung mit Admin-Rechten).'
+  if (isVerwaltung.value && isVerwaltungAdmin.value)
+    return 'Einladung als kommunaler Administrator (Verwaltung mit Admin-Rechten).'
   return null
 })
 
@@ -227,13 +231,13 @@ const onSubmit = handleSubmit(async (values) => {
       rolle_id: values.rolleId,
       gueltig_stunden: values.gueltigStunden,
       gemeinde_id: values.gemeindeId,
-      is_superuser: derivedIsSuperuser.value,
+      is_superuser: derivedIsSuperuser.value
     })
     toast.add({
       severity: 'success',
       summary: 'Einladung gesendet',
       detail: `Einladung an ${values.email} wurde gesendet.`,
-      life: 4000,
+      life: 4000
     })
     emailLocal.value = ''
     isVerwaltungAdmin.value = true
@@ -243,7 +247,7 @@ const onSubmit = handleSubmit(async (values) => {
       severity: 'error',
       summary: 'Fehler',
       detail: 'Einladung konnte nicht gesendet werden.',
-      life: 3000,
+      life: 3000
     })
   } finally {
     isSubmitting.value = false

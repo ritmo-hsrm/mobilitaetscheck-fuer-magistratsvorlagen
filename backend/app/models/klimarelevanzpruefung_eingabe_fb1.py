@@ -17,9 +17,16 @@ class KlimarelevanzpruefungEingabeFb1(Base):
         unique=True,
         comment="Gemeindeeinehit ID",
     )
-    a1q1: Mapped[int] = mapped_column(
-        ForeignKey("bool_erweitert.id", ondelete="SET NULL"),
+    fertig: Mapped[bool] = mapped_column(
         nullable=False,
+        default=False,
+        server_default="false",
+        comment="Fragebogen vollständig ausgefüllt",
+    )
+
+    a1q1: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("bool_erweitert.id", ondelete="SET NULL"),
+        nullable=True,
         comment="Teil 1 Frage 1",
     )
     a1q2: Mapped[Optional[str]] = mapped_column(nullable=True, comment="Teil 1 Frage 2")
@@ -30,9 +37,9 @@ class KlimarelevanzpruefungEingabeFb1(Base):
     )
     a1q4: Mapped[Optional[str]] = mapped_column(nullable=True, comment="Teil 1 Frage 4")
     a1q5: Mapped[Optional[str]] = mapped_column(nullable=True, comment="Teil 1 Frage 5")
-    a2q1: Mapped[int] = mapped_column(
+    a2q1: Mapped[Optional[int]] = mapped_column(
         ForeignKey("bool_erweitert.id", ondelete="SET NULL"),
-        nullable=False,
+        nullable=True,
         comment="Teil 2 Frage 1",
     )
     a2q2: Mapped[Optional[int]] = mapped_column(
@@ -96,9 +103,9 @@ class KlimarelevanzpruefungEingabeFb1(Base):
     a2q15: Mapped[Optional[str]] = mapped_column(
         nullable=True, comment="Teil 2 Frage 15"
     )
-    a3q1: Mapped[int] = mapped_column(
+    a3q1: Mapped[Optional[int]] = mapped_column(
         ForeignKey("bool_erweitert.id", ondelete="SET NULL"),
-        nullable=False,
+        nullable=True,
         comment="Teil 3 Frage 1",
     )
     a3q2: Mapped[Optional[float]] = mapped_column(
@@ -112,9 +119,9 @@ class KlimarelevanzpruefungEingabeFb1(Base):
     )
     a3q5: Mapped[Optional[str]] = mapped_column(nullable=True, comment="Teil 3 Frage 3")
     a3q6: Mapped[Optional[str]] = mapped_column(nullable=True, comment="Teil 3 Frage 4")
-    a4q1: Mapped[int] = mapped_column(
+    a4q1: Mapped[Optional[int]] = mapped_column(
         ForeignKey("bool_erweitert.id", ondelete="SET NULL"),
-        nullable=False,
+        nullable=True,
         comment="Teil 4 Frage 1",
     )
     a4q2: Mapped[Optional[float]] = mapped_column(
@@ -126,21 +133,22 @@ class KlimarelevanzpruefungEingabeFb1(Base):
         nullable=True,
         comment="Teil 4 Frage 4",
     )
-    a5q1: Mapped[int] = mapped_column(
+    a5q1: Mapped[Optional[int]] = mapped_column(
         ForeignKey("bool_erweitert.id", ondelete="SET NULL"),
-        nullable=False,
+        nullable=True,
         comment="Teil 5 Frage 1",
     )
     a5q2: Mapped[Optional[str]] = mapped_column(nullable=True, comment="Teil 5 Frage 2")
     a5q3: Mapped[Optional[str]] = mapped_column(nullable=True, comment="Teil 5 Frage 3")
+    a5q5: Mapped[Optional[str]] = mapped_column(nullable=True, comment="Teil 5 Frage 5")
     a5q4: Mapped[Optional[int]] = mapped_column(
         ForeignKey("bool_erweitert.id", ondelete="SET NULL"),
         nullable=True,
         comment="Teil 5 Frage 4",
     )
-    a6q1: Mapped[int] = mapped_column(
+    a6q1: Mapped[Optional[int]] = mapped_column(
         ForeignKey("bool_erweitert.id", ondelete="SET NULL"),
-        nullable=False,
+        nullable=True,
         comment="Teil 6 Frage 1",
     )
     a6q2: Mapped[Optional[str]] = mapped_column(nullable=True, comment="Teil 6 Frage 2")
@@ -151,16 +159,16 @@ class KlimarelevanzpruefungEingabeFb1(Base):
     )
     a6q4: Mapped[Optional[str]] = mapped_column(nullable=True, comment="Teil 6 Frage 4")
     a6q5: Mapped[Optional[str]] = mapped_column(nullable=True, comment="Teil 6 Frage 5")
-    a7q1: Mapped[int] = mapped_column(
+    a7q1: Mapped[Optional[int]] = mapped_column(
         ForeignKey("bool_erweitert.id", ondelete="SET NULL"),
-        nullable=False,
+        nullable=True,
         comment="Teil 7 Frage 1",
     )
     a7q2: Mapped[Optional[str]] = mapped_column(nullable=True, comment="Teil 7 Frage 2")
-    a8q1: Mapped[int] = mapped_column(
+    a8q1: Mapped[Optional[int]] = mapped_column(
         ForeignKey("bool_erweitert.id", ondelete="SET NULL"),
-        nullable=False,
-        comment="Teil 7 Frage 1",
+        nullable=True,
+        comment="Teil 8 Frage 1",
     )
     a8q2: Mapped[Optional[str]] = mapped_column(nullable=True, comment="Teil 7 Frage 2")
 

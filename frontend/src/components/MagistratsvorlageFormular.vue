@@ -1,6 +1,5 @@
 <template>
   <div>
-    <ConfirmDialog></ConfirmDialog>
     <BaseSpinner v-if="isLoading" />
 
     <!-- Read-only view for Politik -->
@@ -177,7 +176,6 @@ import { toTypedSchema } from '@vee-validate/yup'
 import { createItem, deleteItem, fetchItems, updateItem } from '@/composables/crud'
 import { useConfirm } from 'primevue/useconfirm'
 import Button from 'primevue/button'
-import ConfirmDialog from 'primevue/confirmdialog'
 import Divider from 'primevue/divider'
 import InputText from 'primevue/inputtext'
 import DatePicker from 'primevue/datepicker'

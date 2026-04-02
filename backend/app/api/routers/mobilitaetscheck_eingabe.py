@@ -103,10 +103,12 @@ async def get_mobility_submission(
         stmt = (
             select(EingabeModel)
             .where(EingabeModel.magistratsvorlage_id == magistratsvorlage_id)
-            .where(or_(
-                EingabeModel.veroeffentlicht == True,
-                EingabeModel.erstellt_von == user.id,
-            ))
+            .where(
+                or_(
+                    EingabeModel.veroeffentlicht == True,
+                    EingabeModel.erstellt_von == user.id,
+                )
+            )
             .order_by(EingabeModel.erstellt_am.desc())
         )
         result = await db.execute(stmt)
@@ -166,7 +168,7 @@ async def export_mobility_submission(
     # pdf = MobilitaetscheckPDF(orientation="P", unit="mm", format="A4")
     # pdf_export = pdf.export(validated_instance.model_dump())
 
-    filename = f"mobilitaetscheck_{id}.pdf"
+    filename = f"mobilitaetscheck_{instance.magistratsvorlage.verwaltungsvorgang_nr}_{instance.name}.pdf"
     headers = {"Content-Disposition": f"attachment; filename={filename}"}
     return StreamingResponse(pdf_export, media_type="application/pdf", headers=headers)
 
@@ -213,7 +215,9 @@ async def update_mobility_submission(
 
     if updates.veroeffentlicht is True and instance.magistratsvorlage_id is not None:
         result = await db.execute(
-            select(Magistratsvorlage).where(Magistratsvorlage.id == instance.magistratsvorlage_id)
+            select(Magistratsvorlage).where(
+                Magistratsvorlage.id == instance.magistratsvorlage_id
+            )
         )
         magistratsvorlage = result.scalar_one_or_none()
         if magistratsvorlage and not magistratsvorlage.veroeffentlicht:

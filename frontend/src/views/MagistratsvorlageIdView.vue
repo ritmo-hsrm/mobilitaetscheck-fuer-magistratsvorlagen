@@ -63,15 +63,13 @@ const allItems = [
     route: `/magistratsvorlage/${route.params.id}/mobilitaetscheck`
   },
   {
-    label: 'Klimarelevanzprüfung',
+    label: 'Klimachecks',
     route: `/magistratsvorlage/${route.params.id}/klimarelevanzpruefung`,
     verwaltungOnly: true
   }
 ]
 
-const items = computed(() =>
-  allItems.filter((item) => !item.verwaltungOnly || !isPolitik.value)
-)
+const items = computed(() => allItems.filter((item) => !item.verwaltungOnly || !isPolitik.value))
 </script>
 
 <style></style>

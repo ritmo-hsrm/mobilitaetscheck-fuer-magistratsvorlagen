@@ -4,8 +4,11 @@ from pydantic import BaseModel, Field, ConfigDict
 
 class KlimarelevanzpruefungEingabeFb4Base(BaseModel):
 
-    d1q1: str
-    d2q1: str
+    fertig: bool = False
+    d1q1: Optional[int] = None
+    d1q2: Optional[str] = None
+    d2q1: Optional[int] = None
+    d2q2: Optional[str] = None
 
 
 class KlimarelevanzpruefungEingabeFb4Create(KlimarelevanzpruefungEingabeFb4Base):
@@ -13,8 +16,11 @@ class KlimarelevanzpruefungEingabeFb4Create(KlimarelevanzpruefungEingabeFb4Base)
 
 
 class KlimarelevanzpruefungEingabeFb4Update(BaseModel):
-    d1q1: Optional[str] = None
-    d2q1: Optional[str] = None
+    fertig: Optional[bool] = None
+    d1q1: Optional[int] = None
+    d1q2: Optional[str] = None
+    d2q1: Optional[int] = None
+    d2q2: Optional[str] = None
 
 
 class KlimarelevanzpruefungEingabeFb4Read(KlimarelevanzpruefungEingabeFb4Base):

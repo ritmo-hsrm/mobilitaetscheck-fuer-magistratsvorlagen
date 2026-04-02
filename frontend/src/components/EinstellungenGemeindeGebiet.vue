@@ -1,7 +1,6 @@
 <template>
   <div>
     <!-- Display list of submissions -->
-    <ConfirmDialog />
     <Dialog
       v-model:visible="visible"
       modal
@@ -76,7 +75,6 @@ import { createItem, deleteItem, fetchItems, updateItem } from '@/composables/cr
 import { useConfirm } from 'primevue/useconfirm'
 import Button from 'primevue/button'
 import DataView from 'primevue/dataview'
-import ConfirmDialog from 'primevue/confirmdialog'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import FloatLabel from 'primevue/floatlabel'

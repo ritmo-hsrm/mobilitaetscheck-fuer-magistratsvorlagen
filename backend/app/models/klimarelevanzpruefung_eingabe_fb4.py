@@ -17,12 +17,28 @@ class KlimarelevanzpruefungEingabeFb4(Base):
         unique=True,
         comment="Gemeindeeinehit ID",
     )
-    d1q1: Mapped[str] = mapped_column(
+    fertig: Mapped[bool] = mapped_column(
         nullable=False,
-        comment="Teil 1 Frage 1",
+        default=False,
+        server_default="false",
+        comment="Fragebogen vollständig ausgefüllt",
     )
 
-    d2q1: Mapped[str] = mapped_column(
-        nullable=False,
+    d1q1: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("bool_erweitert.id", ondelete="SET NULL"),
+        nullable=True,
+        comment="Teil 1 Frage 1",
+    )
+    d1q2: Mapped[Optional[str]] = mapped_column(
+        nullable=True,
+        comment="Teil 1 Frage 2",
+    )
+    d2q1: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("bool_erweitert.id", ondelete="SET NULL"),
+        nullable=True,
         comment="Teil 2 Frage 1",
+    )
+    d2q2: Mapped[Optional[str]] = mapped_column(
+        nullable=True,
+        comment="Teil 2 Frage 2",
     )

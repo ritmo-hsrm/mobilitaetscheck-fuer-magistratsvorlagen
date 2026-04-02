@@ -3,7 +3,7 @@
     <form @submit.prevent="onSubmit" class="mt-4">
       <Message v-if="hasErrors" severity="error" class="mb-4">
         <ul class="list-disc list-inside">
-          <li v-for="(error, field) in errors" :key="field">{{ error }}</li>
+          <li v-for="(error, field) in errors" :key="field">{{ dynamicErrorLabels[field] ?? error }}</li>
         </ul>
       </Message>
       <Stepper value="1">
@@ -75,7 +75,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="a1q4">Begründung</label>
+                    <label for="a1q4">Erläuterung</label>
                   </FloatLabel>
                 </li>
                 <li v-if="a1q3 === 2">
@@ -175,7 +175,7 @@
                           class="w-full"
                           inputClass="w-full"
                         />
-                        <label for="a2q5">Begründung</label>
+                        <label for="a2q5">Erläuterung</label>
                       </FloatLabel>
                     </li>
                   </template>
@@ -204,7 +204,7 @@
                         class="w-full"
                         inputClass="w-full"
                       />
-                      <label for="a2q7">Begründung</label>
+                      <label for="a2q7">Erläuterung</label>
                     </FloatLabel>
                   </li>
                 </template>
@@ -223,7 +223,7 @@
                     class="mt-2"
                   />
                 </li>
-                <li v-if="a2q8 === false">
+                <li v-if="a2q8 === 2">
                   <span>Warum nicht?</span>
                   <FloatLabel variant="on" class="mt-2 w-full">
                     <InputText
@@ -234,7 +234,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="a2q9">Begründung</label>
+                    <label for="a2q9">Erläuterung</label>
                   </FloatLabel>
                 </li>
                 <li>
@@ -263,7 +263,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="a2q11">Begründung</label>
+                    <label for="a2q11">Erläuterung</label>
                   </FloatLabel>
                 </li>
                 <li>
@@ -281,7 +281,7 @@
                     class="mt-2"
                   />
                 </li>
-                <li v-if="a2q12 === false">
+                <li v-if="a2q12 === 2">
                   <span>Warum nicht?</span>
                   <FloatLabel variant="on" class="mt-2 w-full">
                     <InputText
@@ -292,7 +292,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="a2q13">Begründung</label>
+                    <label for="a2q13">Erläuterung</label>
                   </FloatLabel>
                 </li>
                 <li>
@@ -307,7 +307,7 @@
                     class="mt-2"
                   />
                 </li>
-                <li v-if="a2q14 === false">
+                <li v-if="a2q14 === 2">
                   <span>Warum nicht?</span>
                   <FloatLabel variant="on" class="mt-2 w-full">
                     <InputText
@@ -318,7 +318,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="a2q15">Begründung</label>
+                    <label for="a2q15">Erläuterung</label>
                   </FloatLabel>
                 </li>
               </template>
@@ -383,7 +383,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="a3q3">Begründung</label>
+                    <label for="a3q3">Angabe der bisherigen Nutzung</label>
                   </FloatLabel>
                 </li>
                 <li>
@@ -409,7 +409,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="a3q5">Begründung</label>
+                    <label for="a3q5">Angaben zu Ausgleichsmaßnahmen</label>
                   </FloatLabel>
                 </li>
                 <li v-if="a3q4 === 2">
@@ -423,7 +423,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="a3q6">Begründung</label>
+                    <label for="a3q6">Erläuterung</label>
                   </FloatLabel>
                 </li>
               </template>
@@ -488,7 +488,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="a4q3">Begründung</label>
+                    <label for="a4q3">Angabe der bisherigen Nutzung</label>
                   </FloatLabel>
                 </li>
                 <li v-if="a4q3">
@@ -542,7 +542,7 @@
               </li>
               <template v-if="a5q1 === 1">
                 <li>
-                  <span>In welchem Umfang werden die Grünflächen aufgewertet?</span>
+                  <span>In welchem Umfang werden die Grünflächen aufgewertet? (Angabe in m²)</span>
                   <FloatLabel variant="on" class="mt-2 w-full">
                     <InputText
                       id="a5q2"
@@ -552,7 +552,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="a5q2">Begründung</label>
+                    <label for="a5q2">Umfang</label>
                   </FloatLabel>
                 </li>
                 <li>
@@ -566,7 +566,21 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="a5q3">Begründung</label>
+                    <label for="a5q3">Erläuterung</label>
+                  </FloatLabel>
+                </li>
+                <li>
+                  <span>In welcher Form werden die Grünflächen aufgewertet?</span>
+                  <FloatLabel variant="on" class="mt-2 w-full">
+                    <InputText
+                      id="a5q5"
+                      v-model="a5q5"
+                      aria-describedby="a5q5-help"
+                      :invalid="!!errors.a5q5"
+                      class="w-full"
+                      inputClass="w-full"
+                    />
+                    <label for="a5q5">Erläuterung</label>
                   </FloatLabel>
                 </li>
                 <li>
@@ -626,7 +640,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="a6q2">Begründung</label>
+                    <label for="a6q2">Umfang</label>
                   </FloatLabel>
                 </li>
                 <li>
@@ -652,7 +666,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="a6q4">Begründung</label>
+                    <label for="a6q4">Erläuterung</label>
                   </FloatLabel>
                 </li>
                 <li v-if="a6q3 === 2">
@@ -666,7 +680,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="a6q5">Begründung</label>
+                    <label for="a6q5">Erläuterung</label>
                   </FloatLabel>
                 </li>
               </template>
@@ -714,7 +728,7 @@
                     class="w-full"
                     inputClass="w-full"
                   />
-                  <label for="a7q2">Begründung</label>
+                  <label for="a7q2">Erläuterung</label>
                 </FloatLabel>
               </li>
             </ol>
@@ -761,7 +775,7 @@
                     class="w-full"
                     inputClass="w-full"
                   />
-                  <label for="a8q2">Begründung</label>
+                  <label for="a8q2">Erläuterung</label>
                 </FloatLabel>
               </li>
             </ol>
@@ -785,7 +799,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { schema } from '@/utils/schemas/klimarelevanzpruefungEingabeFb1'
-import { fetchItems } from '@/composables/crud'
+import { createItemSilent, fetchItems, updateItemSilent } from '@/composables/crud'
 // import ToggleSwitch from 'primevue/toggleswitch'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
@@ -829,11 +843,51 @@ const fetchData = async () => {
   optionVorhaben.value = await fetchItems('/klimarelevanzpruefung/vorhaben')
 }
 
-const { defineField, handleSubmit, errors, setValues } = useForm({
+const { defineField, handleSubmit, errors, setValues, values } = useForm({
   validationSchema: schema
 })
 
 const hasErrors = computed(() => Object.keys(errors.value).length > 0)
+
+// Compute the actual visible counter position for each Seite 2 field,
+// mirroring the CSS counter that increments on every rendered <li>.
+const s2Counter = computed(() => {
+  const pos = {}
+  let n = 1
+  pos.a2q1 = n++
+  if (a2q1.value === 1) {
+    pos.a2q2 = n++
+    if ([3, 4].includes(a2q2.value)) {
+      pos.a2q3 = n++
+      if (a2q3.value === 1) {
+        pos.a2q4 = n++
+        if (typeof a2q4.value === 'number') pos.a2q5 = n++
+      }
+    }
+    if ([1, 2].includes(a2q2.value)) {
+      pos.a2q6 = n++
+      if (typeof a2q6.value === 'number') pos.a2q7 = n++
+    }
+    pos.a2q8 = n++
+    if (a2q8.value === 2) pos.a2q9 = n++
+    pos.a2q10 = n++
+    if (a2q10.value === 2) pos.a2q11 = n++
+    pos.a2q12 = n++
+    if (a2q12.value === 2) pos.a2q13 = n++
+    pos.a2q14 = n++
+    if (a2q14.value === 2) pos.a2q15 = n++
+  }
+  return pos
+})
+
+// Override error labels for Seite 2 fields with their dynamic position numbers.
+const dynamicErrorLabels = computed(() => {
+  const labels = {}
+  for (const [field, n] of Object.entries(s2Counter.value)) {
+    labels[field] = `Seite 2, Frage ${n}`
+  }
+  return labels
+})
 
 const [a1q1] = defineField('a1q1')
 const [a1q2] = defineField('a1q2')
@@ -868,6 +922,7 @@ const [a4q4] = defineField('a4q4')
 const [a5q1] = defineField('a5q1')
 const [a5q2] = defineField('a5q2')
 const [a5q3] = defineField('a5q3')
+const [a5q5] = defineField('a5q5')
 const [a5q4] = defineField('a5q4')
 const [a6q1] = defineField('a6q1')
 const [a6q2] = defineField('a6q2')
@@ -915,13 +970,46 @@ const a2WeiterButtonDisabled = computed(() => {
   return 1
 })
 
+const currentItemId = ref(props.item?.id ?? null)
+const alreadySaved = ref(false)
+
 const emit = defineEmits(['update-item', 'add-item'])
 
-const onSubmit = handleSubmit(async (values) => {
-  if (props.editMode) {
-    emit('update-item', { fb: 1, modelId: props.item.id, values })
+const triggerDraftSave = async () => {
+  if (alreadySaved.value) return null
+  const snapshot = { ...values }
+  const hasData = Object.values(snapshot).some((v) => v !== null && v !== undefined)
+  if (!hasData) return null
+  const draftValues = { ...snapshot, fertig: false }
+  if (currentItemId.value) {
+    const response = await updateItemSilent({
+      model: 'klimarelevanzpruefung/eingabe/fb1',
+      modelId: currentItemId.value,
+      values: draftValues
+    })
+    return response ?? null
   } else {
-    emit('add-item', { fb: 1, values })
+    const response = await createItemSilent({
+      model: 'klimarelevanzpruefung/eingabe/fb1',
+      values: draftValues
+    })
+    if (response) {
+      currentItemId.value = response.id
+      return response
+    }
+    return null
+  }
+}
+
+defineExpose({ triggerDraftSave })
+
+const onSubmit = handleSubmit(async (validatedValues) => {
+  alreadySaved.value = true
+  const fullValues = { ...validatedValues, fertig: true }
+  if (currentItemId.value) {
+    emit('update-item', { fb: 1, modelId: currentItemId.value, values: fullValues })
+  } else {
+    emit('add-item', { fb: 1, values: fullValues })
   }
 })
 </script>

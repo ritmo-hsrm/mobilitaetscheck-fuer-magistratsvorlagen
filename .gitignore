@@ -51,3 +51,7 @@ frontend/*.sw?
 
 frontend/*.tsbuildinfo
 .DS_Store
+
+
+node_modules
+site

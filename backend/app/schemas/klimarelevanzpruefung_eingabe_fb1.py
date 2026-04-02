@@ -6,15 +6,17 @@ from pydantic import BaseModel, Field, ConfigDict
 class KlimarelevanzpruefungEingabeFb1Base(BaseModel):
     """Fields that are required (nullable=False)"""
 
+    fertig: bool = False
+
     # Required bool_erweitert references
-    a1q1: int
-    a2q1: int
-    a3q1: int
-    a4q1: int
-    a5q1: int
-    a6q1: int
-    a7q1: int
-    a8q1: int
+    a1q1: Optional[int] = None
+    a2q1: Optional[int] = None
+    a3q1: Optional[int] = None
+    a4q1: Optional[int] = None
+    a5q1: Optional[int] = None
+    a6q1: Optional[int] = None
+    a7q1: Optional[int] = None
+    a8q1: Optional[int] = None
 
 
 class KlimarelevanzpruefungEingabeFb1Optional(BaseModel):
@@ -57,6 +59,7 @@ class KlimarelevanzpruefungEingabeFb1Optional(BaseModel):
     # Teil 5
     a5q2: Optional[str] = None
     a5q3: Optional[str] = None
+    a5q5: Optional[str] = None
     a5q4: Optional[int] = None
 
     # Teil 6
@@ -82,6 +85,8 @@ class KlimarelevanzpruefungEingabeFb1Create(
 
 class KlimarelevanzpruefungEingabeFb1Update(KlimarelevanzpruefungEingabeFb1Optional):
     """Schema for updating entries — all fields optional"""
+
+    fertig: Optional[bool] = None
 
     # Base fields as optional
     a1q1: Optional[int] = None

@@ -75,7 +75,7 @@ export const schema = object({
     then: (schema) => schema.required('Seite 2, Frage 8'),
     otherwise: (schema) => schema.nullable(true)
   }),
-  a2q12: string().when('a2q2', {
+  a2q12: number().when('a2q2', {
     is: 1,
     then: (schema) => schema.required('Seite 2, Frage 9'),
     otherwise: (schema) => schema.nullable(true)
@@ -150,9 +150,14 @@ export const schema = object({
     then: (schema) => schema.required('Seite 5, Frage 3'),
     otherwise: (schema) => schema.nullable(true)
   }),
-  a5q4: number().when('a5q1', {
+  a5q5: string().when('a5q1', {
     is: 1,
     then: (schema) => schema.required('Seite 5, Frage 4'),
+    otherwise: (schema) => schema.nullable(true)
+  }),
+  a5q4: number().when('a5q1', {
+    is: 1,
+    then: (schema) => schema.required('Seite 5, Frage 5'),
     otherwise: (schema) => schema.nullable(true)
   }),
   a6q1: number().required('Seite 6, Frage 1'),

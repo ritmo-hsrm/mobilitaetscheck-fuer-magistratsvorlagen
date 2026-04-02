@@ -9,13 +9,13 @@
       </p>
 
       <div class="flex flex-col items-center gap-2">
-        <label class="font-semibold text-lg">Gemeinde oder Stadt auswählen</label>
+        <label class="font-semibold text-lg">Kommune auswählen</label>
         <Select
           v-model="selectedGemeindeId"
           :options="gemeinden"
           optionLabel="name"
           optionValue="id"
-          placeholder="Gemeinde auswählen..."
+          placeholder="Kommune auswählen..."
           class="w-80"
           :loading="isLoadingGemeinden"
           filter
@@ -41,7 +41,7 @@
       <BaseSpinner v-if="isLoadingVorlagen" class="m-10" />
       <template v-else>
         <p v-if="magistratsvorlagen.length === 0" class="text-gray-500 text-center py-8">
-          Keine veröffentlichten Magistratsvorlagen für diese Gemeinde vorhanden.
+          Keine veröffentlichten Magistratsvorlagen für diese Kommune vorhanden.
         </p>
         <DataView v-else :value="filteredVorlagen" paginator :rows="10">
           <template #list="slotProps">
@@ -148,9 +148,7 @@ const filteredVorlagen = computed(() => {
   const q = searchQuery.value.trim().toLowerCase()
   if (!q) return magistratsvorlagen.value
   return magistratsvorlagen.value.filter(
-    (v) =>
-      v.name?.toLowerCase().includes(q) ||
-      v.verwaltungsvorgangNr?.toLowerCase().includes(q)
+    (v) => v.name?.toLowerCase().includes(q) || v.verwaltungsvorgangNr?.toLowerCase().includes(q)
   )
 })
 

@@ -27,12 +27,12 @@ import Menu from 'primevue/menu'
 
 const items = ref([
   {
-    label: 'Platform',
+    label: 'Systemadministration',
     items: [
-      { label: 'Gemeinden', route: '/admin/gemeinden' },
+      { label: 'Kommunen', route: '/admin/kommunen' },
       { label: 'Benutzer', route: '/admin/benutzer' },
-      { label: 'Einladungen', route: '/admin/einladungen' },
-    ],
-  },
+      { label: 'Einladungen', route: '/admin/einladungen' }
+    ]
+  }
 ])
 </script>

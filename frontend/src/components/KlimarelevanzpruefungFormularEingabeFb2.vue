@@ -49,7 +49,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="b1q3">Begründung</label>
+                    <label for="b1q3">Erläuterung</label>
                   </FloatLabel>
                 </li>
                 <Divider />
@@ -75,7 +75,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="b1q5">Begründung</label>
+                    <label for="b1q5">Erläuterung</label>
                   </FloatLabel>
                 </li>
                 <Divider />
@@ -118,7 +118,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="b1q8">Begründung</label>
+                    <label for="b1q8">Erläuterung</label>
                   </FloatLabel>
                 </li>
                 <Divider />
@@ -158,7 +158,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="b1q11">Begründung</label>
+                    <label for="b1q11">Erläuterung</label>
                   </FloatLabel>
                 </li>
                 <Divider />
@@ -201,7 +201,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="b1q14">Begründung</label>
+                    <label for="b1q14">Erläuterung</label>
                   </FloatLabel>
                 </li>
                 <Divider />
@@ -244,7 +244,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="b1q17">Begründung</label>
+                    <label for="b1q17">Erläuterung</label>
                   </FloatLabel>
                 </li>
                 <Divider />
@@ -284,7 +284,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="b1q20">Begründung</label>
+                    <label for="b1q20">Erläuterung</label>
                   </FloatLabel>
                 </li>
               </template>
@@ -320,7 +320,10 @@
               </li>
               <template v-if="b2q1 === 1">
                 <li>
-                  <span>Inwiefern können positive Auswirkungen auf physische Maßnahmen entstehen?</span>
+                  <span
+                    >Inwiefern können klimapositive Auswirkungen auf physische Maßnahmen
+                    entstehen?</span
+                  >
                   <FloatLabel variant="on" class="w-full">
                     <InputText
                       id="b2q2"
@@ -330,12 +333,15 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="b2q2">Begründung</label>
+                    <label for="b2q2">Erläuterung</label>
                   </FloatLabel>
                 </li>
 
                 <li>
-                  <span>Inwiefern können negative Auswirkungen auf physische Maßnahmen entstehen?</span>
+                  <span
+                    >Inwiefern können klimanegative Auswirkungen auf physische Maßnahmen
+                    entstehen?</span
+                  >
                   <FloatLabel variant="on" class="w-full">
                     <InputText
                       id="b2q3"
@@ -345,7 +351,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="b2q3">Begründung</label>
+                    <label for="b2q3">Erläuterung</label>
                   </FloatLabel>
                 </li>
                 <li>
@@ -395,7 +401,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { schema } from '@/utils/schemas/klimarelevanzpruefungEingabeFb2'
-import { fetchItems } from '@/composables/crud'
+import { createItemSilent, fetchItems, updateItemSilent } from '@/composables/crud'
 import Button from 'primevue/button'
 import Divider from 'primevue/divider'
 import InputText from 'primevue/inputtext'
@@ -435,7 +441,7 @@ const fetchData = async () => {
   optionBoolean.value = await fetchItems('/einstellungen/bool-erweitert')
 }
 
-const { defineField, handleSubmit, errors, setValues } = useForm({
+const { defineField, handleSubmit, errors, setValues, values } = useForm({
   validationSchema: schema
 })
 
@@ -467,13 +473,46 @@ const [b2q3] = defineField('b2q3')
 const [b2q4] = defineField('b2q4')
 const [b2q5] = defineField('b2q5')
 
+const currentItemId = ref(props.item?.id ?? null)
+const alreadySaved = ref(false)
+
 const emit = defineEmits(['update-item', 'add-item'])
 
-const onSubmit = handleSubmit(async (values) => {
-  if (props.editMode) {
-    emit('update-item', { fb: 2, modelId: props.item.id, values })
+const triggerDraftSave = async () => {
+  if (alreadySaved.value) return null
+  const snapshot = { ...values }
+  const hasData = Object.values(snapshot).some((v) => v !== null && v !== undefined)
+  if (!hasData) return null
+  const draftValues = { ...snapshot, fertig: false }
+  if (currentItemId.value) {
+    const response = await updateItemSilent({
+      model: 'klimarelevanzpruefung/eingabe/fb2',
+      modelId: currentItemId.value,
+      values: draftValues
+    })
+    return response ?? null
   } else {
-    emit('add-item', { fb: 2, values })
+    const response = await createItemSilent({
+      model: 'klimarelevanzpruefung/eingabe/fb2',
+      values: draftValues
+    })
+    if (response) {
+      currentItemId.value = response.id
+      return response
+    }
+    return null
+  }
+}
+
+defineExpose({ triggerDraftSave })
+
+const onSubmit = handleSubmit(async (validatedValues) => {
+  alreadySaved.value = true
+  const fullValues = { ...validatedValues, fertig: true }
+  if (currentItemId.value) {
+    emit('update-item', { fb: 2, modelId: currentItemId.value, values: fullValues })
+  } else {
+    emit('add-item', { fb: 2, values: fullValues })
   }
 })
 </script>

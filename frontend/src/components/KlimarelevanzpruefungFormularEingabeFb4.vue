@@ -16,19 +16,34 @@
             <ol>
               <li>
                 <span>
-                  Bitte begründen Sie im Folgenden, inwiefern Ihr Vorhaben eine positive Klimarelevanz
-                  hat.
+                  Hat Ihr Vorhaben abweichend von den bisherigen Aspekten eine positive
+                  Klimarelevanz?
                 </span>
-                <FloatLabel variant="on" class="w-full">
+                <SelectButton
+                  v-model="d1q1"
+                  :options="optionBoolean"
+                  optionLabel="name"
+                  optionValue="id"
+                  :multiple="false"
+                  :invalid="!!errors.d1q1"
+                  class="mt-2"
+                />
+              </li>
+              <li v-if="d1q1 === 1">
+                <span>
+                  Bitte begründen Sie im Folgenden, inwiefern Ihr Vorhaben eine positive
+                  Klimarelevanz hat.
+                </span>
+                <FloatLabel variant="on" class="w-full mt-2">
                   <InputText
-                    id="d1q1"
-                    v-model="d1q1"
-                    aria-describedby="d1q1-help"
-                    :invalid="!!errors.d1q1"
+                    id="d1q2"
+                    v-model="d1q2"
+                    aria-describedby="d1q2-help"
+                    :invalid="!!errors.d1q2"
                     class="w-full"
                     inputClass="w-full"
                   />
-                  <label for="d1q1">Begründung</label>
+                  <label for="d1q2">Begründung</label>
                 </FloatLabel>
               </li>
             </ol>
@@ -46,19 +61,34 @@
             <ol>
               <li>
                 <span>
-                  Bitte begründen Sie im Folgenden, inwiefern Ihr Vorhaben eine negative Klimarelevanz
-                  hat.
+                  Hat Ihr Vorhaben abweichend von den bisherigen Aspekten eine negative
+                  Klimarelevanz?
                 </span>
-                <FloatLabel variant="on" class="w-full">
+                <SelectButton
+                  v-model="d2q1"
+                  :options="optionBoolean"
+                  optionLabel="name"
+                  optionValue="id"
+                  :multiple="false"
+                  :invalid="!!errors.d2q1"
+                  class="mt-2"
+                />
+              </li>
+              <li v-if="d2q1 === 1">
+                <span>
+                  Bitte begründen Sie im Folgenden, inwiefern Ihr Vorhaben eine negative
+                  Klimarelevanz hat.
+                </span>
+                <FloatLabel variant="on" class="w-full mt-2">
                   <InputText
-                    id="d2q1"
-                    v-model="d2q1"
-                    aria-describedby="d2q1-help"
-                    :invalid="!!errors.d2q1"
+                    id="d2q2"
+                    v-model="d2q2"
+                    aria-describedby="d2q2-help"
+                    :invalid="!!errors.d2q2"
                     class="w-full"
                     inputClass="w-full"
                   />
-                  <label for="d2q1">Begründung</label>
+                  <label for="d2q2">Begründung</label>
                 </FloatLabel>
               </li>
             </ol>
@@ -79,18 +109,22 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { schema } from '@/utils/schemas/klimarelevanzpruefungEingabeFb4'
+import { createItemSilent, fetchItems, updateItemSilent } from '@/composables/crud'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import FloatLabel from 'primevue/floatlabel'
+import SelectButton from 'primevue/selectbutton'
 import Stepper from 'primevue/stepper'
 import StepList from 'primevue/steplist'
 import StepPanels from 'primevue/steppanels'
 import Step from 'primevue/step'
 import StepPanel from 'primevue/steppanel'
 import Message from 'primevue/message'
+
+const optionBoolean = ref()
 
 const props = defineProps({
   editMode: {
@@ -103,28 +137,64 @@ const props = defineProps({
   }
 })
 
-onMounted(() => {
+onMounted(async () => {
+  optionBoolean.value = await fetchItems('/einstellungen/bool-erweitert')
   if (props.editMode && props.item) {
     setValues(props.item)
   }
 })
 
-const { defineField, handleSubmit, errors, setValues } = useForm({
+const { defineField, handleSubmit, errors, setValues, values } = useForm({
   validationSchema: schema
 })
 
 const hasErrors = computed(() => Object.keys(errors.value).length > 0)
 
 const [d1q1] = defineField('d1q1')
+const [d1q2] = defineField('d1q2')
 const [d2q1] = defineField('d2q1')
+const [d2q2] = defineField('d2q2')
+
+const currentItemId = ref(props.item?.id ?? null)
+const alreadySaved = ref(false)
 
 const emit = defineEmits(['update-item', 'add-item'])
 
-const onSubmit = handleSubmit(async (values) => {
-  if (props.editMode) {
-    emit('update-item', { fb: 4, modelId: props.item.id, values })
+const triggerDraftSave = async () => {
+  if (alreadySaved.value) return null
+  const snapshot = { ...values }
+  const hasData = Object.values(snapshot).some((v) => v !== null && v !== undefined)
+  if (!hasData) return null
+  const draftValues = { ...snapshot, fertig: false }
+  if (currentItemId.value) {
+    const response = await updateItemSilent({
+      model: 'klimarelevanzpruefung/eingabe/fb4',
+      modelId: currentItemId.value,
+      values: draftValues
+    })
+    return response ?? null
   } else {
-    emit('add-item', { fb: 4, values })
+    const response = await createItemSilent({
+      model: 'klimarelevanzpruefung/eingabe/fb4',
+      values: draftValues
+    })
+    if (response) {
+      currentItemId.value = response.id
+      return response
+    }
+    return null
+  }
+}
+
+defineExpose({ triggerDraftSave })
+
+const onSubmit = handleSubmit(async (validatedValues) => {
+  alreadySaved.value = true
+  const fullValues = { ...validatedValues, fertig: true }
+  if (currentItemId.value) {
+    emit('update-item', { fb: 4, modelId: currentItemId.value, values: fullValues })
+  } else {
+    emit('add-item', { fb: 4, values: fullValues })
   }
 })
 </script>

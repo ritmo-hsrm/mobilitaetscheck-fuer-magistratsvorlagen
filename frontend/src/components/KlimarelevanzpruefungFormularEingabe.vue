@@ -11,7 +11,7 @@
             class="w-full"
             inputClass="w-full"
           />
-          <label for="name">Name der Klimarelevanzprüfung</label>
+          <label for="name">Name des Klimachecks</label>
         </FloatLabel>
         <small v-if="errors.name" id="name-help" class="p-error block">{{ errors.name }}</small>
       </div>
@@ -135,8 +135,8 @@ const onSubmit = handleSubmit(async (values) => {
     model: 'klimarelevanzpruefung/eingabe',
     values: { ...values, magistratsvorlage_id: route.params.id },
     detail: {
-      success: 'Klimarelevanzprüfung erfolgreich hinzugefügt',
-      error: 'Fehler beim Hinzufügen der Klimarelevanzprüfung'
+      success: 'Klimacheck erfolgreich hinzugefügt',
+      error: 'Fehler beim Hinzufügen des Klimachecks'
     }
   })
   router.push({

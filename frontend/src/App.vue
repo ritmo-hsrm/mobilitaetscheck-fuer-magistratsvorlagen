@@ -3,6 +3,7 @@
     <div class="max-w-6xl mx-auto p-1">
       <TheNavigationsmenuTopbar class="w-full mb-2" />
       <Toast position="bottom-right" />
+      <ConfirmDialog />
       <RouterView />
     </div>
     <TheFooter />
@@ -12,6 +13,7 @@
 <script setup>
 import { RouterView } from 'vue-router'
 import { useTitle } from '@vueuse/core'
+import ConfirmDialog from 'primevue/confirmdialog'
 import Toast from 'primevue/toast'
 import TheNavigationsmenuTopbar from './components/TheNavigationsmenuTopbar.vue'
 import TheFooter from './components/TheFooter.vue'

@@ -220,25 +220,25 @@ const router = createRouter({
       component: () => import('@/views/AdminView.vue'),
       meta: {
         requiresAuth: true,
-        requiresPlatformAdmin: true,
+        requiresPlatformAdmin: true
       },
       children: [
         {
-          path: 'gemeinden',
-          name: 'admin-gemeinden',
-          component: () => import('@/views/AdminGemeindenView.vue'),
+          path: 'kommunen',
+          name: 'admin-kommunen',
+          component: () => import('@/views/AdminGemeindenView.vue')
         },
         {
           path: 'benutzer',
           name: 'admin-benutzer',
-          component: () => import('@/views/AdminUsersView.vue'),
+          component: () => import('@/views/AdminUsersView.vue')
         },
         {
           path: 'einladungen',
           name: 'admin-einladungen',
-          component: () => import('@/views/AdminEinladungenView.vue'),
-        },
-      ],
+          component: () => import('@/views/AdminEinladungenView.vue')
+        }
+      ]
     },
     {
       path: '/einstellungen/profil',
@@ -296,7 +296,10 @@ router.beforeEach(async (to) => {
     if (to.meta.requiresPlatformAdmin && authStore.userRolleId !== 3) {
       return { name: 'keine-zugangsberechtigung' }
     }
-    if (to.meta.requiredUserRolleId && !to.meta.requiredUserRolleId.includes(authStore.userRolleId)) {
+    if (
+      to.meta.requiredUserRolleId &&
+      !to.meta.requiredUserRolleId.includes(authStore.userRolleId)
+    ) {
       return { name: 'keine-zugangsberechtigung' }
     }
   }

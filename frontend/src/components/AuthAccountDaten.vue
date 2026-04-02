@@ -3,11 +3,10 @@
     <h4 class="text-xl font-bold dark:text-white mb-4">Benutzerangaben</h4>
     <BaseSpinner v-if="isLoading" />
     <form v-else @submit.prevent="onSubmit" class="grid grid-cols-1 gap-y-4 max-w-md">
-
       <!-- Read-only info -->
       <div class="bg-gray-50 rounded-lg p-3 grid grid-cols-1 gap-y-1 text-sm">
         <div class="flex gap-2">
-          <span class="text-gray-500 w-24 shrink-0">Gemeinde</span>
+          <span class="text-gray-500 w-24 shrink-0">Kommune</span>
           <span class="font-medium">{{ gemeindeName }}</span>
         </div>
         <div class="flex gap-2">
@@ -84,10 +83,10 @@ const isVerwaltung = computed(() => userRolleName.value === 'Verwaltung')
 const isPolitik = computed(() => userRolleName.value === 'Politik')
 const canEditGruppe = computed(() => isVerwaltung.value || isPolitik.value)
 const canEditEmail = computed(() => ['Politik', 'Admin'].includes(userRolleName.value))
-const gruppeLabel = computed(() => isPolitik.value ? 'Fraktion / Partei' : 'Gruppe')
+const gruppeLabel = computed(() => (isPolitik.value ? 'Fraktion / Partei' : 'Gruppe'))
 const gruppenOptions = computed(() => [
   { id: null, name: isPolitik.value ? 'Keine Fraktion' : 'Keine Gruppe' },
-  ...gruppen.value,
+  ...gruppen.value
 ])
 
 const { defineField, handleSubmit, errors, setFieldValue } = useForm({
@@ -106,7 +105,7 @@ onMounted(async () => {
     const [userRes, gemeindenRes, rollenRes] = await Promise.all([
       authStore.getUser(),
       apiClient.get('/option/gemeinde'),
-      apiClient.get('/option/user-rolle'),
+      apiClient.get('/option/user-rolle')
     ])
     setFieldValue('email', userRes.email)
     setFieldValue('vorname', userRes.vorname)
@@ -128,7 +127,9 @@ onMounted(async () => {
       })
       gruppen.value = gruppenRes.data
     }
-  } catch { /* */ } finally {
+  } catch {
+    /* */
+  } finally {
     isLoading.value = false
   }
 })

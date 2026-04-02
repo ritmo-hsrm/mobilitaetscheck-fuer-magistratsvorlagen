@@ -16,8 +16,8 @@
             <ol>
               <li>
                 <span>
-                  Handelt es sich um ein Konzept/eine Kampagne, die das Verhalten der Bevölkerung oder
-                  der kommunalen Mitarbeitenden in Bezug auf Klimaaspekte positiv beeinflusst?
+                  Handelt es sich um ein Konzept/eine Kampagne, die das Verhalten der Bevölkerung
+                  oder der kommunalen Mitarbeitenden in Bezug auf Klimaaspekte positiv beeinflusst?
                 </span>
                 <SelectButton
                   v-model="c1q1"
@@ -45,7 +45,7 @@
                   />
                 </li>
                 <li v-if="c1q2 === 1">
-                  <span>Inwiefern</span>
+                  <span>Inwiefern?</span>
                   <FloatLabel variant="on" class="w-full">
                     <InputText
                       id="c1q3"
@@ -55,7 +55,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="c1q3">Begründung</label>
+                    <label for="c1q3">Erläuterung</label>
                   </FloatLabel>
                 </li>
                 <Divider />
@@ -84,14 +84,14 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="c1q5">Begründung</label>
+                    <label for="c1q5">Erläuterung</label>
                   </FloatLabel>
                 </li>
                 <Divider />
                 <li>
                   <span>
-                    Handelt es sich um ein Konzept/eine Kampagne, die das Wissen über Klimaschutz oder
-                    Klimaanpassung positiv beeinflusst?
+                    Handelt es sich um ein Konzept/eine Kampagne, die das Wissen über Klimaschutz
+                    oder Klimaanpassung positiv beeinflusst?
                   </span>
                   <SelectButton
                     v-model="c1q6"
@@ -198,7 +198,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="c2q3">Begründung</label>
+                    <label for="c2q3">Erläuterung</label>
                   </FloatLabel>
                 </li>
                 <Divider />
@@ -227,7 +227,7 @@
                       class="w-full"
                       inputClass="w-full"
                     />
-                    <label for="c2q5">Begründung</label>
+                    <label for="c2q5">Erläuterung</label>
                   </FloatLabel>
                 </li>
                 <Divider />
@@ -310,7 +310,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { schema } from '@/utils/schemas/klimarelevanzpruefungEingabeFb3'
-import { fetchItems } from '@/composables/crud'
+import { createItemSilent, fetchItems, updateItemSilent } from '@/composables/crud'
 import Button from 'primevue/button'
 import Divider from 'primevue/divider'
 import InputText from 'primevue/inputtext'
@@ -350,7 +350,7 @@ const fetchData = async () => {
   optionBoolean.value = await fetchItems('/einstellungen/bool-erweitert')
 }
 
-const { defineField, handleSubmit, errors, setValues } = useForm({
+const { defineField, handleSubmit, errors, setValues, values } = useForm({
   validationSchema: schema
 })
 
@@ -375,13 +375,46 @@ const [c2q7] = defineField('c2q7')
 const [c2q8] = defineField('c2q8')
 const [c2q9] = defineField('c2q9')
 
+const currentItemId = ref(props.item?.id ?? null)
+const alreadySaved = ref(false)
+
 const emit = defineEmits(['update-item', 'add-item'])
 
-const onSubmit = handleSubmit(async (values) => {
-  if (props.editMode) {
-    emit('update-item', { fb: 3, modelId: props.item.id, values })
+const triggerDraftSave = async () => {
+  if (alreadySaved.value) return null
+  const snapshot = { ...values }
+  const hasData = Object.values(snapshot).some((v) => v !== null && v !== undefined)
+  if (!hasData) return null
+  const draftValues = { ...snapshot, fertig: false }
+  if (currentItemId.value) {
+    const response = await updateItemSilent({
+      model: 'klimarelevanzpruefung/eingabe/fb3',
+      modelId: currentItemId.value,
+      values: draftValues
+    })
+    return response ?? null
   } else {
-    emit('add-item', { fb: 3, values })
+    const response = await createItemSilent({
+      model: 'klimarelevanzpruefung/eingabe/fb3',
+      values: draftValues
+    })
+    if (response) {
+      currentItemId.value = response.id
+      return response
+    }
+    return null
+  }
+}
+
+defineExpose({ triggerDraftSave })
+
+const onSubmit = handleSubmit(async (validatedValues) => {
+  alreadySaved.value = true
+  const fullValues = { ...validatedValues, fertig: true }
+  if (currentItemId.value) {
+    emit('update-item', { fb: 3, modelId: currentItemId.value, values: fullValues })
+  } else {
+    emit('add-item', { fb: 3, values: fullValues })
   }
 })
 </script>

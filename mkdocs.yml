@@ -1,13 +1,54 @@
 site_name: Mobilitätscheck für Magistratsvorlagen Dokumentation
 site_url: https://mobilitaetcheck-fuer-magistratsvorlagen.gituhub.com
+repo_url: https://github.com/ritmo-hsrm/mobilitaetscheck-fuer-magistratsvorlagen
+copyright: 'Hochschule RheinMain'
 theme:
   name: material
+  custom_dir: docs/overrides
+  logo: assets/pimoo-logo-invertiert.png
+  language: de
+  palette:
+    - scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    - media: '(prefers-color-scheme)'
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    - media: '(prefers-color-scheme: light)'
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: '(prefers-color-scheme: dark)'
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+  features:
+    - search.suggest
+    - search.highlight
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.path
+    - navigation.top
+    - toc.follow
+    - toc.integrate
+
 nav:
   - Startseite: index.md
   - Einführung:
+      - Grundbausteine: einfuehrung/grundbausteine.md
+      - Systemadministrator: einfuehrung/systemadministrator.md
       - Verwaltung: einfuehrung/verwaltung.md
       - Politik: einfuehrung/politik.md
-      - Bürger: einfuehrung/buerger.md
+      - Öffentlicher Zugang: einfuehrung/buerger.md
   - Deployment:
       - Docker Compose: deployment/docker.md
       - Bare Metal: deployment/bare-metal.md
@@ -15,3 +56,21 @@ nav:
   - Entwicklung: entwicklung.md
 plugins:
   - include-markdown
+  - search
+  - print-site:
+      add_to_navigation: false
+      print_page_title: 'Mobilitätscheck für Magistratsvorlagen'
+      print_page_basename: 'print_page'
+      add_print_site_banner: false
+      add_table_of_contents: true
+      toc_title: 'Inhaltsverzeichnis'
+      toc_depth: 6
+      add_full_urls: false
+      enumerate_headings: true
+      enumerate_figures: true
+      add_cover_page: true
+      cover_page_template: ''
+      path_to_pdf: 'assets/dokumentation.pdf'
+      include_css: true
+      enabled: true
+      exclude:

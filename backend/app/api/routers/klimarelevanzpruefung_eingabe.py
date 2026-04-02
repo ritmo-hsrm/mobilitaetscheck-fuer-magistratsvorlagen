@@ -74,7 +74,7 @@ async def export_klimarelevanzpruefung(
     check_user_authorization(user, instance.gemeinde_id)
     pdf_export = await crud.export(db, id)
 
-    filename = f"klimarelevanzpruefung_{id}.pdf"
+    filename = f"klimacheck_{instance.magistratsvorlage.verwaltungsvorgang_nr}_{instance.name}.pdf"
     headers = {"Content-Disposition": f"attachment; filename={filename}"}
     return StreamingResponse(pdf_export, media_type="application/pdf", headers=headers)
 
