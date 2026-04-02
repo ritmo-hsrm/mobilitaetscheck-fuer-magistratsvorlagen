@@ -12,7 +12,7 @@ Der Mobilitätscheck für Magistratsvorlagen soll dabei unterstützen, politisch
 
 ## Grundbausteine
 
-Eine Übersicht der zentralen Konzepte und Objekte der Plattform (Magistratsvorlage, Mobilitätscheck, Klimacheck, Leitziele, Indikatoren u.&nbsp;a.) findet sich auf der Seite [Grundbausteine](einfuerhung/grundbausteine.md).
+Eine Übersicht der zentralen Konzepte und Objekte der Plattform (Magistratsvorlage, Mobilitätscheck, Klimacheck, Leitziele, Indikatoren u.&nbsp;a.) findet sich auf der Seite [Grundbausteine](einfuehrung/grundbausteine.md).
 
 ## An wen richtet sich der Mobilitätscheck?
 
