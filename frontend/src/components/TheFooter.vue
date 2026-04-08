@@ -26,10 +26,25 @@
             </div>
           </div>
           <div>
-            <span class="font-bold">Mobilitätscheck für Magistratsvorlagen</span>
             <div class="mt-2">
               <router-link :to="{ name: 'ueber-das-tool' }" class="hover:underline"
                 >Über das Tool</router-link
+              >
+            </div>
+            <div class="mt-2">
+              <a
+                class="hover:underline"
+                href="https://ritmo-hsrm.github.io/mobilitaetscheck-fuer-magistratsvorlagen/"
+                target="_blank"
+                >Dokumentation und Hilfe</a
+              >
+            </div>
+            <div class="mt-2">
+              <a
+                class="hover:underline"
+                href="https://github.com/ritmo-hsrm/mobilitaetscheck-fuer-magistratsvorlagen"
+                target="_blank"
+                >Github-Repo</a
               >
             </div>
           </div>

@@ -28,13 +28,6 @@
           <td><strong>Telefon:</strong></td>
           <td>+49 611 9495 - 1963</td>
         </tr>
-
-        <tr>
-          <td><strong>Quellcode:</strong></td>
-          <td>
-            <a href="https://github.com/johanngrobe/pimoo">https://github.com/johanngrobe/pimoo</a>
-          </td>
-        </tr>
       </tbody>
     </table>
   </div>
