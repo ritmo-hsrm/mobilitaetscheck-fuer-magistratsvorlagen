@@ -31,7 +31,7 @@
         </div>
         <div v-if="vorlage?.beschreibung" class="col-span-2">
           <p class="font-semibold text-gray-500 mb-1">Beschreibung der Maßnahme</p>
-          <p class="whitespace-pre-wrap">{{ vorlage.beschreibung }}</p>
+          <div class="prose prose-sm max-w-none" v-html="vorlage.beschreibung"></div>
         </div>
       </div>
     </div>
@@ -131,18 +131,38 @@
         }}</small>
       </div>
       <div class="form-group field">
-        <FloatLabel variant="on">
-          <Textarea
-            id="beschreibung"
-            v-model="beschreibung"
-            rows="5"
-            aria-describedby="beschreibung-help"
-            :invalid="!!errors.beschreibung"
-            class="w-full"
-            inputClass="w-full"
-          />
-          <label for="beschreibung">Beschreibung der Maßnahme</label>
-        </FloatLabel>
+        <label class="text-sm text-gray-500 mb-1 block">Beschreibung der Maßnahme</label>
+        <Editor
+          id="beschreibung"
+          v-model="beschreibung"
+          rows="5"
+          :invalid="!!errors.beschreibung"
+          class="w-full"
+          editorStyle="min-height: 160px"
+        >
+          <template #toolbar>
+            <span class="ql-formats">
+              <button v-tooltip.bottom="'Fett'" class="ql-bold"></button>
+              <button v-tooltip.bottom="'Kursiv'" class="ql-italic"></button>
+              <button v-tooltip.bottom="'Unterstrichen'" class="ql-underline"></button>
+              <button v-tooltip.bottom="'Durchgestrichen'" class="ql-strike"></button>
+            </span>
+            <span class="ql-formats">
+              <button
+                v-tooltip.bottom="'Nummerierte Liste'"
+                class="ql-list"
+                value="ordered"
+              ></button>
+              <button v-tooltip.bottom="'Liste'" class="ql-list" value="bullet"></button>
+            </span>
+            <span class="ql-formats">
+              <button v-tooltip.bottom="'Link'" class="ql-link"></button>
+            </span>
+            <span class="ql-formats">
+              <button v-tooltip.bottom="'Formatierung entfernen'" class="ql-clean"></button>
+            </span>
+          </template>
+        </Editor>
         <small v-if="errors.beschreibung" id="beschreibung-help" class="p-error block">{{
           errors.beschreibung
         }}</small>
@@ -179,7 +199,7 @@ import Button from 'primevue/button'
 import Divider from 'primevue/divider'
 import InputText from 'primevue/inputtext'
 import DatePicker from 'primevue/datepicker'
-import Textarea from 'primevue/textarea'
+import Editor from 'primevue/editor'
 import FloatLabel from 'primevue/floatlabel'
 import MultiSelect from 'primevue/multiselect'
 import Tag from 'primevue/tag'

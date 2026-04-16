@@ -1,4 +1,5 @@
 import datetime
+import re
 from io import BytesIO
 from os import path
 
@@ -114,6 +115,26 @@ class MobilitaetscheckPDF(BasePDF):
         self.cell(w, h, di["label"], align="C")
         self.set_text_color(*GRAY_900)
 
+    def _write_html_block(self, html: str, x: float, w: float, font_size: float = 9):
+        """Render HTML content (from Quill editor) within a constrained column."""
+        if not html:
+            return
+        plain = re.sub(r"<[^>]+>", "", html).strip()
+        if not plain:
+            return
+        old_lm = self.l_margin
+        old_rm = self.r_margin
+        self.set_left_margin(x)
+        self.set_right_margin(self.w - x - w)
+        self.set_x(x)
+        self.set_font("free-sans", "", font_size)
+        self.set_text_color(*GRAY_700)
+        self.write_html(html)
+        self.set_left_margin(old_lm)
+        self.set_right_margin(old_rm)
+        self.set_x(old_lm)
+        self.set_text_color(*GRAY_900)
+
     def _legend(self, x: float, y: float):
         """Full 8-item legend strip with automatic line wrapping."""
         ph = 5
@@ -211,32 +232,37 @@ class MobilitaetscheckPDF(BasePDF):
             self.cell(0, 5, new_x="LMARGIN", new_y="NEXT")
         self.cell(0, 2, new_x="LMARGIN", new_y="NEXT")
 
-        # Maßnahme
+        # Titel der Magistratsvorlage
         self._h_divider(cx + pad, cw - 2 * pad)
         self.cell(0, 2, new_x="LMARGIN", new_y="NEXT")
-        self._label(cx + pad, "Maßnahme")
+        self._label(cx + pad, "Titel der Magistratsvorlage")
+        self.set_x(cx + pad)
+        self.set_font("free-sans", "", 10)
+        self.multi_cell(
+            cw - 2 * pad, 5, str(eingabe.magistratsvorlage.name), new_x="LMARGIN", new_y="NEXT"
+        )
+        self.cell(0, 2, new_x="LMARGIN", new_y="NEXT")
+
+        # Beschreibung der Magistratsvorlage (optional, HTML)
+        if eingabe.magistratsvorlage.beschreibung:
+            self._h_divider(cx + pad, cw - 2 * pad)
+            self.cell(0, 2, new_x="LMARGIN", new_y="NEXT")
+            self._label(cx + pad, "Beschreibung der Magistratsvorlage")
+            self._write_html_block(
+                eingabe.magistratsvorlage.beschreibung, cx + pad, cw - 2 * pad, font_size=9
+            )
+            self.cell(0, 2, new_x="LMARGIN", new_y="NEXT")
+
+        # Name des Mobilitätschecks
+        self._h_divider(cx + pad, cw - 2 * pad)
+        self.cell(0, 2, new_x="LMARGIN", new_y="NEXT")
+        self._label(cx + pad, "Name des Mobilitätschecks")
         self.set_x(cx + pad)
         self.set_font("free-sans", "", 10)
         self.multi_cell(
             cw - 2 * pad, 5, str(eingabe.name), new_x="LMARGIN", new_y="NEXT"
         )
         self.cell(0, 2, new_x="LMARGIN", new_y="NEXT")
-
-        # Beschreibung (optional)
-        if eingabe.magistratsvorlage.beschreibung:
-            self._h_divider(cx + pad, cw - 2 * pad)
-            self.cell(0, 2, new_x="LMARGIN", new_y="NEXT")
-            self._label(cx + pad, "Beschreibung")
-            self.set_x(cx + pad)
-            self.set_font("free-sans", "", 9)
-            self.multi_cell(
-                cw - 2 * pad,
-                4.5,
-                str(eingabe.magistratsvorlage.beschreibung),
-                new_x="LMARGIN",
-                new_y="NEXT",
-            )
-            self.cell(0, 2, new_x="LMARGIN", new_y="NEXT")
 
         # Sachbearbeitung / Ersteller:in
         if eingabe.autor and self.is_politik_autor:
@@ -313,6 +339,7 @@ class MobilitaetscheckPDF(BasePDF):
         self.cell(0, 5, new_x="LMARGIN", new_y="NEXT")
 
         # ── Detailbewertung ───────────────────────────────────────────
+        self.add_page()
         self.set_font("free-sans", "B", 12)
         self.cell(0, 7, "Detailbewertung", new_x="LMARGIN", new_y="NEXT")
         self.cell(0, 3, new_x="LMARGIN", new_y="NEXT")
@@ -459,17 +486,7 @@ class MobilitaetscheckPDF(BasePDF):
                 content_w = cw - (detail_x - cx) - 3
                 if unterziel.anmerkung:
                     self._label(detail_x, "Erläuterung")
-                    self.set_x(detail_x)
-                    self.set_text_color(*GRAY_700)
-                    self.set_font("free-sans", "", 9)
-                    self.multi_cell(
-                        content_w,
-                        4.5,
-                        unterziel.anmerkung,
-                        new_x="LMARGIN",
-                        new_y="NEXT",
-                    )
-                    self.set_text_color(*GRAY_900)
+                    self._write_html_block(unterziel.anmerkung, detail_x, content_w, font_size=9)
                     self.cell(0, 2, new_x="LMARGIN", new_y="NEXT")
 
                 # Indikatoren
@@ -509,32 +526,45 @@ class MobilitaetscheckPDF(BasePDF):
 
                 self.cell(0, 3, new_x="LMARGIN", new_y="NEXT")
 
-                # vertical accent line – only when the unterziel is on a single page
-                if self.page_no() == uz_start_page:
-                    uz_h = self.get_y() - uz_start_y
-                    if uz_h > 0:
-                        uc = uz_di["color"]
-                        lc = (
-                            (uc["r"], uc["g"], uc["b"])
-                            if _luminance(uc["r"], uc["g"], uc["b"]) <= 200
-                            else BLUE_500
-                        )
-                        self.set_draw_color(*lc)
-                        self.set_line_width(1.5)
-                        self.line(cx + 0.75, uz_start_y, cx + 0.75, uz_start_y + uz_h)
+            # simple card border – uncolored, works across page breaks
+            end_page = self.page_no()
+            end_y = self.get_y()
+            content_top = self.t_margin + 18  # below header on continuation pages
 
-            # card border – only when the entire card fits on one page
-            card_h = self.get_y() - card_top
-            if self.page_no() == card_start_page and card_h > 0:
-                bc = di["color"]
-                bl = _luminance(bc["r"], bc["g"], bc["b"])
-                border_color = (bc["r"], bc["g"], bc["b"]) if bl <= 220 else GRAY_200
-                self.set_draw_color(*border_color if tangiert else GRAY_200)
-                self.set_line_width(0.5 if tangiert else 0.3)
-                self.rect(cx, card_top, cw, card_h, corner_radius=3)
+            if end_page == card_start_page:
+                card_h = end_y - card_top
+                if card_h > 0:
+                    self.set_draw_color(*GRAY_200)
+                    self.set_line_width(0.3)
+                    self.rect(cx, card_top, cw, card_h, corner_radius=3)
             else:
-                # card spans pages: draw a closing rule on the current page
-                self._h_divider(cx, cw)
+                # Card spans pages: draw each page segment using self.page
+                saved_page = self.page
+
+                # Start page: top + left + right down to page bottom (open bottom)
+                self.page = card_start_page
+                self.set_draw_color(*GRAY_200)
+                self.set_line_width(0.3)
+                page_bot = self.h - self.b_margin
+                self.line(cx, card_top, cx + cw, card_top)
+                self.line(cx, card_top, cx, page_bot)
+                self.line(cx + cw, card_top, cx + cw, page_bot)
+
+                # Intermediate pages: left + right full content height
+                for _p in range(card_start_page + 1, end_page):
+                    self.page = _p
+                    self.set_draw_color(*GRAY_200)
+                    self.set_line_width(0.3)
+                    self.line(cx, content_top, cx, self.h - self.b_margin)
+                    self.line(cx + cw, content_top, cx + cw, self.h - self.b_margin)
+
+                # End page: left + right + bottom (open top)
+                self.page = saved_page
+                self.set_draw_color(*GRAY_200)
+                self.set_line_width(0.3)
+                self.line(cx, content_top, cx, end_y)
+                self.line(cx + cw, content_top, cx + cw, end_y)
+                self.line(cx, end_y, cx + cw, end_y)
 
             self.cell(0, 4, new_x="LMARGIN", new_y="NEXT")
 

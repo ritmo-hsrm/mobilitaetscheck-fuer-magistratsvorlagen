@@ -29,9 +29,13 @@ MOBILITAETSCHECK_AUSWIRKUNG_RAEUMLICH_LABELS = {
 
 
 MOBILITAETSCHECK_AUSWIRKUNG_TICKMARK_LABELS = {
-    "1": "negativ",
+    "1": "stark negativ",
+    "2": "negativ",
+    "3": "leicht negativ",
     "4": "neutral",
-    "7": "positiv",
+    "5": "leicht positiv",
+    "6": "positiv",
+    "7": "stark positiv",
 }
 
 

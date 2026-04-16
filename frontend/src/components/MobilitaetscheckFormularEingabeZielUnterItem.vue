@@ -20,7 +20,8 @@
           <span
             class="text-sm font-medium truncate"
             :class="props.readOnly && tangiert ? 'text-blue-900' : 'text-gray-700'"
-          >{{ item.zielUnter.name }}</span>
+            >{{ item.zielUnter.name }}</span
+          >
         </div>
         <ToggleSwitch
           v-model="tangiert"
@@ -45,7 +46,8 @@
                 color: auswirkungDisplay.color,
                 border: auswirkungDisplay.border ? '1px solid #d1d5db' : 'none'
               }"
-            >{{ auswirkungDisplay.label }}</span>
+              >{{ auswirkungDisplay.label }}</span
+            >
           </div>
           <div v-if="auswirkungRaeumlichLabel">
             <p class="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1">
@@ -75,8 +77,11 @@
               :target="ind.quelleUrl ? '_blank' : undefined"
               :rel="ind.quelleUrl ? 'noopener noreferrer' : undefined"
               class="px-2 py-0.5 bg-blue-600 text-white text-xs rounded-full font-medium"
-              :class="ind.quelleUrl ? 'hover:bg-blue-200 underline cursor-pointer' : 'cursor-default'"
-            >{{ ind.name }}</a>
+              :class="
+                ind.quelleUrl ? 'hover:bg-blue-200 underline cursor-pointer' : 'cursor-default'
+              "
+              >{{ ind.name }}</a
+            >
           </div>
         </div>
       </div>
@@ -141,16 +146,38 @@
         </div>
 
         <div class="max-w-5xl">
-          <FloatLabel variant="on">
-            <Textarea
-              id="anmerkung"
-              v-model="anmerkung"
-              rows="5"
-              :invalid="!!errors.anmerkung"
-              class="w-full"
-            />
-            <label for="anmerkung">Erläuterung</label>
-          </FloatLabel>
+          <label for="anmerkung">Erläuterung</label>
+          <Editor
+            id="anmerkung"
+            v-model="anmerkung"
+            rows="5"
+            :invalid="!!errors.anmerkung"
+            class="w-full"
+            editorStyle="min-height: 160px"
+          >
+            <template #toolbar>
+              <span class="ql-formats">
+                <button v-tooltip.bottom="'Fett'" class="ql-bold"></button>
+                <button v-tooltip.bottom="'Kursiv'" class="ql-italic"></button>
+                <button v-tooltip.bottom="'Unterstrichen'" class="ql-underline"></button>
+                <button v-tooltip.bottom="'Durchgestrichen'" class="ql-strike"></button>
+              </span>
+              <span class="ql-formats">
+                <button
+                  v-tooltip.bottom="'Nummerierte Liste'"
+                  class="ql-list"
+                  value="ordered"
+                ></button>
+                <button v-tooltip.bottom="'Liste'" class="ql-list" value="bullet"></button>
+              </span>
+              <span class="ql-formats">
+                <button v-tooltip.bottom="'Link'" class="ql-link"></button>
+              </span>
+              <span class="ql-formats">
+                <button v-tooltip.bottom="'Formatierung entfernen'" class="ql-clean"></button>
+              </span>
+            </template>
+          </Editor>
         </div>
 
         <ButtonTextblockHinzufuegen
@@ -193,6 +220,7 @@ import { fetchItem, fetchItems, updateItemSilent } from '@/composables/crud'
 import { useAuthStore } from '@/stores/auth'
 import { useForm } from 'vee-validate'
 import { schema } from '@/utils/schemas/mobilitaetscheckEingabeZielUnter'
+import Editor from 'primevue/editor'
 import ToggleSwitch from 'primevue/toggleswitch'
 import FloatLabel from 'primevue/floatlabel'
 import Select from 'primevue/select'

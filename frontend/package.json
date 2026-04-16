@@ -24,6 +24,7 @@
     "pinia": "^2.1.7",
     "primeicons": "^7.0.0",
     "primevue": "^4.5.0",
+    "quill": "^2.0.2",
     "radix-vue": "^1.9.6",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
